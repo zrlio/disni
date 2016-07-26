@@ -13,7 +13,7 @@ The RDMA APIs in DiSNI are implemented based on the Open Fabrics Enterprise Dist
 Building the source requires [Apache Maven](http://maven.apache.org/) and [GNU/autotools](http://www.gnu.org/software/autoconf/autoconf.html).
 To build DiSNI and its example programs, execute the following steps:
 
-1. Obtain a copy of DiSNI from [Github](https://gitlabhost.rtp.raleigh.ibm.com/9D5157848/disni)
+1. Obtain a copy of DiSNI from [Github](https://github.com/zrlio/disni)
 2. Build libdisni and libaffinity using: ./autoprepare.sh; ./configure --with-jdk=path-to-jdk; make install
 3. Run: mvn -DskipTests install
 
