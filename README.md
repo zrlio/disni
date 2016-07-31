@@ -26,17 +26,17 @@ To build DiSNI and its example programs, execute the following steps:
 
 At the client, you should see an output similar to this:
 
-> ReadClient::preparing read operation...
-> ReadClient::read memory from server: This 
-> ReadClient::read memory from server: This is a 
-> ReadClient::read memory from server: This is a RDMA/
-> ReadClient::read memory from server: This is a RDMA/read 
-> ReadClient::read memory from server: This is a RDMA/read on st
-> ReadClient::read memory from server: This is a RDMA/read on stag 95
-> ReadClient::read memory from server: This is a RDMA/read on stag 9558435
-> ReadClient::read memory from server: This is a RDMA/read on stag 95584356 !
-> ReadClient::read memory from server: This is a RDMA/read on stag 95584356 !
-> ReadClient::read memory from server: This is a RDMA/read on stag 95584356 !
-> closing endpoint
-> closing endpoint, done
+ReadClient::preparing read operation...
+ReadClient::read memory from server: This 
+ReadClient::read memory from server: This is a 
+ReadClient::read memory from server: This is a RDMA/
+ReadClient::read memory from server: This is a RDMA/read 
+ReadClient::read memory from server: This is a RDMA/read on st
+ReadClient::read memory from server: This is a RDMA/read on stag 95
+ReadClient::read memory from server: This is a RDMA/read on stag 9558435
+ReadClient::read memory from server: This is a RDMA/read on stag 95584356 !
+ReadClient::read memory from server: This is a RDMA/read on stag 95584356 !
+ReadClient::read memory from server: This is a RDMA/read on stag 95584356 !
+closing endpoint
+closing endpoint, done
 
