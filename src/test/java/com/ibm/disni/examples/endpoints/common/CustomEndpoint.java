@@ -24,10 +24,10 @@ package com.ibm.disni.examples.endpoints.common;
 import java.io.IOException;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import com.ibm.disni.rdma.endpoints.RdmaActiveClientEndpoint;
-import com.ibm.disni.rdma.endpoints.RdmaActiveEndpointGroup;
-import com.ibm.disni.rdma.verbs.IbvWC;
-import com.ibm.disni.rdma.verbs.RdmaCmId;
+import com.ibm.disni.endpoints.RdmaActiveClientEndpoint;
+import com.ibm.disni.endpoints.RdmaActiveEndpointGroup;
+import com.ibm.disni.verbs.IbvWC;
+import com.ibm.disni.verbs.RdmaCmId;
 
 public class CustomEndpoint extends RdmaActiveClientEndpoint {
 	private ArrayBlockingQueue<IbvWC> wcEvents;

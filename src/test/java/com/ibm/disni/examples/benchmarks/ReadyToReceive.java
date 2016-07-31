@@ -24,7 +24,8 @@ package com.ibm.disni.examples.benchmarks;
 import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.LinkedList;
-import com.ibm.disni.rdma.verbs.IbvMr;
+
+import com.ibm.disni.verbs.IbvMr;
 
 
 public class ReadyToReceive {

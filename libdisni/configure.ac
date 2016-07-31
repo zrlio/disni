@@ -3,7 +3,7 @@
 
 #AC_PREREQ([2.67])
 AC_INIT([FULL-PACKAGE-NAME], [VERSION], [BUG-REPORT-ADDRESS])
-AC_CONFIG_SRCDIR([src/com_ibm_disni_rdma_verbs_impl_NativeDispatcher.cpp])
+AC_CONFIG_SRCDIR([src/com_ibm_disni_verbs_impl_NativeDispatcher.cpp])
 AC_CONFIG_HEADERS([config.h])
 
 AM_INIT_AUTOMAKE
