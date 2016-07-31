@@ -27,7 +27,7 @@ To build DiSNI and its example programs, execute the following steps:
 
 ## What are Stateful Verb Calls (SVCs)
 
-Stateful verb calls encapsulate the serialization state of the network operation (just the operation, not the data). If an operation is executed multiple times (typically with the content of the source or sink buffer changing), the serialization overhead can be saved, which in turn will lead to the highest possible performance.
+Stateful verb calls are objects representing RDMA operations. SVCs encapsulate the serialization state of the network operation (just the operation, not the data). If an operation is executed multiple times (typically with the content of the source or sink buffer changing), the serialization overhead can be saved, which in turn will lead to the highest possible performance. SVCs can also be modified, for instance when transmitting data at different offsets. Modifications to SVC objects are efficient as they do not require serialization. 
 
 A good example showcasing the use of SVCs can be found in JVerbsReadClient.java\:
 
