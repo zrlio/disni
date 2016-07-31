@@ -21,8 +21,8 @@ To build DiSNI and its example programs, execute the following steps:
 
 1. After building DiSNI, make sure DiSNI and its dependencies are in the classpath (e.g., disni-1.0-jar-with-dependencies.jar). Also add the DiSNI test jar (disni-1.0-tests.jar) which includes the examples.
 2. Make sure libdisni.so and libaffinity are both in LD_LIBRARY_PATH
-3. Run the server of the "read" example: java com.ibm.disni.examples.endpoints.read.JVerbsReadClient -a <Server IP Address>
-4. Run the client of the "read" example: java com.ibm.disni.examples.endpoints.read.JVerbsReadClient -a <Server IP Address>
+3. Run the server of the "read" example: java com.ibm.disni.examples.endpoints.read.JVerbsReadClient -a \<Server IP Address\>
+4. Run the client of the "read" example: java com.ibm.disni.examples.endpoints.read.JVerbsReadClient -a \<Server IP Address\>
 
 
 
