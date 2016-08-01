@@ -46,6 +46,9 @@ public class RdmaCmProcessor implements Runnable {
 	
 	public RdmaCmProcessor(RdmaEndpointGroup<? extends RdmaClientEndpoint> cmConsumer, int timeout) throws IOException {
 		this.cmChannel = RdmaEventChannel.createEventChannel();
+		if (cmChannel == null){
+			throw new IOException("No RDMA device configured!");
+		}
 		this.cmConsumer = cmConsumer;		
 		this.thread = new Thread(this);
 		closed = new AtomicBoolean(true);
