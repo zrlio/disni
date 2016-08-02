@@ -10,7 +10,7 @@ The RDMA APIs in DiSNI are implemented based on the Open Fabrics Enterprise Dist
 
 ## Building DiSNI
 
-Building the source requires [Apache Maven](http://maven.apache.org/) and [GNU/autotools](http://www.gnu.org/software/autoconf/autoconf.html).
+Building the source requires [Apache Maven](http://maven.apache.org/) and [GNU/autotools](http://www.gnu.org/software/autoconf/autoconf.html) and Java version 8 or higher.
 To build DiSNI and its example programs, execute the following steps:
 
 1. Obtain a copy of DiSNI from [Github](https://github.com/zrlio/disni)
