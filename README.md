@@ -45,6 +45,45 @@ A good example showcasing the use of SVCs can be found in JVerbsReadClient.java\
 			i += 10;
 		}
 ```
+## Basic Steps in Developing a DiSNI RDMA-based Application
 
+The recommended way to program RDMA with DiSNI is to use the endpoint API. In extreme case, the low level verbs API can be used which resembles matches almost exactly the OFED native verbs interface. The verbs interface, however, requires the application to implement complex even handling for connection events just to set up proper network queues and connect them. The endpoint API relieves the application from that burden, while still offering the same powerful API for programming data operations. Here are the basic steps that are necessary to develop an RDMA client/server application using endpoints:
 
-
+Define your own custom endpoints by extending RdmaEndpoint
+```
+	public class CustomServerEndpoint extends CustomEndpoint {
+		public void init() throws IOException{
+			super.init();
+			//allocate and register buffers
+			//initiate postRecv call to pre-post some recvs if necessary
+			//...
+		}
+	}
+```
+Implement a factor for your custom endpoints
+```
+	public class CustomFactory implements RdmaEndpointFactory<CustomServerEndpoint> {
+		private RdmaActiveEndpointGroup<CustomServerEndpoint> endpointGroup;
+	
+		public CustomServerEndpoint createClientEndpoint(RdmaCmId idPriv) throws IOException {
+			return new CustomServerEndpoint(endpointGroup, idPriv);
+		}	
+	}
+```
+At the server, allocate an endpoint group and initialize it with the factory, create an endpoint, bind it and accept connections
+```
+	RdmaActiveEndpointGroup endpointGroup = new RdmaActiveEndpointGroup<CustomServerEndpoint>();
+	CustomFactory factory = new CustomFactory(endpointGroup);
+	endpointGroup.init(factory);
+	RdmaServerEndpoint<CustomServerEndpoint> endpoint = endpointGroup.createServerEndpoint();
+	endpoint.bind(address);
+	CustomServerEndpoint endpoint = serverEndpoint.accept();
+```
+At the client, also create a custom endpoint and factory (not shown) and connect your endpoint to the server
+```
+	RdmaActiveEndpointGroup endpointGroup = new RdmaActiveEndpointGroup<CustomClientEndpoint>();
+	CustomFactory factory = new CustomFactory(endpointGroup);
+	endpointGroup.init(factory);
+	CustomClientEndpoint endpoint = endpointGroup.createClientEndpoint();
+	endpoint.connect(address);
+```
