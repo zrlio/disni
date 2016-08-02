@@ -49,7 +49,7 @@ A good example showcasing the use of SVCs can be found in JVerbsReadClient.java\
 
 The recommended way to program RDMA with DiSNI is to use the endpoint API. In extreme cases, the low level verbs API can be used which matches almost exactly the OFED native verbs interface. The verbs interface, however, requires the application to implement complex event handling for connection events just to set up proper network queues and connect them. The endpoint API relieves the application from that burden, while still offering the same powerful API for programming data operations. Here are the basic steps that are necessary to develop an RDMA client/server application using endpoints:
 
-Define your own custom endpoints by extending either RdmaClientEndpoint or RdmaActiveClientEndpoint
+Define your own custom endpoints by extending either extending RdmaClientEndpoint or RdmaActiveClientEndpoint
 ```
 	public class CustomServerEndpoint extends RdmaActiveClientEndpoint {
 		public void init() throws IOException{
@@ -70,7 +70,7 @@ Implement a factory for your custom endpoints
 		}	
 	}
 ```
-At the server, allocate an endpoint group and initialize it with the factory, create an endpoint, bind it and accept connections
+At the server, allocate an endpoint group and initialize it with the factory, create a server endpoint, bind it and accept connections
 ```
 	RdmaActiveEndpointGroup endpointGroup = new RdmaActiveEndpointGroup<CustomServerEndpoint>();
 	CustomFactory factory = new CustomFactory(endpointGroup);
@@ -100,8 +100,8 @@ To trigger the operation, a list of descriptors will have to be posted onto the 
 	SVCPostSend postSend = endpoint.postSend(decriptorList);
 	postSend.execute().free()
 ```
-A completion event is created by the network interface after the data buffer has been DMA's to the NIC. Depending on which type of endpoint group that is used, the event is signaled either through a callback, or has to be polled manually by the application. Once the completion event has been received, the data buffer can be reused.
+A completion event is created by the network interface after the data buffer has been DMA's to the NIC. Depending on which type of endpoint group that is used, the event is signaled either through a callback, or has to be polled manually by the application. Once the completion event has been consumed, the data buffer can be reused.
 
 ## Choosing the EndpointGroup 
 
-EndpointGroups are containers and factories for RDMA connections (RdmaEndpoint). There are two types of groups available and which type works best depends on the application. The RdmaActiveEndpointGroup actively processes network events caused by RDMA messages being transmitted or received. Events are signaled by calling dispatchCqEvent() which can be overriden by the custom endpoint of the application. The RdmaPassiveEndpointGroup provides a polling interface that allows the application to directly reap completion events from the network queue (completion queue). As such, the passive mode has typically lower latency but may suffer from contention to the completion queue in case of large numbers of threads. The active mode, on the other hand, is more robust under large numbers of threads, but has higher latencies. 
+EndpointGroups are containers and factories for RDMA connections (RdmaEndpoint). There are two types of groups available and which type works best depends on the application. The RdmaActiveEndpointGroup actively processes network events caused by RDMA messages being transmitted or received. Events are signaled by calling dispatchCqEvent() which can be overriden by the custom endpoint of the application. The RdmaPassiveEndpointGroup provides a polling interface that allows the application to directly reap completion events from the network queue (completion queue). As such, the passive mode has typically lower latency but may suffer from contention in case of large numbers of threads operating on the same connection. The active mode, on the other hand, is more robust under large numbers of threads, but has higher latencies. 
