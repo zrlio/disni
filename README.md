@@ -101,3 +101,7 @@ To trigger the operation, a list of descriptors will have to be posted onto the 
 	postSend.execute().free()
 ```
 A completion event is created by the network interface after the data buffer has been DMA's to the NIC. Depending on which type of endpoint group that is used, the event is signaled either through a callback, or has to be polled manually by the application.
+
+## Choosing the EndpointGroup 
+
+EndpointGroup are containers and factories for RDMA connections (RdmaEndpoint). There are two types of groups available and which type works best depends on the application. The RdmaActiveEndpointGroup actively processes network events caused by RDMA messages being transmitted or received. Events are signaled by calling dispatchCqEvent() which can be overriden by the custom endpoint of the application. The RdmaPassiveEndpointGroup provides a polling interface that allows the application to directly reap completion events from the network queue (completion queue). As such, the passive mode has typically lower latency but may suffer from contention to the completion queue in case of large numbers of threads. The active mode, on the other hand, is more robust under large numbers of threads, but has higher latencies. 
