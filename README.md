@@ -87,3 +87,17 @@ At the client, also create a custom endpoint and factory (not shown) and connect
 	CustomClientEndpoint endpoint = endpointGroup.createClientEndpoint();
 	endpoint.connect(address);
 ```
+Once an endpoit is connected, RDMA data operations can be issued. For this, a descriptor that encodes the operation will have to be prepared. The descriptor encodes the type of operation (read, write, send, recv) and points to the data buffer that is involved.
+```
+	IbvMr mr = endpoint.registerMemory(buffer).execute().free();
+	IbvSendWR sendWR = endpoint.getSendWR();
+	sendWR.setOpcode(IbvSendWR.IBV_WR_RDMA_READ);
+	sendWR.getRdma().setRemote_addr(mr.getAddr());
+	sendWR.getRdma().setRkey(lkey);
+```
+To trigger the operation, a list of descriptors will have to be posted onto the connection. Each descriptor may further have multiple scatter/gather elements.
+```
+	SVCPostSend postSend = endpoint.postSend(decriptorList);
+	postSend.execute().free()
+```
+A completion event is created by the network interface after the data buffer has been DMA's to the NIC. Depending on which type of endpoint group that is used, the event is signaled either through a callback, or has to be polled manually by the application.
