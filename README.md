@@ -1,6 +1,6 @@
 # DiSNI: Direct Storage and Networking Interface
 
-DiSNI is a Java library for direct storage and networking access from userpace. It currently provides an RDMA interface. Support for other userpace storage and networking interfaces, such as DPDK or SPDK, are in planning. 
+DiSNI is a Java library for direct storage and networking access from userpace. It currently provides an RDMA interface, which is the open source variant of IBM's jVerbs. Support for other userpace storage and networking interfaces, such as DPDK or SPDK, are in planning. 
 
 ## RDMA APIs
 
