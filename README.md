@@ -25,6 +25,17 @@ To build DiSNI and its example programs, execute the following steps:
 4. Run the server\: java com.ibm.disni.examples.endpoints.read.JVerbsReadServer -a \<server IP\>
 5. Run the client\: java com.ibm.disni.examples.endpoints.read.JVerbsReadClient -a \<server IP\>
 
+## Maven Integration
+
+To use DiSNI in your maven application use the following snippet in your pom.xml file:
+
+    <dependency>
+      <groupId>com.ibm.disni</groupId>
+      <artifactId>disni</artifactId>
+      <version>1.0</version>
+    </dependency>
+
+
 ## What are Stateful Verb Calls (SVCs)
 
 Stateful verb calls are objects representing RDMA operations. SVCs encapsulate the serialization state of the network operation (just the operation, not the data). If an operation is executed multiple times (typically with the content of the source or sink buffer changing), the serialization overhead can be saved, which in turn will lead to the highest possible performance. SVCs can also be modified, for instance when transmitting data at different offsets. Modifications to SVC objects are efficient as they do not require serialization. It is key that SVCs object are re-used whenver possible to avoid garbage collection overheads. 
