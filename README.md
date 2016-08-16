@@ -27,7 +27,7 @@ To build DiSNI and its example programs, execute the following steps:
 
 ## Maven Integration
 
-To use DiSNI in your maven application use the following snippet in your pom.xml file:
+To use DiSNI in your maven application use the following snippet in your pom.xml file (you need to build DiSNI before to update your local maven repo):
 
     <dependency>
       <groupId>com.ibm.disni</groupId>
