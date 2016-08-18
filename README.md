@@ -14,13 +14,13 @@ Building the source requires [Apache Maven](http://maven.apache.org/) and [GNU/a
 To build DiSNI and its example programs, execute the following steps:
 
 1. Obtain a copy of DiSNI from [Github](https://github.com/zrlio/disni)
-2. Build libdisni and libaffinity using: ./autoprepare.sh; ./configure --with-jdk=path-to-jdk; make install
+2. Build libdisni using: ./autoprepare.sh; ./configure --with-jdk=path-to-jdk; make install
 3. Run: mvn -DskipTests install
 
 ## How to Run the READ Example
 
 1. After building DiSNI, make sure DiSNI and its dependencies are in the classpath (e.g., disni-1.0-jar-with-dependencies.jar). Also add the DiSNI test jar (disni-1.0-tests.jar) which includes the examples.
-2. Make sure libdisni and libaffinity are both part of the LD_LIBRARY_PATH
+2. Make sure libdisni is part of the LD_LIBRARY_PATH
 3. Make sure the RDMA network interface is configured and up on the test machines (run ibv\_devices to see the list of RDMA NICs). If your machine does not have RDMA hardware, you can also use SoftiWARP from [Github](https://github.com/zrlio/softiwarp). 
 4. Run the server\: java com.ibm.disni.examples.endpoints.read.JVerbsReadServer -a \<server IP\>
 5. Run the client\: java com.ibm.disni.examples.endpoints.read.JVerbsReadClient -a \<server IP\>
