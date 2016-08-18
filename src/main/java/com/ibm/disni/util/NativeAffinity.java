@@ -24,7 +24,7 @@ package com.ibm.disni.util;
 public class NativeAffinity {
 	
 	static {
-	    System.loadLibrary("affinity");
+	    System.loadLibrary("disni");
 	}	
 	
 	public static void setAffinity(long affinity){

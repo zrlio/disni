@@ -1,4 +1,4 @@
-lib_LTLIBRARIES = libaffinity.la
+noinst_LTLIBRARIES = libaffinity.la
 
 INCLUDES = -I@jdk@/include -I@jdk@/include/linux
 

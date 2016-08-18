@@ -3,7 +3,7 @@
 
 #AC_PREREQ([2.67])
 AC_INIT([FULL-PACKAGE-NAME], [VERSION], [BUG-REPORT-ADDRESS])
-AC_CONFIG_SRCDIR([src/com_ibm_disni_verbs_impl_NativeDispatcher.cpp])
+AC_CONFIG_SRCDIR([src/verbs/com_ibm_disni_verbs_impl_NativeDispatcher.cpp])
 AC_CONFIG_HEADERS([config.h])
 
 AM_INIT_AUTOMAKE
@@ -39,5 +39,7 @@ AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset])
 
 AC_CONFIG_FILES([Makefile
-                 src/Makefile])
+                 src/Makefile
+		 src/verbs/Makefile
+		 src/affinity/Makefile])
 AC_OUTPUT
