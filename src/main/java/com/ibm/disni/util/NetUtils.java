@@ -42,10 +42,10 @@ public class NetUtils {
 	}
 
 	public static int getIntIPFromInetAddress(InetAddress localHost) throws UnknownHostException {
-		byte[] addr = localHost.getAddress();
-		if (addr == null){
-			throw new UnknownHostException("Cannot find IP for host " + localHost.toString());
+		if (localHost == null){
+			throw new UnknownHostException("Address not defined");
 		}
+		byte[] addr = localHost.getAddress();
 		ByteBuffer buffer = ByteBuffer.wrap(addr);
 		buffer.order(ByteOrder.LITTLE_ENDIAN);
 		buffer.clear();

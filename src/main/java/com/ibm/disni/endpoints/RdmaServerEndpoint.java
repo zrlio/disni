@@ -75,6 +75,9 @@ public class RdmaServerEndpoint<C extends RdmaClientEndpoint>{
 	 * @throws Exception the exception
 	 */
 	public synchronized RdmaServerEndpoint<C> bind(SocketAddress src, int backlog) throws IOException {
+		if (src == null){
+			throw new IOException("address not defined");
+		}
 		if (connState != CONN_STATE_INITIALIZED) {
 			throw new IOException("endpoint has to be disconnected for bind");
 		}
