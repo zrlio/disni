@@ -107,9 +107,13 @@ public class RdmaCmNat extends RdmaCm {
 	@Override
 	public int bindAddr(RdmaCmId id, SocketAddress address)
 			throws IOException {
-		MemBuf sockBuf = memAlloc.allocate(SockAddrIn.CSIZE, MemoryAllocation.MemType.DIRECT, SockAddrIn.class.getCanonicalName());
         InetSocketAddress _address = (InetSocketAddress) address;
-        SockAddrIn addr = new SockAddrIn(SockAddrIn.AF_INET, NetUtils.getIntIPFromInetAddress(_address.getAddress()), NetUtils.hostToNetworkByteOrder((short) _address.getPort()));
+        short _sin_family = SockAddrIn.AF_INET;
+        int _sin_addr = NetUtils.getIntIPFromInetAddress(_address.getAddress());
+        short _sin_port = NetUtils.hostToNetworkByteOrder((short) _address.getPort());
+        
+        SockAddrIn addr = new SockAddrIn(_sin_family, _sin_addr, _sin_port);
+        MemBuf sockBuf = memAlloc.allocate(SockAddrIn.CSIZE, MemoryAllocation.MemType.DIRECT, SockAddrIn.class.getCanonicalName());
         addr.writeBack(sockBuf.getBuffer());
         NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
         int ret = nativeDispatcher._bindAddr(idPriv.getObjId(), sockBuf.address());

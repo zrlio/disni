@@ -41,9 +41,11 @@ public class NetUtils {
 		return buffer.getInt();
 	}
 
-	public static int getIntIPFromInetAddress(InetAddress localHost)
-			throws UnknownHostException {
+	public static int getIntIPFromInetAddress(InetAddress localHost) throws UnknownHostException {
 		byte[] addr = localHost.getAddress();
+		if (addr == null){
+			throw new UnknownHostException("Cannot find IP for host " + localHost.toString());
+		}
 		ByteBuffer buffer = ByteBuffer.wrap(addr);
 		buffer.order(ByteOrder.LITTLE_ENDIAN);
 		buffer.clear();
