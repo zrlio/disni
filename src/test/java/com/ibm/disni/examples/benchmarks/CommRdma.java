@@ -88,20 +88,14 @@ public class CommRdma {
 
 		postSendCall = getPostSendCall(wrList);
 		postSendCall.execute();
-		if (postSendCall.success() == true) {
-			if (signaled) {
-				return checkCq(wrList.size(), polling);
-			} else {
-				return true;
-			}
+		if (signaled) {
+			return checkCq(wrList.size(), polling);
 		} else {
-			logger.info("post send returned false");
+			return true;
 		}
-
-		return false;
 	}
 	
-	public boolean initSGRecv(ByteBuffer[] fragments, LinkedList<IbvRecvWR> wrList)
+	public void initSGRecv(ByteBuffer[] fragments, LinkedList<IbvRecvWR> wrList)
 			throws Exception {
 		for (int i = 0; i < fragments.length; i++) {
 			fragments[i].clear();
@@ -109,8 +103,6 @@ public class CommRdma {
 		
 		postRecvCall = getPostRecvCall(wrList);
 		postRecvCall.execute();
-		
-		return postRecvCall.success();
 	}
 	
 	public boolean completeSGRecv(ByteBuffer[] fragments,

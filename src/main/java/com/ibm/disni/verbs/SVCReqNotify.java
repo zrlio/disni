@@ -27,12 +27,4 @@ package com.ibm.disni.verbs;
  * This class is a stateful representation of the request-for-notification call (RdmaVerbs.reqNotifyCQ). 
  */
 public abstract class SVCReqNotify implements StatefulVerbCall<SVCReqNotify> {
-	
-	/**
-	 * Query whether the last post-send call was successful.
-	 *
-	 * @return true, if successful
-	 */
-	public abstract boolean success();
-	
 }

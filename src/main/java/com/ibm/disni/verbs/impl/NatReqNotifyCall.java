@@ -30,7 +30,6 @@ import com.ibm.disni.verbs.SVCReqNotify;
 public class NatReqNotifyCall extends SVCReqNotify {
 	private NativeDispatcher nativeDispatcher;
 	private RdmaVerbsNat verbs;
-	private boolean result;
 	
 	private NatIbvCQ cq;
 	private int solicited;
@@ -51,16 +50,10 @@ public class NatReqNotifyCall extends SVCReqNotify {
 
 	public SVCReqNotify execute() throws IOException {
 		int ret = nativeDispatcher._reqNotifyCQ(cq.getObjId(), solicited);
-		if (ret >= 0){
-			result = true;
-		} else {
-			result = false;
+		if (ret != 0){
+			throw new IOException("Request for Notification failed");
 		}
 		return this;
-	}
-
-	public boolean success() {
-		return result;
 	}
 
 	public boolean isValid() {

@@ -32,7 +32,6 @@ public class NatDeregMrCall extends SVCDeregMr {
 	private RdmaVerbsNat verbs;
 	
 	private NatIbvMr mr;
-	private boolean result;
 	private boolean valid;
 
 	public NatDeregMrCall(RdmaVerbsNat verbs, NativeDispatcher nativeDispatcher) {
@@ -48,19 +47,12 @@ public class NatDeregMrCall extends SVCDeregMr {
 
 	public SVCDeregMr execute() throws IOException {
 		int ret = nativeDispatcher._deregMr(mr.getObjId());
-		if (ret >= 0){
-			result = true;
-		} else {
-			result = false;
+		if (ret != 0){
+			throw new IOException("Memory de-registration failed, ret " + ret);
 		}
 		return this;
 	}
 	
-	@Override
-	public boolean success() {
-		return result;
-	}	
-
 	public boolean isValid() {
 		return valid;
 	}

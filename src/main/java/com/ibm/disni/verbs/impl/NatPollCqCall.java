@@ -107,12 +107,14 @@ public class NatPollCqCall extends SVCPollCq {
 	public SVCPollCq execute() throws IOException {
 		this.result = 0;
 		this.result = nativeDispatcher._pollCQ(cq.getObjId(),  ne, cmd.address());
-		cmd.getBuffer().clear();
-		if (result > 0){
+		if (result < 0){
+			throw new IOException("Polling CQ failed");
+		} else if (result > 0){
+			cmd.getBuffer().clear();
 			for (int i = 0; i < result; i++){
 				update(wcList[i], cmd.getBuffer());
 			}
-		} 
+		}
 		return this;
 	}
 

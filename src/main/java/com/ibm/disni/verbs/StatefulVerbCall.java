@@ -24,7 +24,6 @@ package com.ibm.disni.verbs;
 
 import java.io.IOException;
 
-// TODO: Auto-generated Javadoc
 /**
  * The Interface StatefulVerbCall.
  * 
@@ -38,7 +37,7 @@ import java.io.IOException;
  *
  * @param <T> the type of the result of this SVC.
  */
-public interface StatefulVerbCall<T> {
+public interface StatefulVerbCall<T extends StatefulVerbCall> {
 	
 	/**
 	 * Execute the state of this verbs call.

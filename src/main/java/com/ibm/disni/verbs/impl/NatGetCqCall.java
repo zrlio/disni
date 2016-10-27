@@ -33,7 +33,6 @@ public class NatGetCqCall extends SVCGetCqEvent {
 	private LinkedBlockingQueue<NatGetCqCall> getCqList;
 
 	private NatIbvCompChannel compChannel;
-	private boolean result;
 	private boolean valid;
 	private int timeout;
 	
@@ -52,18 +51,11 @@ public class NatGetCqCall extends SVCGetCqEvent {
 	@Override
 	public SVCGetCqEvent execute() throws IOException {
 		int ret = nativeDispatcher._getCqEvent(compChannel.getObjId(), timeout);
-		if (ret >= 0){
-			result = true;
-		} else {
-			result = false;
+		if (ret != 0){
+			throw new IOException("GetCQEvent failed");
 		}
 		return this;
 	}
-
-	@Override
-	public boolean success() {
-		return result;
-	}	
 
 	@Override
 	public boolean isValid() {

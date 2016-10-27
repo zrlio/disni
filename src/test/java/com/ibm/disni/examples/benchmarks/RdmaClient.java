@@ -374,13 +374,9 @@ public class RdmaClient extends BenchmarkBase implements IBenchmarkTask {
 			double ops = 0;
 			for (int i = 0; i < loop; i++) {
 				if (testCase == AppLauncher.TestCase.WRITE) {
-					boolean ok = dataPlane.initSGRecv(recvFragments, wrList_recv);
-					if (!ok){
-						logger.info("init recv failed");
-						return;
-					}
+					dataPlane.initSGRecv(recvFragments, wrList_recv);
 					controlPlane.startNextRound(client2serverBuffer[0]);
-					ok = dataPlane.completeSGRecv(recvFragments, wrList_recv, polling);
+					boolean ok = dataPlane.completeSGRecv(recvFragments, wrList_recv, polling);
 					if (!ok){
 						logger.info("complete recv failed");
 						return;
@@ -395,19 +391,14 @@ public class RdmaClient extends BenchmarkBase implements IBenchmarkTask {
 						this.errorOps += 1.0;
 					}
 				}  else if (testCase == AppLauncher.TestCase.PING || testCase == AppLauncher.TestCase.RPC_INT || testCase == AppLauncher.TestCase.RPC_ARRAY || testCase == AppLauncher.TestCase.RPC_COMPLEX) {
-					boolean ok = dataPlane.initSGRecv(recvFragments, wrList_recv);
-					if (!ok){
-						logger.info("init recv failed");
-						return;
-					} 
-					
+					dataPlane.initSGRecv(recvFragments, wrList_recv);
 					if (testCase == AppLauncher.TestCase.RPC_INT){
 						stub.marshallInt(rpcBuf);
 					} else if (testCase == AppLauncher.TestCase.RPC_ARRAY){
 						stub.marshallArray(rpcBuf);
 					}
 					
-					ok = dataPlane.send(recvFragments, wrList_send, true, polling);
+					boolean ok = dataPlane.send(recvFragments, wrList_send, true, polling);
 					if (!ok){
 						logger.info("send failed");
 						return;

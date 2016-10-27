@@ -72,7 +72,7 @@ public class JVerbsReadServer implements RdmaEndpointFactory<CustomServerEndpoin
 		
 		//post the operation to send the message
 		System.out.println("ReadServer::sending message");
-		endpoint.postSend(endpoint.getWrList_send()).execute().free().success();
+		endpoint.postSend(endpoint.getWrList_send()).execute().free();
 		//we have to wait for the CQ event, only then we know the message has been sent out
 		endpoint.getWcEvents().take();
 		

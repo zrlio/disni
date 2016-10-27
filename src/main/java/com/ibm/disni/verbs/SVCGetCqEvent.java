@@ -27,12 +27,4 @@ package com.ibm.disni.verbs;
  * This class is a stateful representation of the get call (RdmaVerbs.getCqEvent) 
  */
 public abstract class SVCGetCqEvent implements StatefulVerbCall<SVCGetCqEvent> {
-
-	/**
-	 * Query whether the last call was successful.
-	 *
-	 * @return true, if successful
-	 */
-	public abstract boolean success();
-	
 }

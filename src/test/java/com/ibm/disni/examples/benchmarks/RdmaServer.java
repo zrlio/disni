@@ -372,11 +372,7 @@ public class RdmaServer extends BenchmarkBase implements IBenchmarkTask {
 						stub.demarshallArray(rpcBuf);
 						stub.marshallArray(rpcBuf);
 					}					
-					ok = dataPlane.initSGRecv(sendFragments, wrList_recv);
-					if (!ok){
-						return;						
-					}
-					
+					dataPlane.initSGRecv(sendFragments, wrList_recv);
 					ok = dataPlane.send(sendFragments, wrList_send, true, polling);
 					if (!ok){
 						return;						

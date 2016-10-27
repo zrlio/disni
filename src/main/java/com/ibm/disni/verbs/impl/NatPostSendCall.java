@@ -45,7 +45,6 @@ public class NatPostSendCall extends SVCPostSend {
 	private NatIbvQP qp;
 	
 	private MemBuf cmd;
-	private boolean result;
 	private boolean valid;
 	
 	public NatPostSendCall(RdmaVerbsNat verbs, NativeDispatcher nativeDispatcher, MemoryAllocation memAlloc) {
@@ -110,17 +109,10 @@ public class NatPostSendCall extends SVCPostSend {
 	@Override
 	public SVCPostSend execute() throws IOException {
 		int ret = nativeDispatcher._postSend(qp.getObjId(), cmd.address());
-		if (ret >= 0){
-			result = true;
-		} else {
-			result = false;
-		}		
+		if (ret != 0){
+			throw new IOException("Post send failed");
+		}
 		return this;
-	}
-
-	@Override
-	public boolean success() {
-		return result;
 	}
 
 	@Override

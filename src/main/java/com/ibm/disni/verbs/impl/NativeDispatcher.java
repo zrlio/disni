@@ -30,7 +30,7 @@ import com.ibm.disni.verbs.IbvWC;
 
 public class NativeDispatcher {
 	private static final Logger logger = DiSNILogger.getLogger();
-	private static int JVERBS_VERSION = 25;
+	private static int JVERBS_VERSION = 26;
 	
 	static {
 	    System.loadLibrary("disni");

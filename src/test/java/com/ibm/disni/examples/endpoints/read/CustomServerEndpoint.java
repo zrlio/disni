@@ -113,8 +113,7 @@ public class CustomServerEndpoint extends CustomEndpoint {
 		recvWR.setWr_id(2001);
 		wrList_recv.add(recvWR);
 		
-		boolean res = this.postRecv(wrList_recv).execute().success();		
-		System.out.println("ReadServer::initiated recv " + res);
+		this.postRecv(wrList_recv).execute();		
 	}
 
 	public LinkedList<IbvSendWR> getWrList_send() {

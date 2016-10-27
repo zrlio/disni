@@ -31,13 +31,6 @@ import java.io.IOException;
 public abstract class SVCPostSend implements StatefulVerbCall<SVCPostSend> {
 	
 	/**
-	 * Query whether the last post-send call was successful.
-	 *
-	 * @return true, if successful
-	 */
-	public abstract boolean success();
-	
-	/**
 	 * Access a specific work request of this SVC object.
 	 *
 	 * @param index the work request

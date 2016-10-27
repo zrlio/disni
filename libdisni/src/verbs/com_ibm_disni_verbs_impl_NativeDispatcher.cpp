@@ -45,7 +45,7 @@ using namespace std;
 //#define MAX_WR 200;
 #define MAX_SGE 4;
 //#define N_CQE 200
-#define JVERBS_JNI_VERSION 25;
+#define JVERBS_JNI_VERSION 26;
 
 //global resource id counter
 static unsigned long long counter = 0;
@@ -876,21 +876,21 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1deregMr
 	pthread_rwlock_rdlock(&mut_mr);
 	mr = map_mr[handle];
 	pthread_rwlock_unlock(&mut_mr);
+
 	if (mr != NULL){
 		pthread_rwlock_wrlock(&mut_mr);
 		map_mr.erase(handle);
 		pthread_rwlock_unlock(&mut_mr);
-		int ret = ibv_dereg_mr(mr);
+		ret = ibv_dereg_mr(mr);
 		if (ret == 0){
 			log("j2c::deregMr: ret %i\n", ret);
-			ret = 0;
 		} else {
-			log("j2c::deregMr:  ibv_dereg_failed\n");
+			log("j2c::deregMr:  ibv_dereg_failed, error %s\n", strerror(errno));
 		}
 	} else {
 		log("j2c::deregMr: mr null\n");
 	}
-	
+
 	return ret;
 }
 

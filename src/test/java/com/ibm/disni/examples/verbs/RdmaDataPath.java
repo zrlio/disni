@@ -73,22 +73,17 @@ public class RdmaDataPath {
 
 		postSendCall = getPostSendCall(wrList);
 		postSendCall.execute();
-
-		if (postSendCall.success() == true){
-			if (signaled) {
-				return checkCq(wrList.size(), polling);
-			}
+		if (signaled) {
+			return checkCq(wrList.size(), polling);
 		}
-		
+
 		return false;
 	}
 	
-	public boolean initSGRecv(LinkedList<IbvRecvWR> wrList)
+	public void initSGRecv(LinkedList<IbvRecvWR> wrList)
 			throws Exception {
 		postRecvCall = getPostRecvCall(wrList);
 		postRecvCall.execute();
-		
-		return postRecvCall.success();
 	}
 	
 	public boolean completeSGRecv(LinkedList<IbvRecvWR> wrList, boolean polling) throws Exception {

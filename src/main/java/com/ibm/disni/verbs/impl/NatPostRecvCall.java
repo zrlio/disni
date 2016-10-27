@@ -42,7 +42,6 @@ public class NatPostRecvCall extends SVCPostRecv {
 	private ArrayList<NatIbvRecvWR> wrNatList;
 	private ArrayList<IbvSge> sgeNatList;
 	
-	private boolean result;
 	private MemBuf cmd;
 	private boolean valid;
 	
@@ -103,17 +102,10 @@ public class NatPostRecvCall extends SVCPostRecv {
 	@Override
 	public SVCPostRecv execute() throws IOException {
 		int ret = nativeDispatcher._postRecv(qp.getObjId(), cmd.address());
-		if (ret >= 0){
-			result = true;
-		} else {
-			result = false;
+		if (ret != 0){
+			throw new IOException("Post recv failed");
 		}
 		return this;
-	}
-
-	@Override
-	public boolean success() {
-		return result;
 	}
 
 	@Override

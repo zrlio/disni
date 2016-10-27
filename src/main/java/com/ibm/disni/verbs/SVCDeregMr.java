@@ -27,12 +27,4 @@ package com.ibm.disni.verbs;
  * This class is a stateful representation of the memory de-registration call (RdmaVerbs.deregMr). 
  */
 public abstract class SVCDeregMr implements StatefulVerbCall<SVCDeregMr> {
-
-	/**
-	 * Query whether de-registeration was successful.
-	 *
-	 * @return true, if successful
-	 */
-	public abstract boolean success();
-	
 }

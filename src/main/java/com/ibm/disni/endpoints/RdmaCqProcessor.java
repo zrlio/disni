@@ -71,7 +71,7 @@ public abstract class RdmaCqProcessor<C extends RdmaClientEndpoint> extends Rdma
 		this.timeout = timeout;
 		
 		if (blocking){
-			reqNotify.execute().success();
+			reqNotify.execute();
 		} 
 		
 		this.qpMap = new ConcurrentHashMap<Integer, C>();
