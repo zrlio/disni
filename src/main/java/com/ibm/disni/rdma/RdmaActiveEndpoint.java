@@ -29,9 +29,8 @@ import com.ibm.disni.rdma.verbs.RdmaCmId;
 public abstract class RdmaActiveEndpoint extends RdmaEndpoint {
 	RdmaActiveEndpointGroup<? extends RdmaActiveEndpoint> agroup;
 	
-	public RdmaActiveEndpoint(RdmaActiveEndpointGroup<? extends RdmaActiveEndpoint> group,
-			RdmaCmId idPriv) throws IOException {
-		super(group, idPriv);
+	public RdmaActiveEndpoint(RdmaActiveEndpointGroup<? extends RdmaActiveEndpoint> group, RdmaCmId idPriv, boolean serverSide) throws IOException {
+		super(group, idPriv, serverSide);
 		this.agroup = group;
 	}
 

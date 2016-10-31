@@ -39,8 +39,8 @@ public class JVerbsSimpleClient implements RdmaEndpointFactory<CustomClientEndpo
 	private String ipAddress;
 	RdmaActiveEndpointGroup<CustomClientEndpoint> endpointGroup;
 	
-	public CustomClientEndpoint createEndpoint(RdmaCmId idPriv) throws IOException {
-		return new CustomClientEndpoint(endpointGroup, idPriv);
+	public CustomClientEndpoint createEndpoint(RdmaCmId idPriv, boolean serverSide) throws IOException {
+		return new CustomClientEndpoint(endpointGroup, idPriv, serverSide);
 	}	
 	
 	public void run() throws Exception {

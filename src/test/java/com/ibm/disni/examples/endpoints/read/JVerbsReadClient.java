@@ -37,8 +37,8 @@ public class JVerbsReadClient implements RdmaEndpointFactory<CustomClientEndpoin
 	private RdmaActiveEndpointGroup<CustomClientEndpoint> endpointGroup;
 	private String ipAddress; 
 	
-	public CustomClientEndpoint createEndpoint(RdmaCmId idPriv) throws IOException {
-		return new CustomClientEndpoint(endpointGroup, idPriv);
+	public CustomClientEndpoint createEndpoint(RdmaCmId idPriv, boolean serverSide) throws IOException {
+		return new CustomClientEndpoint(endpointGroup, idPriv, serverSide);
 	}	
 	
 	public void run() throws Exception {

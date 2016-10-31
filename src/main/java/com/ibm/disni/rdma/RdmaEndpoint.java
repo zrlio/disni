@@ -70,9 +70,9 @@ public class RdmaEndpoint{
 	private int connState;
 	private boolean isClosed;
 	private boolean isInitialized;
-	private boolean isServerSide;
+	private boolean serverSide;
 	
-	protected RdmaEndpoint(RdmaEndpointGroup<? extends RdmaEndpoint> group, RdmaCmId idPriv) throws IOException{
+	protected RdmaEndpoint(RdmaEndpointGroup<? extends RdmaEndpoint> group, RdmaCmId idPriv, boolean serverSide) throws IOException{
 		this.endpointId = group.getNextId();
 		this.group = group;
 		this.idPriv = idPriv;
@@ -86,6 +86,7 @@ public class RdmaEndpoint{
 		this.isInitialized = false;
 		this.isClosed = false;
 		this.connState = CONN_STATE_INITIALIZED;
+		this.serverSide = serverSide;
 		logger.info("new client endpoint, id " + endpointId + ", idPriv " + idPriv.getPs());
 	}
 	
@@ -338,17 +339,13 @@ public class RdmaEndpoint{
 		return qp;
 	}
 
-	void setServerSide(boolean isServerSide){
-		this.isServerSide = isServerSide;
-	}
-	
 	/**
 	 * Checks if is endpoint is has been created by a accept call 
 	 *
 	 * @return true, if endpoint is server side
 	 */
 	public boolean isServerSide(){
-		return isServerSide;
+		return serverSide;
 	}
 
 	/**

@@ -99,8 +99,8 @@ public class RdmaPassiveEndpointGroup<C extends RdmaEndpoint> extends RdmaEndpoi
 			this.group = group;
 		}
 		
-		public RdmaEndpoint createEndpoint(RdmaCmId idPriv) throws IOException {
-			return new RdmaEndpoint(group, idPriv);
+		public RdmaEndpoint createEndpoint(RdmaCmId idPriv, boolean serverSide) throws IOException {
+			return new RdmaEndpoint(group, idPriv, serverSide);
 		}
 	}
 	

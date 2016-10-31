@@ -56,8 +56,8 @@ public class CustomServerEndpoint extends CustomEndpoint {
 	private LinkedList<IbvSge> sgeListRecv;
 	private IbvRecvWR recvWR;
 
-	public CustomServerEndpoint(RdmaActiveEndpointGroup<CustomServerEndpoint> endpointGroup, RdmaCmId idPriv) throws IOException {	
-		super(endpointGroup, idPriv);
+	public CustomServerEndpoint(RdmaActiveEndpointGroup<CustomServerEndpoint> endpointGroup, RdmaCmId idPriv, boolean serverSide) throws IOException {	
+		super(endpointGroup, idPriv, serverSide);
 		this.buffercount = 3;
 		this.buffersize = 100;
 		buffers = new ByteBuffer[buffercount];

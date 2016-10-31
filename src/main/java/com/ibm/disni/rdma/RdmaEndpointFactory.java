@@ -35,6 +35,6 @@ public interface RdmaEndpointFactory <C extends RdmaEndpoint> {
 	 * @return the newly created endpoint.
 	 * @throws Exception on failure.
 	 */
-	public C createEndpoint(RdmaCmId id) throws IOException;
+	public C createEndpoint(RdmaCmId id, boolean serverSide) throws IOException;
 	
 }

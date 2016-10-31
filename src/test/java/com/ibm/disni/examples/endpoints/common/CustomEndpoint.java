@@ -32,8 +32,8 @@ import com.ibm.disni.rdma.verbs.RdmaCmId;
 public class CustomEndpoint extends RdmaActiveEndpoint {
 	private ArrayBlockingQueue<IbvWC> wcEvents;
 
-	public CustomEndpoint(RdmaActiveEndpointGroup<?> endpointGroup, RdmaCmId idPriv) throws IOException {
-		super(endpointGroup, idPriv);
+	public CustomEndpoint(RdmaActiveEndpointGroup<?> endpointGroup, RdmaCmId idPriv, boolean isServerSide) throws IOException {
+		super(endpointGroup, idPriv, isServerSide);
 		
 		this.wcEvents = new ArrayBlockingQueue<IbvWC>(10);
 	}

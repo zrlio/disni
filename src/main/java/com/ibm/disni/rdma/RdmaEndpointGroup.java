@@ -84,15 +84,14 @@ public abstract class RdmaEndpointGroup <C extends RdmaEndpoint> {
 	
 	public synchronized final C createEndpoint() throws IOException {
 		RdmaCmId idPriv = cmProcessor.createId(RdmaCm.RDMA_PS_TCP);
-		C ep = createEndpoint(idPriv);
-		ep.setServerSide(false);
+		C ep = factory.createEndpoint(idPriv, false);
+		clientEndpointMap.put(idPriv, ep);		
 		return ep;
 	}
 	
 	protected synchronized final C createEndpoint(RdmaCmId idPriv)	throws IOException {
-		C ep = factory.createEndpoint(idPriv);
+		C ep = factory.createEndpoint(idPriv, true);
 		clientEndpointMap.put(idPriv, ep);
-		ep.setServerSide(true);
 		return ep;
 	}	
 	
