@@ -26,22 +26,22 @@ import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
+import com.ibm.disni.rdma.verbs.IbvCQ;
+import com.ibm.disni.rdma.verbs.IbvCompChannel;
+import com.ibm.disni.rdma.verbs.IbvContext;
+import com.ibm.disni.rdma.verbs.IbvMr;
+import com.ibm.disni.rdma.verbs.IbvPd;
+import com.ibm.disni.rdma.verbs.IbvQP;
+import com.ibm.disni.rdma.verbs.IbvQPInitAttr;
+import com.ibm.disni.rdma.verbs.IbvRecvWR;
+import com.ibm.disni.rdma.verbs.IbvSendWR;
+import com.ibm.disni.rdma.verbs.IbvSge;
+import com.ibm.disni.rdma.verbs.RdmaCm;
+import com.ibm.disni.rdma.verbs.RdmaCmEvent;
+import com.ibm.disni.rdma.verbs.RdmaCmId;
+import com.ibm.disni.rdma.verbs.RdmaConnParam;
+import com.ibm.disni.rdma.verbs.RdmaEventChannel;
 import com.ibm.disni.util.GetOpt;
-import com.ibm.disni.verbs.IbvCQ;
-import com.ibm.disni.verbs.IbvCompChannel;
-import com.ibm.disni.verbs.IbvContext;
-import com.ibm.disni.verbs.IbvMr;
-import com.ibm.disni.verbs.IbvPd;
-import com.ibm.disni.verbs.IbvQP;
-import com.ibm.disni.verbs.IbvQPInitAttr;
-import com.ibm.disni.verbs.IbvRecvWR;
-import com.ibm.disni.verbs.IbvSendWR;
-import com.ibm.disni.verbs.IbvSge;
-import com.ibm.disni.verbs.RdmaCm;
-import com.ibm.disni.verbs.RdmaCmEvent;
-import com.ibm.disni.verbs.RdmaCmId;
-import com.ibm.disni.verbs.RdmaConnParam;
-import com.ibm.disni.verbs.RdmaEventChannel;
 
 public class JVerbsRdmaClient { 
 	private String ipAddress;

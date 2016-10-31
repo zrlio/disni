@@ -25,13 +25,13 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
-import com.ibm.disni.endpoints.RdmaActiveEndpointGroup;
 import com.ibm.disni.examples.endpoints.common.CustomEndpoint;
-import com.ibm.disni.verbs.IbvMr;
-import com.ibm.disni.verbs.IbvRecvWR;
-import com.ibm.disni.verbs.IbvSendWR;
-import com.ibm.disni.verbs.IbvSge;
-import com.ibm.disni.verbs.RdmaCmId;
+import com.ibm.disni.rdma.RdmaActiveEndpointGroup;
+import com.ibm.disni.rdma.verbs.IbvMr;
+import com.ibm.disni.rdma.verbs.IbvRecvWR;
+import com.ibm.disni.rdma.verbs.IbvSendWR;
+import com.ibm.disni.rdma.verbs.IbvSge;
+import com.ibm.disni.rdma.verbs.RdmaCmId;
 
 public class CustomClientEndpoint extends CustomEndpoint {
 	private ByteBuffer buffers[];

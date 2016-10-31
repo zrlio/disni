@@ -26,18 +26,18 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 
-import com.ibm.disni.endpoints.RdmaActiveEndpointGroup;
-import com.ibm.disni.endpoints.RdmaEndpointFactory;
+import com.ibm.disni.rdma.RdmaActiveEndpointGroup;
+import com.ibm.disni.rdma.RdmaEndpointFactory;
+import com.ibm.disni.rdma.verbs.IbvSendWR;
+import com.ibm.disni.rdma.verbs.RdmaCmId;
+import com.ibm.disni.rdma.verbs.SVCPostSend;
 import com.ibm.disni.util.GetOpt;
-import com.ibm.disni.verbs.IbvSendWR;
-import com.ibm.disni.verbs.RdmaCmId;
-import com.ibm.disni.verbs.SVCPostSend;
 
 public class JVerbsReadClient implements RdmaEndpointFactory<CustomClientEndpoint> {
 	private RdmaActiveEndpointGroup<CustomClientEndpoint> endpointGroup;
 	private String ipAddress; 
 	
-	public CustomClientEndpoint createClientEndpoint(RdmaCmId idPriv) throws IOException {
+	public CustomClientEndpoint createEndpoint(RdmaCmId idPriv) throws IOException {
 		return new CustomClientEndpoint(endpointGroup, idPriv);
 	}	
 	
@@ -47,7 +47,7 @@ public class JVerbsReadClient implements RdmaEndpointFactory<CustomClientEndpoin
 		endpointGroup.init(this);
 		//we have passed our own endpoint factory to the group, therefore new endpoints will be of type CustomClientEndpoint
 		//let's create a new client endpoint		
-		CustomClientEndpoint endpoint = endpointGroup.createClientEndpoint();
+		CustomClientEndpoint endpoint = endpointGroup.createEndpoint();
 		InetAddress localHost = InetAddress.getByName(ipAddress);
 		InetSocketAddress address = new InetSocketAddress(localHost, 1919);
 		

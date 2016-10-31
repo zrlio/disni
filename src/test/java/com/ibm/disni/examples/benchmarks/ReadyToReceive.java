@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 import java.util.Iterator;
 import java.util.LinkedList;
 
-import com.ibm.disni.verbs.IbvMr;
+import com.ibm.disni.rdma.verbs.IbvMr;
 
 
 public class ReadyToReceive {

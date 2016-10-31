@@ -26,19 +26,19 @@ import java.util.LinkedList;
 
 import org.slf4j.Logger;
 
+import com.ibm.disni.rdma.verbs.IbvCQ;
+import com.ibm.disni.rdma.verbs.IbvCompChannel;
+import com.ibm.disni.rdma.verbs.IbvContext;
+import com.ibm.disni.rdma.verbs.IbvQP;
+import com.ibm.disni.rdma.verbs.IbvRecvWR;
+import com.ibm.disni.rdma.verbs.IbvSendWR;
+import com.ibm.disni.rdma.verbs.IbvWC;
+import com.ibm.disni.rdma.verbs.RdmaVerbs;
+import com.ibm.disni.rdma.verbs.SVCPollCq;
+import com.ibm.disni.rdma.verbs.SVCPostRecv;
+import com.ibm.disni.rdma.verbs.SVCPostSend;
+import com.ibm.disni.rdma.verbs.SVCReqNotify;
 import com.ibm.disni.util.DiSNILogger;
-import com.ibm.disni.verbs.IbvCQ;
-import com.ibm.disni.verbs.IbvCompChannel;
-import com.ibm.disni.verbs.IbvContext;
-import com.ibm.disni.verbs.IbvQP;
-import com.ibm.disni.verbs.IbvRecvWR;
-import com.ibm.disni.verbs.IbvSendWR;
-import com.ibm.disni.verbs.IbvWC;
-import com.ibm.disni.verbs.RdmaVerbs;
-import com.ibm.disni.verbs.SVCPollCq;
-import com.ibm.disni.verbs.SVCPostRecv;
-import com.ibm.disni.verbs.SVCPostSend;
-import com.ibm.disni.verbs.SVCReqNotify;
 
 
 //only used for data traffic, needs read, write
