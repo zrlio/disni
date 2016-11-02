@@ -51,7 +51,7 @@ public abstract class RdmaCqProcessor<C extends RdmaEndpoint> extends RdmaCqProv
 	private long affinity;
 	private int clusterId;
 	private Thread thread;
-	
+	private int wrSize;
 	private ConcurrentHashMap<Integer, C> qpMap;
 	
 	public RdmaCqProcessor(IbvContext context, int cqSize, int wrSize, long affinity, int clusterId, int timeout, boolean polling) throws IOException {
@@ -59,7 +59,8 @@ public abstract class RdmaCqProcessor<C extends RdmaEndpoint> extends RdmaCqProv
 		this.clusterId = clusterId;
 		this.affinity = affinity;
 		this.running = false;
-		this.wcList = new IbvWC[wrSize];
+		this.wrSize = Math.min(cqSize, wrSize);
+		this.wcList = new IbvWC[this.wrSize];
 		for (int i = 0; i < wcList.length; i++){
 			wcList[i] = new IbvWC();
 		}

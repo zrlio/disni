@@ -37,7 +37,7 @@ import java.io.IOException;
  *
  * @param <T> the type of the result of this SVC.
  */
-public interface StatefulVerbCall<T extends StatefulVerbCall> {
+public interface StatefulVerbCall<T extends StatefulVerbCall<?>> {
 	
 	/**
 	 * Execute the state of this verbs call.
