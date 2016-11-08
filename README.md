@@ -55,6 +55,7 @@ A good example showcasing the use of SVCs can be found in JVerbsReadClient.java\
 			System.out.println("ReadClient::read memory from server: " + dataBuf.asCharBuffer().toString());		
 			i += 10;
 		}
+		postSend.free();
 ```
 ## Basic Steps in Developing a DiSNI RDMA-based Application
 
@@ -109,7 +110,7 @@ Once an endpoint is connected, RDMA data operations can be issued. For this, a d
 To trigger the operation, a list of descriptors will have to be posted onto the connection. Each descriptor may further have multiple scatter/gather elements.
 ```
 	SVCPostSend postSend = endpoint.postSend(decriptorList);
-	postSend.execute().free()
+	postSend.execute();
 ```
 A completion event is created by the network interface after the data buffer has been DMA's to the NIC. Depending on which type of endpoint group that is used, the event is signaled either through a callback, or has to be polled manually by the application. Once the completion event has been consumed, the data buffer can be reused.
 
