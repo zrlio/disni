@@ -187,7 +187,8 @@ public class RdmaCmNat extends RdmaCm {
 	public int connect(RdmaCmId id, RdmaConnParam connParam)
 			throws IOException {
 		NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
-		int ret = nativeDispatcher._connect(idPriv.getObjId(), (long) 0);
+		int ret = nativeDispatcher._connect(idPriv.getObjId(), connParam.getRetry_count(), connParam.getRnr_retry_count());
+//		int ret = nativeDispatcher._connect(idPriv.getObjId(), (long) 0);
 		logger.info("connect, id " + id.getPs());
 		
 		return ret;
@@ -197,7 +198,8 @@ public class RdmaCmNat extends RdmaCm {
 	public int accept(RdmaCmId id, RdmaConnParam connParam)
 			throws IOException {
 		NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
-		int ret = nativeDispatcher._accept(idPriv.getObjId(), (long) 0);
+		int ret = nativeDispatcher._accept(idPriv.getObjId(), connParam.getRetry_count(), connParam.getRnr_retry_count());
+//		int ret = nativeDispatcher._accept(idPriv.getObjId(), (long) 0);
 		logger.info("accept, id " + id.getPs());
 		
 		return ret;

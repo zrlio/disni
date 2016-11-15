@@ -395,7 +395,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
  * Signature: (IJ)V
  */
 JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1connect
-  (JNIEnv *env, jobject obj, jlong id, jlong connparam){
+  (JNIEnv *env, jobject obj, jlong id, jint retry, jint rnr_retry){
 	struct rdma_cm_id *cm_listen_id = NULL;
 	struct rdma_conn_param conn_param;
 	jint ret = -1;
@@ -410,8 +410,8 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1con
 		memset(&conn_param, 0, sizeof(conn_param));
 		conn_param.initiator_depth = dev_attr.max_qp_rd_atom;
 		conn_param.responder_resources = dev_attr.max_qp_rd_atom;
-		conn_param.retry_count = 0;
-		conn_param.rnr_retry_count = 0;
+		conn_param.retry_count = (unsigned char) retry;
+		conn_param.rnr_retry_count = (unsigned char) rnr_retry;
 		ret = rdma_connect(cm_listen_id, &conn_param);
 		if (ret == 0){
 			log("j2c::connect: ret %i, guid %llu\n", ret, ibv_get_device_guid(cm_listen_id->verbs->device));
@@ -431,7 +431,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1con
  * Signature: (IJ)V
  */
 JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1accept(JNIEnv *env,
-		jobject obj, jlong id, jlong connparam) {
+		jobject obj, jlong id, jint retry, jint rnr_retry) {
 	struct rdma_cm_id *cm_listen_id = NULL;
 	struct rdma_conn_param conn_param;
 	jint ret = -1;
@@ -446,8 +446,8 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1acc
 		memset(&conn_param, 0, sizeof(conn_param));
 		conn_param.initiator_depth = dev_attr.max_qp_rd_atom;
 		conn_param.responder_resources = dev_attr.max_qp_rd_atom;
-		conn_param.retry_count = 0;
-		conn_param.rnr_retry_count = 0;
+		conn_param.retry_count = (unsigned char) retry;
+		conn_param.rnr_retry_count = (unsigned char) rnr_retry;
 		ret = rdma_accept(cm_listen_id, &conn_param);
 		log("j2c::accept: ret %i\n", ret);
 		if (ret == 0){

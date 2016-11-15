@@ -96,8 +96,8 @@ public class NativeDispatcher {
 	public native int _resolveAddr(long id, long src, long dst, int timeout);
 	public native int _resolveRoute(long id, int timeout);
 	public native int _getCmEvent(long channel, long listenid, long clientid, int timeout);
-	public native int _connect(long id, long connparam);
-	public native int _accept(long id, long connparam);
+	public native int _connect(long id, int retrycount, int rnrretrycount);
+	public native int _accept(long id, int retrycount, int rnrretrycount);
 	public native int _ackCmEvent(int cmEvent);
 	public native int _disconnect(long id);	
 	public native int _destroyEventChannel(long fd);

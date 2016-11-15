@@ -77,7 +77,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
  * Signature: (JJ)I
  */
 JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1connect
-  (JNIEnv *, jobject, jlong, jlong);
+  (JNIEnv *, jobject, jlong, jint, jint);
 
 /*
  * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
@@ -85,7 +85,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1con
  * Signature: (JJ)I
  */
 JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1accept
-  (JNIEnv *, jobject, jlong, jlong);
+  (JNIEnv *, jobject, jlong, jint, jint);
 
 /*
  * Class:     com_ibm_disni_verbs_impl_NativeDispatcher

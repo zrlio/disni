@@ -33,6 +33,7 @@ import com.ibm.disni.rdma.verbs.IbvQP;
 import com.ibm.disni.rdma.verbs.RdmaCm;
 import com.ibm.disni.rdma.verbs.RdmaCmEvent;
 import com.ibm.disni.rdma.verbs.RdmaCmId;
+import com.ibm.disni.rdma.verbs.RdmaConnParam;
 import com.ibm.disni.util.DiSNILogger;
 
 public abstract class RdmaEndpointGroup <C extends RdmaEndpoint> {
@@ -45,6 +46,7 @@ public abstract class RdmaEndpointGroup <C extends RdmaEndpoint> {
 	protected HashMap<RdmaCmId, C> clientEndpointMap;
 	protected AtomicBoolean closed;
 	protected RdmaEndpointFactory<C> factory;
+	protected RdmaConnParam connParam;
 	
 	public abstract RdmaCqProvider createCqProvider(C endpoint) throws IOException;
 	
@@ -58,6 +60,7 @@ public abstract class RdmaEndpointGroup <C extends RdmaEndpoint> {
 		this.clientEndpointMap = new HashMap<RdmaCmId, C>();
 		this.cmProcessor = new RdmaCmProcessor(this, timeout);
 		this.closed = new AtomicBoolean(true);
+		this.connParam = new RdmaConnParam();
 	}
 	
 	public void init(RdmaEndpointFactory<C> factory){
@@ -150,6 +153,10 @@ public abstract class RdmaEndpointGroup <C extends RdmaEndpoint> {
 		}
 	}	
 	
+	public RdmaConnParam getConnParam() {
+		return connParam;
+	}
+
 	public synchronized void close() throws IOException, InterruptedException {
 		logger.info("shutting down group");
 		if (closed.get()){

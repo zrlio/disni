@@ -50,8 +50,6 @@ import com.ibm.disni.util.DiSNILogger;
 public class RdmaEndpoint{
 	private static final Logger logger = DiSNILogger.getLogger();
 	
-	protected static int MAX_APP_BUFFERLIST = 1;
-	
 	private static int CONN_STATE_INITIALIZED = 0;
 	private static int CONN_STATE_ADDR_RESOLVED = 1;
 	private static int CONN_STATE_ROUTE_RESOLVED = 2;
@@ -66,7 +64,6 @@ public class RdmaEndpoint{
 	protected IbvPd pd;
 	protected RdmaCqProvider cqProcessor;
 	protected int access;	
-	protected ByteBuffer private_data;
 	private int connState;
 	private boolean isClosed;
 	private boolean isInitialized;
@@ -77,8 +74,6 @@ public class RdmaEndpoint{
 		this.group = group;
 		this.idPriv = idPriv;
 		this.access = IbvMr.IBV_ACCESS_LOCAL_WRITE | IbvMr.IBV_ACCESS_REMOTE_WRITE | IbvMr.IBV_ACCESS_REMOTE_READ; 	
-		this.private_data = ByteBuffer.allocate(4);
-		private_data.putInt(MAX_APP_BUFFERLIST);
 		
 		this.qp = null;
 		this.pd = null;
@@ -128,11 +123,7 @@ public class RdmaEndpoint{
 				throw new IOException("resolve route failed");
 			}	
 			
-			RdmaConnParam connParam = new RdmaConnParam();
-			connParam.setInitiator_depth((byte) 5);
-			connParam.setResponder_resources((byte) 5);
-			connParam.setRetry_count((byte) 2);
-			connParam.setPrivate_data(private_data.array());
+			RdmaConnParam connParam = group.getConnParam();
 			idPriv.connect(connParam);
 			
 			while(connState < CONN_STATE_CONNECTED){
@@ -195,10 +186,7 @@ public class RdmaEndpoint{
 			throw new IOException("resolve route failed");
 		}		
 		
-		RdmaConnParam connParam = new RdmaConnParam();
-		connParam.setInitiator_depth((byte) 5);
-		connParam.setResponder_resources((byte) 5);
-		connParam.setRetry_count((byte) 2);
+		RdmaConnParam connParam = group.getConnParam();
 		idPriv.accept(connParam);			
 		while(connState < CONN_STATE_CONNECTED){
 			wait();

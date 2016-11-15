@@ -21,6 +21,8 @@
 
 package com.ibm.disni.rdma.verbs;
 
+import java.io.IOException;
+
 // TODO: Auto-generated Javadoc
 //struct rdma_conn_param {
 //        const void *private_data;
@@ -52,6 +54,13 @@ public class RdmaConnParam {
 	public RdmaConnParam() {
 		this.private_data = null;
 		this.private_data_len = 0;
+		this.responder_resources = 0;
+		this.initiator_depth = 0;
+		this.flow_control = 0;
+		this.retry_count = 0;
+		this.rnr_retry_count = 0;
+		this.srq = 0;
+		this.qp_num = 0;
 	}
 	
 	/**
@@ -70,9 +79,8 @@ public class RdmaConnParam {
 	 *
 	 * @param private_data the new private data. 
 	 */
-	public void setPrivate_data(byte[] private_data) {
-		this.private_data = private_data;
-		this.private_data_len = (byte) private_data.length;
+	public void setPrivate_data(byte[] private_data) throws IOException {
+		throw new IOException("Operation currently not supported");
 	}
 
 	/**
@@ -98,8 +106,8 @@ public class RdmaConnParam {
 	 *
 	 * @param responder_resources the new responder resources.
 	 */
-	public void setResponder_resources(byte responder_resources) {
-		this.responder_resources = responder_resources;
+	public void setResponder_resources(byte responder_resources) throws IOException {
+		throw new IOException("Operation currently not supported");
 	}
 
 	/**
@@ -116,8 +124,8 @@ public class RdmaConnParam {
 	 *
 	 * @param initiator_depth the new initiater depth. 
 	 */
-	public void setInitiator_depth(byte initiator_depth) {
-		this.initiator_depth = initiator_depth;
+	public void setInitiator_depth(byte initiator_depth) throws IOException {
+		throw new IOException("Operation currently not supported");
 	}
 
 	/**
@@ -134,8 +142,8 @@ public class RdmaConnParam {
 	 *
 	 * @param flow_control the new flow control. 
 	 */
-	public void setFlow_control(byte flow_control) {
-		this.flow_control = flow_control;
+	public void setFlow_control(byte flow_control) throws IOException {
+		throw new IOException("Operation currently not supported");
 	}
 
 	/**
@@ -152,7 +160,7 @@ public class RdmaConnParam {
 	 *
 	 * @param retry_count the new retry count.
 	 */
-	public void setRetry_count(byte retry_count) {
+	public void setRetry_count(byte retry_count) throws IOException {
 		this.retry_count = retry_count;
 	}
 
@@ -188,8 +196,8 @@ public class RdmaConnParam {
 	 *
 	 * @param srq the new shared receive queue.
 	 */
-	public void setSrq(byte srq) {
-		this.srq = srq;
+	public void setSrq(byte srq) throws IOException {
+		throw new IOException("Operation currently not supported");
 	}
 
 	/**
@@ -206,7 +214,7 @@ public class RdmaConnParam {
 	 *
 	 * @param qp_num the new qp_num
 	 */
-	public void setQp_num(int qp_num) {
-		this.qp_num = qp_num;
+	public void setQp_num(int qp_num) throws IOException {
+		throw new IOException("Operation currently not supported");
 	}
 }

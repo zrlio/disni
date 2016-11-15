@@ -50,10 +50,6 @@ public class RdmaPassiveEndpointGroup<C extends RdmaEndpoint> extends RdmaEndpoi
 	private int maxSge;
 	private int cqSize;
 	
-	public RdmaPassiveEndpointGroup<RdmaEndpoint> createDefaultGroup() throws IOException{
-		return createDefaultGroup(0, 128, 4, 128);
-	}
-	
 	public RdmaPassiveEndpointGroup<RdmaEndpoint> createDefaultGroup(int timeout, int maxWR, int maxSge, int cqSize) throws IOException{
 		RdmaPassiveEndpointGroup<RdmaEndpoint> group = new RdmaPassiveEndpointGroup<RdmaEndpoint>(timeout, maxWR, maxSge, cqSize);
 		group.init(new RawEndpointFactory(group));
@@ -92,6 +88,18 @@ public class RdmaPassiveEndpointGroup<C extends RdmaEndpoint> extends RdmaEndpoi
 		endpoint.allocateResources();
 	}
 	
+	public int getMaxWR() {
+		return maxWR;
+	}
+
+	public int getMaxSge() {
+		return maxSge;
+	}
+
+	public int getCqSize() {
+		return cqSize;
+	}
+
 	protected class RawEndpointFactory implements RdmaEndpointFactory<RdmaEndpoint> {
 		RdmaPassiveEndpointGroup<RdmaEndpoint> group;
 		
@@ -102,17 +110,5 @@ public class RdmaPassiveEndpointGroup<C extends RdmaEndpoint> extends RdmaEndpoi
 		public RdmaEndpoint createEndpoint(RdmaCmId idPriv, boolean serverSide) throws IOException {
 			return new RdmaEndpoint(group, idPriv, serverSide);
 		}
-	}
-	
-	public int getMaxWR() {
-		return maxWR;
-	}	
-
-	public int getMaxSge() {
-		return maxSge;
-	}
-
-	public int getCqSize() {
-		return cqSize;
 	}	
 }
