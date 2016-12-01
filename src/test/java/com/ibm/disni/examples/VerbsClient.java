@@ -19,7 +19,7 @@
  *
  */
 
-package com.ibm.disni.examples.verbs;
+package com.ibm.disni.examples;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -43,7 +43,7 @@ import com.ibm.disni.rdma.verbs.RdmaConnParam;
 import com.ibm.disni.rdma.verbs.RdmaEventChannel;
 import com.ibm.disni.util.GetOpt;
 
-public class JVerbsRdmaClient { 
+public class VerbsClient { 
 	private String ipAddress;
 	
 	public void run() throws Exception {
@@ -180,7 +180,7 @@ public class JVerbsRdmaClient {
 		//it's important to post those receive operations before connecting
 		//otherwise the server may issue a send operation and which cannot be received
 		//this class wraps soem of the RDMA data operations
-		RdmaDataPath commRdma = new RdmaDataPath(context, compChannel, qp, cq);
+		VerbsTools commRdma = new VerbsTools(context, compChannel, qp, cq);
 		commRdma.initSGRecv(wrList_recv);
 		
 		//now let's connect to the server
@@ -271,7 +271,7 @@ public class JVerbsRdmaClient {
 		String[] _args = args;
 		if (args.length < 1) {
 			System.exit(0);
-		} else if (args[0].equals(JVerbsRdmaClient.class.getCanonicalName())) {
+		} else if (args[0].equals(VerbsClient.class.getCanonicalName())) {
 			_args = new String[args.length - 1];
 			for (int i = 0; i < _args.length; i++) {
 				_args[i] = args[i + 1];
@@ -310,7 +310,7 @@ public class JVerbsRdmaClient {
 	}
 	
 	public static void main(String[] args) throws Exception { 
-		JVerbsRdmaClient verbsClient = new JVerbsRdmaClient();
+		VerbsClient verbsClient = new VerbsClient();
 		verbsClient.launch(args);		
 	}		
 }

@@ -19,7 +19,7 @@
  *
  */
 
-package com.ibm.disni.examples.verbs;
+package com.ibm.disni.examples;
 
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
@@ -43,7 +43,7 @@ import com.ibm.disni.rdma.verbs.RdmaConnParam;
 import com.ibm.disni.rdma.verbs.RdmaEventChannel;
 import com.ibm.disni.util.GetOpt;
 
-public class JVerbsRdmaServer {
+public class VerbsServer {
 	private String ipAddress;
 	
 	public void run() throws Exception {
@@ -191,7 +191,7 @@ public class JVerbsRdmaServer {
 
 		//this class is a thin wrapper over some of the data operations in jverbs
 		//we use it to issue data transfer operations
-		RdmaDataPath commRdma = new RdmaDataPath(context, compChannel, qp, cq);
+		VerbsTools commRdma = new VerbsTools(context, compChannel, qp, cq);
 		LinkedList<IbvSendWR> wrList_send = new LinkedList<IbvSendWR>();	
 		
 		//let's preopare some work requests for sending
@@ -243,7 +243,7 @@ public class JVerbsRdmaServer {
 		String[] _args = args;
 		if (args.length < 1) {
 			System.exit(0);
-		} else if (args[0].equals(JVerbsRdmaServer.class.getCanonicalName())) {
+		} else if (args[0].equals(VerbsServer.class.getCanonicalName())) {
 			_args = new String[args.length - 1];
 			for (int i = 0; i < _args.length; i++) {
 				_args[i] = args[i + 1];
@@ -282,7 +282,7 @@ public class JVerbsRdmaServer {
 	}
 	
 	public static void main(String[] args) throws Exception { 
-		JVerbsRdmaServer verbsServer = new JVerbsRdmaServer();
+		VerbsServer verbsServer = new VerbsServer();
 		verbsServer.launch(args);		
 	}		
 }

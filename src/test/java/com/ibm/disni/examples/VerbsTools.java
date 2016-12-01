@@ -19,7 +19,7 @@
  *
  */
 
-package com.ibm.disni.examples.verbs;
+package com.ibm.disni.examples;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
@@ -36,7 +36,7 @@ import com.ibm.disni.rdma.verbs.SVCPostRecv;
 import com.ibm.disni.rdma.verbs.SVCPostSend;
 import com.ibm.disni.rdma.verbs.SVCReqNotify;
 
-public class RdmaDataPath {
+public class VerbsTools {
 	public static boolean CachingON = false;
 	
 	public static int MAX_SGE = 1;
@@ -52,7 +52,7 @@ public class RdmaDataPath {
 	private IbvCompChannel compChannel;
 	private IbvCQ cq;
 	
-	public RdmaDataPath(IbvContext context, IbvCompChannel compChannel, IbvQP qp, IbvCQ cq) {
+	public VerbsTools(IbvContext context, IbvCompChannel compChannel, IbvQP qp, IbvCQ cq) {
 		this.postSendCall = null;
 		this.postRecvCall = null;
 		this.reqNotifyCall = null;
