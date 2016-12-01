@@ -7,7 +7,6 @@ import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
 
-import com.ibm.disni.examples.endpoints.read.JVerbsReadServer;
 import com.ibm.disni.rdma.RdmaActiveEndpoint;
 import com.ibm.disni.rdma.RdmaActiveEndpointGroup;
 import com.ibm.disni.rdma.RdmaEndpoint;
@@ -74,7 +73,7 @@ public class ReadServer implements RdmaEndpointFactory<ReadServer.ReadServerEndp
 		String[] _args = args;
 		if (args.length < 1) {
 			System.exit(0);
-		} else if (args[0].equals(JVerbsReadServer.class.getCanonicalName())) {
+		} else if (args[0].equals(ReadServer.class.getCanonicalName())) {
 			_args = new String[args.length - 1];
 			for (int i = 0; i < _args.length; i++) {
 				_args[i] = args[i + 1];

@@ -19,35 +19,42 @@
  *
  */
 
-package com.ibm.disni.examples.endpoints.read;
+package com.ibm.disni.examples;
 
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.util.LinkedList;
+import java.util.concurrent.ArrayBlockingQueue;
 
+import com.ibm.disni.rdma.RdmaActiveEndpoint;
 import com.ibm.disni.rdma.RdmaActiveEndpointGroup;
 import com.ibm.disni.rdma.RdmaEndpointFactory;
+import com.ibm.disni.rdma.verbs.IbvMr;
+import com.ibm.disni.rdma.verbs.IbvRecvWR;
 import com.ibm.disni.rdma.verbs.IbvSendWR;
+import com.ibm.disni.rdma.verbs.IbvSge;
+import com.ibm.disni.rdma.verbs.IbvWC;
 import com.ibm.disni.rdma.verbs.RdmaCmId;
 import com.ibm.disni.rdma.verbs.SVCPostSend;
 import com.ibm.disni.util.GetOpt;
 
-public class JVerbsReadClient implements RdmaEndpointFactory<CustomClientEndpoint> {
-	private RdmaActiveEndpointGroup<CustomClientEndpoint> endpointGroup;
+public class ReadClient implements RdmaEndpointFactory<ReadClient.CustomClientEndpoint> {
+	private RdmaActiveEndpointGroup<ReadClient.CustomClientEndpoint> endpointGroup;
 	private String ipAddress; 
 	
-	public CustomClientEndpoint createEndpoint(RdmaCmId idPriv, boolean serverSide) throws IOException {
-		return new CustomClientEndpoint(endpointGroup, idPriv, serverSide);
+	public ReadClient.CustomClientEndpoint createEndpoint(RdmaCmId idPriv, boolean serverSide) throws IOException {
+		return new ReadClient.CustomClientEndpoint(endpointGroup, idPriv, serverSide);
 	}	
 	
 	public void run() throws Exception {
 		//create a EndpointGroup. The RdmaActiveEndpointGroup contains CQ processing and delivers CQ event to the endpoint.dispatchCqEvent() method.
-		endpointGroup = new RdmaActiveEndpointGroup<CustomClientEndpoint>(1000, false, 128, 4, 128);
+		endpointGroup = new RdmaActiveEndpointGroup<ReadClient.CustomClientEndpoint>(1000, false, 128, 4, 128);
 		endpointGroup.init(this);
 		//we have passed our own endpoint factory to the group, therefore new endpoints will be of type CustomClientEndpoint
 		//let's create a new client endpoint		
-		CustomClientEndpoint endpoint = endpointGroup.createEndpoint();
+		ReadClient.CustomClientEndpoint endpoint = endpointGroup.createEndpoint();
 		InetAddress localHost = InetAddress.getByName(ipAddress);
 		InetSocketAddress address = new InetSocketAddress(localHost, 1919);
 		
@@ -115,7 +122,7 @@ public class JVerbsReadClient implements RdmaEndpointFactory<CustomClientEndpoin
 		String[] _args = args;
 		if (args.length < 1) {
 			System.exit(0);
-		} else if (args[0].equals(JVerbsReadServer.class.getCanonicalName())) {
+		} else if (args[0].equals(ReadServer.class.getCanonicalName())) {
 			_args = new String[args.length - 1];
 			for (int i = 0; i < _args.length; i++) {
 				_args[i] = args[i + 1];
@@ -136,8 +143,136 @@ public class JVerbsReadClient implements RdmaEndpointFactory<CustomClientEndpoin
 	}
 	
 	public static void main(String[] args) throws Exception { 
-		JVerbsReadClient simpleClient = new JVerbsReadClient();
+		ReadClient simpleClient = new ReadClient();
 		simpleClient.launch(args);		
 	}
+	
+	public static class CustomClientEndpoint extends RdmaActiveEndpoint {
+		private ByteBuffer buffers[];
+		private IbvMr mrlist[];
+		private int buffercount = 3;
+		private int buffersize = 100;
+		
+		private ByteBuffer dataBuf;
+		private IbvMr dataMr;
+		private ByteBuffer sendBuf;
+		private ByteBuffer recvBuf;
+		private IbvMr recvMr;	
+		
+		private LinkedList<IbvSendWR> wrList_send;
+		private IbvSge sgeSend;
+		private LinkedList<IbvSge> sgeList;
+		private IbvSendWR sendWR;
+		
+		private LinkedList<IbvRecvWR> wrList_recv;
+		private IbvSge sgeRecv;
+		private LinkedList<IbvSge> sgeListRecv;
+		private IbvRecvWR recvWR;
+		
+		private ArrayBlockingQueue<IbvWC> wcEvents;
+
+		public CustomClientEndpoint(RdmaActiveEndpointGroup<? extends CustomClientEndpoint> endpointGroup, RdmaCmId idPriv, boolean isServerSide) throws IOException {	
+			super(endpointGroup, idPriv, isServerSide);
+			this.buffercount = 3;
+			this.buffersize = 100;
+			buffers = new ByteBuffer[buffercount];
+			this.mrlist = new IbvMr[buffercount];
+			
+			for (int i = 0; i < buffercount; i++){
+				buffers[i] = ByteBuffer.allocateDirect(buffersize);
+			}
+			
+			this.wrList_send = new LinkedList<IbvSendWR>();	
+			this.sgeSend = new IbvSge();
+			this.sgeList = new LinkedList<IbvSge>();
+			this.sendWR = new IbvSendWR();
+			
+			this.wrList_recv = new LinkedList<IbvRecvWR>();	
+			this.sgeRecv = new IbvSge();
+			this.sgeListRecv = new LinkedList<IbvSge>();
+			this.recvWR = new IbvRecvWR();		
+			
+			this.wcEvents = new ArrayBlockingQueue<IbvWC>(10);
+		}
+		
+		//important: we override the init method to prepare some buffers (memory registration, post recv, etc). 
+		//This guarantees that at least one recv operation will be posted at the moment this endpoint is connected. 
+		public void init() throws IOException{
+			super.init();
+			
+			for (int i = 0; i < buffercount; i++){
+				mrlist[i] = registerMemory(buffers[i]).execute().free().getMr();
+			}
+			
+			this.dataBuf = buffers[0];
+			this.dataMr = mrlist[0];
+			this.sendBuf = buffers[1];
+			this.recvBuf = buffers[2];
+			this.recvMr = mrlist[2];
+			
+			dataBuf.clear();		
+			sendBuf.clear();
+
+			sgeSend.setAddr(dataMr.getAddr());
+			sgeSend.setLength(dataMr.getLength());
+			sgeSend.setLkey(dataMr.getLkey());
+			sgeList.add(sgeSend);
+			sendWR.setWr_id(2000);
+			sendWR.setSg_list(sgeList);
+			sendWR.setOpcode(IbvSendWR.IBV_WR_SEND);
+			sendWR.setSend_flags(IbvSendWR.IBV_SEND_SIGNALED);		
+			wrList_send.add(sendWR);
+
+			
+			sgeRecv.setAddr(recvMr.getAddr());
+			sgeRecv.setLength(recvMr.getLength());
+			int lkey = recvMr.getLkey();
+			sgeRecv.setLkey(lkey);
+			sgeListRecv.add(sgeRecv);	
+			recvWR.setSg_list(sgeListRecv);
+			recvWR.setWr_id(2001);
+			wrList_recv.add(recvWR);
+			
+			System.out.println("ReadClient::initiated recv");
+			this.postRecv(wrList_recv).execute().free();		
+		}
+		
+		public void dispatchCqEvent(IbvWC wc) throws IOException {
+			wcEvents.add(wc);
+		}
+		
+		public ArrayBlockingQueue<IbvWC> getWcEvents() {
+			return wcEvents;
+		}		
+
+		public LinkedList<IbvSendWR> getWrList_send() {
+			return wrList_send;
+		}
+
+		public LinkedList<IbvRecvWR> getWrList_recv() {
+			return wrList_recv;
+		}
+
+		public ByteBuffer getDataBuf() {
+			return dataBuf;
+		}
+
+		public ByteBuffer getSendBuf() {
+			return sendBuf;
+		}
+
+		public ByteBuffer getRecvBuf() {
+			return recvBuf;
+		}
+
+		public IbvSendWR getSendWR() {
+			return sendWR;
+		}
+
+		public IbvRecvWR getRecvWR() {
+			return recvWR;
+		}		
+	}
+	
 }
 

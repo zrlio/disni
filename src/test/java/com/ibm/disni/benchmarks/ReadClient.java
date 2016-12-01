@@ -8,7 +8,7 @@ import java.util.LinkedList;
 import java.util.concurrent.Semaphore;
 import java.util.concurrent.atomic.AtomicInteger;
 
-import com.ibm.disni.examples.endpoints.read.JVerbsReadServer;
+import com.ibm.disni.examples.ReadServer;
 import com.ibm.disni.rdma.RdmaEndpoint;
 import com.ibm.disni.rdma.RdmaEndpointFactory;
 import com.ibm.disni.rdma.RdmaEndpointGroup;
@@ -111,7 +111,7 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.ReadClientEndp
 		String[] _args = args;
 		if (args.length < 1) {
 			System.exit(0);
-		} else if (args[0].equals(JVerbsReadServer.class.getCanonicalName())) {
+		} else if (args[0].equals(ReadServer.class.getCanonicalName())) {
 			_args = new String[args.length - 1];
 			for (int i = 0; i < _args.length; i++) {
 				_args[i] = args[i + 1];
