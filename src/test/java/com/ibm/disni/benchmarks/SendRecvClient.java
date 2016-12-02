@@ -68,6 +68,8 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.SendRe
 			opCount += actualSends;
 //			System.out.println("opCount " + opCount);
 		}
+		endpoint.awaitRecvs();
+		endpoint.awaitSends();
 		long end = System.nanoTime();
 		long duration = end - start;
 		double _ops = (double) loop;
@@ -76,8 +78,6 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.SendRe
 		double iops = _ops / _seconds;
 		System.out.println("iops " + iops);
 		
-		endpoint.awaitRecvs();
-		endpoint.awaitSends();
 		
 		//close everything
 		endpoint.close();
