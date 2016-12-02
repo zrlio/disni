@@ -48,7 +48,7 @@ public class SendRecvServer implements RdmaEndpointFactory<SendRecvServer.SendRe
 	
 	
 	private void run() throws IOException, InterruptedException {
-		System.out.println("SendRecvServer, size " + size + ", loop " + loop + ", recvQueueSize " + recvQueueSize);
+		System.out.println("SendRecvServer, size " + size + ", loop " + loop + ", recvQueueSize " + recvQueueSize + ", port " + port);
 		
 		RdmaServerEndpoint<SendRecvServer.SendRecvEndpoint> serverEndpoint = group.createServerEndpoint();
 		InetAddress ipAddress = InetAddress.getByName(host);
