@@ -29,14 +29,16 @@ public class SendRecvServer implements RdmaEndpointFactory<SendRecvServer.SendRe
 	private int size;
 	private int loop;
 	private int recvQueueSize;
+	private int port;
 	
-	public SendRecvServer(String host, int size, int loop, int recvQueueSize) throws IOException{
+	public SendRecvServer(String host, int size, int loop, int recvQueueSize, int port) throws IOException{
 		this.group = new RdmaPassiveEndpointGroup<SendRecvServer.SendRecvEndpoint>(1, recvQueueSize, 1, recvQueueSize*4);
 		this.group.init(this);
 		this.host = host;
 		this.size = size;
 		this.loop = loop;
 		this.recvQueueSize = recvQueueSize;
+		this.port = port;
 	}
 
 	public SendRecvServer.SendRecvEndpoint createEndpoint(RdmaCmId id, boolean serverSide)
@@ -46,11 +48,11 @@ public class SendRecvServer implements RdmaEndpointFactory<SendRecvServer.SendRe
 	
 	
 	private void run() throws IOException, InterruptedException {
-		System.out.println("SendRecvServer, size " + size + ", loop " + loop + ", recvQueueSize" + recvQueueSize);
+		System.out.println("SendRecvServer, size " + size + ", loop " + loop + ", recvQueueSize " + recvQueueSize);
 		
 		RdmaServerEndpoint<SendRecvServer.SendRecvEndpoint> serverEndpoint = group.createServerEndpoint();
 		InetAddress ipAddress = InetAddress.getByName(host);
-		InetSocketAddress address = new InetSocketAddress(ipAddress, 1919);
+		InetSocketAddress address = new InetSocketAddress(ipAddress, port);
 		serverEndpoint.bind(address, 10);
 		SendRecvServer.SendRecvEndpoint endpoint = serverEndpoint.accept();
 		InetSocketAddress _addr = (InetSocketAddress) endpoint.getDstAddr();
@@ -89,7 +91,7 @@ public class SendRecvServer implements RdmaEndpointFactory<SendRecvServer.SendRe
 			}
 		}
 		
-		GetOpt go = new GetOpt(_args, "a:s:k:r:");
+		GetOpt go = new GetOpt(_args, "a:s:k:r:p:");
 		go.optErr = true;
 		int ch = -1;
 		
@@ -97,6 +99,7 @@ public class SendRecvServer implements RdmaEndpointFactory<SendRecvServer.SendRe
 		int size = 32;
 		int loop = 1000;
 		int recvQueueSize = 64;
+		int port = 1919;
 		while ((ch = go.getopt()) != GetOpt.optEOF) {
 			if ((char) ch == 'a') {
 				ipAddress = go.optArgGet();
@@ -106,10 +109,12 @@ public class SendRecvServer implements RdmaEndpointFactory<SendRecvServer.SendRe
 				loop = Integer.parseInt(go.optArgGet());
 			} else if ((char) ch == 'r') {
 				recvQueueSize = Integer.parseInt(go.optArgGet());
+			} else if ((char) ch == 'p') {
+				port = Integer.parseInt(go.optArgGet());
 			} 
 		}		
 		
-		SendRecvServer server = new SendRecvServer(ipAddress, size, loop, recvQueueSize);
+		SendRecvServer server = new SendRecvServer(ipAddress, size, loop, recvQueueSize, port);
 		server.run();
 	}
 	
