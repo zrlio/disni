@@ -16,14 +16,21 @@ public class Nvme {
     }
 
     public void probe(NvmeTransportId id, ArrayList<NvmeController> controller) throws IOException {
-        int probeId = nativeDispatcher._nvme_probe(id);
-        if (probeId < 0) {
-            throw new IOException("spdk_nvme_probe failed with " + probeId);
-        }
-        long controllerId;
+        long controllerIds[] = new long[8];
+        int i;
+        int probeId;
         do {
-            controllerId = nativeDispatcher._nvme_probe_next(probeId);
-            controller.add(new NvmeController(controllerId));
-        } while (controllerId != 0);
+            probeId = nativeDispatcher._nvme_probe(id, controllerIds);
+            if (probeId < 0) {
+                throw new IOException("spdk_nvme_probe failed with " + probeId);
+            }
+
+            for (i = 0; i < probeId; i++) {
+                if (controllerIds[i] == 0) {
+                    break;
+                }
+                controller.add(new NvmeController(controllerIds[i]));
+            }
+        } while (i == probeId);
     }
 }

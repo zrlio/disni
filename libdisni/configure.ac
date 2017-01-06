@@ -23,7 +23,7 @@ AC_CHECK_LIB([rdmacm], [main])
 AC_ARG_WITH([jdk], [AS_HELP_STRING([--with-jdk],[jdk base directory])], [jdk=$withval], [AC_ERROR([jdk directory not specified])])
 AC_SUBST([jdk])
 
-AC_ARG_WITH([spdk], [AS_HELP_STRING([--with-spdk],[spdk base directory])], [jdk=$withval], [AC_ERROR([spdk directory not specified])])
+AC_ARG_WITH([spdk], [AS_HELP_STRING([--with-spdk],[spdk base directory])], [spdk=$withval], [AC_ERROR([spdk directory not specified])])
 AC_SUBST([spdk])
 
 AC_ARG_ENABLE(logging, [  --enable-logging],
