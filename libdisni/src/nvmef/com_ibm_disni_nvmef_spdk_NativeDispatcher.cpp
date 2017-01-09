@@ -7,17 +7,44 @@
 #include <spdk/nvmf_spec.h>
 #include <spdk/pci_ids.h>
 
+#include <rte_config.h>
+#include <rte_lcore.h>
+
+#include <iostream>
+
 #include <cstdio>
 #include <cstring>
 #include <cerrno>
+#include <cstdlib>
 
 #define PACKAGE_NAME "com/ibm/disni/nvmef/spdk"
+
+static const char *ealargs[] = {
+	"identify",
+	"-c 0x1",
+	"-n 4",
+	"-m 512",
+	"--proc-type=auto",
+};
 
 struct probe_ctx {
     size_t idx;
     jlong* ctrl_ids;
     size_t size;
 };
+
+static void initialize_dpdk() {
+    static bool dpdk_initialized = false;
+    if (!dpdk_initialized) {
+        int ret = rte_eal_init(sizeof(ealargs) / sizeof(ealargs[0]),
+                  (char **)(void *)(uintptr_t)ealargs);
+        if (ret < 0) {
+            std::cerr << "could not initialize dpdk\n";
+            exit(1);
+        }
+        dpdk_initialized = true;
+    }
+}
 
 static bool probe_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
         struct spdk_nvme_ctrlr_opts *opts) {
@@ -38,6 +65,7 @@ static void attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
  */
 JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1probe
   (JNIEnv* env, jobject thiz, jint type, jint address_family, jstring address, jstring service_id, jstring subsystemNQN, jlongArray controller_ids) {
+    initialize_dpdk();
     spdk_nvme_transport_id trid;
     trid.trtype = static_cast<spdk_nvme_transport_type>(type);
     trid.adrfam = static_cast<spdk_nvmf_adrfam>(address_family);
