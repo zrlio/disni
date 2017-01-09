@@ -21,7 +21,8 @@ public class Nvme {
         int probeId;
         do {
             probeId = nativeDispatcher._nvme_probe(id.getType().getNumVal(), id.getAddressFamily().getNumVal(),
-                    id.getAddress(), id.getServiceId(), id.getSubsystemNQN(), controllerIds);
+                    id.getAddress(), id.getServiceId(),
+                    id.getSubsystemNQN(), controllerIds);
             if (probeId < 0) {
                 throw new IOException("spdk_nvme_probe failed with " + probeId);
             }

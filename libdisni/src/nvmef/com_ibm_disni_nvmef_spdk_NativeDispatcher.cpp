@@ -41,6 +41,9 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1pr
     spdk_nvme_transport_id trid;
     trid.trtype = static_cast<spdk_nvme_transport_type>(type);
     trid.adrfam = static_cast<spdk_nvmf_adrfam>(address_family);
+    if (env->IsSameObject(address, NULL)) {
+        return -EFAULT;
+    }
     const char* addr = env->GetStringUTFChars(address, NULL);
     if (addr == NULL) {
         return -EFAULT;
@@ -48,6 +51,9 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1pr
     strncpy(trid.traddr, addr, sizeof(trid.traddr));
     env->ReleaseStringUTFChars(address, addr);
 
+    if (env->IsSameObject(service_id, NULL)) {
+        return -EFAULT;
+    }
     const char* svcid = env->GetStringUTFChars(service_id, NULL);
     if (svcid == NULL) {
         return -EFAULT;
@@ -55,6 +61,9 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1pr
     strncpy(trid.trsvcid, svcid, sizeof(trid.trsvcid));
     env->ReleaseStringUTFChars(service_id, svcid);
 
+    if (env->IsSameObject(subsystemNQN, NULL)) {
+        return -EFAULT;
+    }
     const char* subnqn = env->GetStringUTFChars(subsystemNQN, NULL);
     if (subnqn == NULL) {
         return -EFAULT;
