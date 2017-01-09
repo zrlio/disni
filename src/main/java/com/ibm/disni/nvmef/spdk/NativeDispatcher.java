@@ -15,5 +15,5 @@ public class NativeDispatcher {
         System.loadLibrary("disni");
     }
 
-    public native int _nvme_probe(NvmeTransportId id, long[] controllerIds);
+    public native int _nvme_probe(int type, int addressFamily, String address, String serviceId, String subsystemNQN, long[] controllerIds);
 }
