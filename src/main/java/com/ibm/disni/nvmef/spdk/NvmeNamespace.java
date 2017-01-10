@@ -21,21 +21,10 @@
 
 package com.ibm.disni.nvmef.spdk;
 
-import com.ibm.disni.util.DiSNILogger;
-import org.slf4j.Logger;
 
-import java.util.ArrayList;
+public class NvmeNamespace extends NatObject {
 
-public class NativeDispatcher {
-    private static final Logger logger = DiSNILogger.getLogger();
-
-    static {
-        System.loadLibrary("disni");
+    protected NvmeNamespace(long objId) {
+        super(objId);
     }
-
-    public native int _nvme_probe(int type, int addressFamily, String address, String serviceId, String subsystemNQN, long[] controllerIds);
-
-    public native int _nvme_ctrlr_get_num_ns(long controller);
-
-    public native long _nvme_ctrlr_get_ns(long controller, int namespaceId);
 }

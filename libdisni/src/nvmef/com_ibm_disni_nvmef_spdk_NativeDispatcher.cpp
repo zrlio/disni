@@ -131,3 +131,27 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1pr
     return ret < 0 ? ret : ctx.idx;
 }
 
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvme_ctrlr_get_num_ns
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1get_1num_1ns
+  (JNIEnv* env, jobject thiz, jlong controller_id) {
+    spdk_nvme_ctrlr* ctrlr = reinterpret_cast<spdk_nvme_ctrlr*>(controller_id);
+    return spdk_nvme_ctrlr_get_num_ns(ctrlr);
+}
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvme_ctrlr_get_ns
+ * Signature: (JI)J
+ */
+JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1get_1ns
+  (JNIEnv* env, jobject thiz, jlong controller_id, jint nid) {
+    spdk_nvme_ctrlr* ctrlr = reinterpret_cast<spdk_nvme_ctrlr*>(controller_id);
+    spdk_nvme_ns* ns = spdk_nvme_ctrlr_get_ns(ctrlr, nid);
+    return reinterpret_cast<jlong>(ns);
+}
+
+

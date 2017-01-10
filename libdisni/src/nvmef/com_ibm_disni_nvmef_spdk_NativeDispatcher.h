@@ -15,6 +15,22 @@ extern "C" {
 JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1probe
   (JNIEnv *, jobject, jint, jint, jstring, jstring, jstring, jlongArray);
 
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvme_ctrlr_get_num_ns
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1get_1num_1ns
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvme_ctrlr_get_ns
+ * Signature: (JI)J
+ */
+JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1get_1ns
+  (JNIEnv *, jobject, jlong, jint);
+
 #ifdef __cplusplus
 }
 #endif

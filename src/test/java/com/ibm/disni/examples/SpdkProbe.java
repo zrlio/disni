@@ -33,6 +33,12 @@ public class SpdkProbe {
         nvme.probe(transportId, controllers);
         for (NvmeController controller : controllers) {
             System.out.println("Controller: " + controller.getObjId());
+            int numberOfNamespaces = controller.getNumberOfNamespaces();
+            for(int i = 0; i < numberOfNamespaces; i++) {
+                System.out.println("Namespace: " + controller.getNamespace(i + 1).getObjId());
+            }
         }
+
+
     }
 }

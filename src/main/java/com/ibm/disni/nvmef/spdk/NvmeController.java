@@ -21,8 +21,39 @@
 
 package com.ibm.disni.nvmef.spdk;
 
+import java.io.IOException;
+
 public class NvmeController extends NatObject {
+    private NvmeNamespace namespaces[];
+    private int numberOfNamespaces;
+
+    private NativeDispatcher nativeDispatcher;
+
     NvmeController(long objId) {
         super(objId);
+        nativeDispatcher = new NativeDispatcher();
+    }
+
+    public NvmeNamespace getNamespace(int id) throws IOException {
+        int idx = id - 1;
+        if (namespaces[idx] == null) {
+            long namespace = nativeDispatcher._nvme_ctrlr_get_ns(getObjId(), id);
+            if (namespace == 0) {
+                throw new IOException("nvme_ctrlr_get_ns failed");
+            }
+            namespaces[idx] = new NvmeNamespace(namespace);
+        }
+        return namespaces[idx];
+    }
+
+    public int getNumberOfNamespaces() throws IOException {
+        if (namespaces == null) {
+            numberOfNamespaces = nativeDispatcher._nvme_ctrlr_get_num_ns(getObjId());
+            if (numberOfNamespaces < 0) {
+                throw new IOException("nvme_ctrlr_get_num_ns failed with " + numberOfNamespaces);
+            }
+            namespaces = new NvmeNamespace[numberOfNamespaces];
+        }
+        return numberOfNamespaces;
     }
 }
