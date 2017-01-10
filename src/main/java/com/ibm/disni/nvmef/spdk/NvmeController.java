@@ -39,6 +39,7 @@ public class NvmeController extends NatObject {
         nativeDispatcher = new NativeDispatcher();
         ByteBuffer buffer = ByteBuffer.allocateDirect(NvmeControllerData.CSIZE);
         nativeDispatcher._nvme_ctrlr_get_data(getObjId(), ((DirectBuffer)buffer).address());
+        data = new NvmeControllerData();
         data.update(buffer);
     }
 
