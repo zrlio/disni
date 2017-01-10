@@ -178,3 +178,14 @@ JNIEXPORT jboolean JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme
     return spdk_nvme_ns_is_active(ns);
 }
 
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvme_ns_get_size
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ns_1get_1size
+  (JNIEnv* env, jobject thiz, jlong namespace_id) {
+    spdk_nvme_ns* ns = reinterpret_cast<spdk_nvme_ns*>(namespace_id);
+    return spdk_nvme_ns_get_size(ns);
+}
+

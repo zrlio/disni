@@ -33,4 +33,8 @@ public class NvmeNamespace extends NatObject {
     public boolean isActive() {
         return nativeDispatcher._nvme_ns_is_active(getObjId());
     }
+
+    public long getSize() {
+        return nativeDispatcher._nvme_ns_get_size(getObjId());
+    }
 }

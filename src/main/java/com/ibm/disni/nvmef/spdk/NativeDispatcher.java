@@ -42,4 +42,6 @@ public class NativeDispatcher {
     public native void _nvme_ctrlr_get_data(long controller, long buffer);
 
     public native boolean _nvme_ns_is_active(long namespace);
+
+    public native long _nvme_ns_get_size(long namespace);
 }
