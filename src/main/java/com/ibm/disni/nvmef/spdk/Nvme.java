@@ -35,21 +35,18 @@ public class Nvme {
     public void probe(NvmeTransportId id, ArrayList<NvmeController> controller) throws IOException {
         long controllerIds[] = new long[8];
         int i;
-        int probeId;
+        int controllers;
         do {
-            probeId = nativeDispatcher._nvme_probe(id.getType().getNumVal(), id.getAddressFamily().getNumVal(),
+            controllers = nativeDispatcher._nvme_probe(id.getType().getNumVal(), id.getAddressFamily().getNumVal(),
                     id.getAddress(), id.getServiceId(),
                     id.getSubsystemNQN(), controllerIds);
-            if (probeId < 0) {
-                throw new IOException("spdk_nvme_probe failed with " + probeId);
+            if (controllers < 0) {
+                throw new IOException("spdk_nvme_probe failed with " + controllers);
             }
 
-            for (i = 0; i < probeId; i++) {
-                if (controllerIds[i] == 0) {
-                    break;
-                }
+            for (i = 0; i < Math.min(controllers, controllerIds.length); i++) {
                 controller.add(new NvmeController(controllerIds[i]));
             }
-        } while (i == probeId);
+        } while (controllers > controllerIds.length);
     }
 }

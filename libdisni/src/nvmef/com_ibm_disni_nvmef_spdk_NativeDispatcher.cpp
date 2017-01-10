@@ -50,7 +50,7 @@ static const char *ealargs[] = {
 struct probe_ctx {
     size_t idx;
     jlong* ctrl_ids;
-    size_t size;
+    jsize size;
 };
 
 static void initialize_dpdk() {
@@ -69,13 +69,13 @@ static void initialize_dpdk() {
 static bool probe_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
         struct spdk_nvme_ctrlr_opts *opts) {
     probe_ctx* ctx = reinterpret_cast<probe_ctx*>(cb_ctx);
-    return ctx->idx < ctx->size;
+    return ctx->idx++ < ctx->size;
 }
 
 static void attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
         struct spdk_nvme_ctrlr *ctrlr, const struct spdk_nvme_ctrlr_opts *opts) {
     probe_ctx* ctx = reinterpret_cast<probe_ctx*>(cb_ctx);
-    ctx->ctrl_ids[ctx->idx++] = reinterpret_cast<jlong>(ctrlr);
+    ctx->ctrl_ids[ctx->idx - 1] = reinterpret_cast<jlong>(ctrlr);
 }
 
 /*
@@ -84,7 +84,8 @@ static void attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
  * Signature: (IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;[J)I
  */
 JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1probe
-  (JNIEnv* env, jobject thiz, jint type, jint address_family, jstring address, jstring service_id, jstring subsystemNQN, jlongArray controller_ids) {
+  (JNIEnv* env, jobject thiz, jint type, jint address_family, jstring address,
+   jstring service_id, jstring subsystemNQN, jlongArray controller_ids) {
     initialize_dpdk();
     spdk_nvme_transport_id trid;
     trid.trtype = static_cast<spdk_nvme_transport_type>(type);
@@ -125,9 +126,8 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1pr
         return -EFAULT;
     }
     probe_ctx ctx = {0, ctrl_ids, env->GetArrayLength(controller_ids)};
-    int ret = spdk_nvme_probe(&trid, reinterpret_cast<probe_ctx*>(&ctx),
-            probe_cb, attach_cb, NULL);
+    int ret = spdk_nvme_probe(&trid, &ctx, probe_cb, attach_cb, NULL);
     env->ReleaseLongArrayElements(controller_ids, ctrl_ids, 0);
-    return ret;
+    return ret < 0 ? ret : ctx.idx;
 }
 
