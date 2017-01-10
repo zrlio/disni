@@ -34,8 +34,8 @@ public class SpdkProbe {
         for (NvmeController controller : controllers) {
             System.out.println("-------------------------------------------");
             System.out.println("Controller: " + controller.getObjId());
-            System.out.println("PCI Vendor ID = " + controller.getPCIVendorID());
-            System.out.println("PCI Subsystem Vendor ID = " + controller.getPCISubsystemVendorID());
+            System.out.println("PCI Vendor ID = " + Integer.toHexString(0xffff & controller.getPCIVendorID()));
+            System.out.println("PCI Subsystem Vendor ID = " + Integer.toHexString(0xffff & controller.getPCISubsystemVendorID()));
             System.out.println("Serial Number = " + controller.getSerialNumber());
             System.out.println("Model Number = " + controller.getModelNumber());
             System.out.println("Firmware Revision = " + controller.getFirmwareRevision());
