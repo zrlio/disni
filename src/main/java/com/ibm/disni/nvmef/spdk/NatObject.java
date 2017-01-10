@@ -1,7 +1,7 @@
 /*
  * jVerbs: RDMA verbs support for the Java Virtual Machine
  *
- * Author: Patrick Stuedi <stu@zurich.ibm.com>
+ * Author: Jonas Pfefferle <jpf@zurich.ibm.com>
  *
  * Copyright (C) 2016, IBM Corporation
  *
