@@ -1,6 +1,7 @@
 package com.ibm.disni.nvmef.spdk;
 
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 /**
  * Created by jpf on 10.01.17.
@@ -20,6 +21,7 @@ class NvmeControllerData {
     }
 
     void update(ByteBuffer buffer) {
+        buffer.order(ByteOrder.nativeOrder());
         pciVendorID = buffer.getShort();
         pciSubsystemVendorID = buffer.getShort();
         buffer.get(serialNumber);

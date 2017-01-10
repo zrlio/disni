@@ -24,7 +24,6 @@ package com.ibm.disni.nvmef.spdk;
 import sun.nio.ch.DirectBuffer;
 
 import java.io.IOException;
-import java.lang.annotation.Native;
 import java.nio.ByteBuffer;
 
 public class NvmeController extends NatObject {
@@ -62,6 +61,15 @@ public class NvmeController extends NatObject {
 
     public String getFirmwareRevision() {
         return new String(data.getFirmwareRevision());
+    }
+
+    public NvmeQueuePair allocQueuePair() throws IOException {
+        //TODO: priorities for weighted round-robin scheduling
+        long qPair = nativeDispatcher._nvme_ctrlr_alloc_io_qpair(getObjId(), 0);
+        if (qPair == 0) {
+            throw new IOException("nvme_ctrlr_alloc_io_qpair failed");
+        }
+        return new NvmeQueuePair(qPair, nativeDispatcher);
     }
 
     public NvmeNamespace getNamespace(int id) throws IOException {

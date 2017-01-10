@@ -51,7 +51,8 @@ public class SpdkProbe {
                 }
             }
         }
-
-
+        // alloc qpair
+        NvmeController controller = controllers.get(0);
+        NvmeQueuePair queuePair = controller.allocQueuePair();
     }
 }
