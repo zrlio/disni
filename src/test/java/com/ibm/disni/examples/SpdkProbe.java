@@ -32,7 +32,14 @@ public class SpdkProbe {
         ArrayList<NvmeController> controllers = new ArrayList<NvmeController>();
         nvme.probe(transportId, controllers);
         for (NvmeController controller : controllers) {
+            System.out.println("-------------------------------------------");
             System.out.println("Controller: " + controller.getObjId());
+            System.out.println("PCI Vendor ID = " + controller.getPCIVendorID());
+            System.out.println("PCI Subsystem Vendor ID = " + controller.getPCISubsystemVendorID());
+            System.out.println("Serial Number = " + controller.getSerialNumber());
+            System.out.println("Model Number = " + controller.getModelNumber());
+            System.out.println("Firmware Revision = " + controller.getFirmwareRevision());
+
             int numberOfNamespaces = controller.getNumberOfNamespaces();
             for(int i = 0; i < numberOfNamespaces; i++) {
                 System.out.println("Namespace: " + controller.getNamespace(i + 1).getObjId());

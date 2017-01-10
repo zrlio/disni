@@ -38,4 +38,6 @@ public class NativeDispatcher {
     public native int _nvme_ctrlr_get_num_ns(long controller);
 
     public native long _nvme_ctrlr_get_ns(long controller, int namespaceId);
+
+    public native void _nvme_ctrlr_get_data(long controller, long buffer);
 }

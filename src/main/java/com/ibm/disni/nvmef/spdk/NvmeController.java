@@ -21,7 +21,10 @@
 
 package com.ibm.disni.nvmef.spdk;
 
+import sun.nio.ch.DirectBuffer;
+
 import java.io.IOException;
+import java.nio.ByteBuffer;
 
 public class NvmeController extends NatObject {
     private NvmeNamespace namespaces[];
@@ -29,9 +32,34 @@ public class NvmeController extends NatObject {
 
     private NativeDispatcher nativeDispatcher;
 
+    private NvmeControllerData data;
+
     NvmeController(long objId) {
         super(objId);
         nativeDispatcher = new NativeDispatcher();
+        ByteBuffer buffer = ByteBuffer.allocateDirect(NvmeControllerData.CSIZE);
+        nativeDispatcher._nvme_ctrlr_get_data(getObjId(), ((DirectBuffer)buffer).address());
+        data.update(buffer);
+    }
+
+    public short getPCIVendorID() {
+        return data.getPciVendorID();
+    }
+
+    public short getPCISubsystemVendorID() {
+        return data.getPciSubsystemVendorID();
+    }
+
+    public String getSerialNumber() {
+        return new String(data.getSerialNumber());
+    }
+
+    public String getModelNumber() {
+        return new String(data.getModelNumber());
+    }
+
+    public String getFirmwareRevision() {
+        return new String(data.getFirmwareRevision());
     }
 
     public NvmeNamespace getNamespace(int id) throws IOException {
