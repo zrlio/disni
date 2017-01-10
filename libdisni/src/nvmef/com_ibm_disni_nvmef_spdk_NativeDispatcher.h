@@ -39,6 +39,14 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1c
 JNIEXPORT void JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1get_1data
   (JNIEnv *, jobject, jlong, jlong);
 
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvme_ns_is_active
+ * Signature: (J)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ns_1is_1active
+  (JNIEnv *, jobject, jlong);
+
 #ifdef __cplusplus
 }
 #endif

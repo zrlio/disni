@@ -24,6 +24,7 @@ package com.ibm.disni.nvmef.spdk;
 import sun.nio.ch.DirectBuffer;
 
 import java.io.IOException;
+import java.lang.annotation.Native;
 import java.nio.ByteBuffer;
 
 public class NvmeController extends NatObject {
@@ -34,9 +35,9 @@ public class NvmeController extends NatObject {
 
     private NvmeControllerData data;
 
-    NvmeController(long objId) {
+    NvmeController(long objId, NativeDispatcher nativeDispatcher) {
         super(objId);
-        nativeDispatcher = new NativeDispatcher();
+        this.nativeDispatcher = nativeDispatcher;
         ByteBuffer buffer = ByteBuffer.allocateDirect(NvmeControllerData.CSIZE);
         nativeDispatcher._nvme_ctrlr_get_data(getObjId(), ((DirectBuffer)buffer).address());
         data = new NvmeControllerData();
@@ -70,7 +71,7 @@ public class NvmeController extends NatObject {
             if (namespace == 0) {
                 throw new IOException("nvme_ctrlr_get_ns failed");
             }
-            namespaces[idx] = new NvmeNamespace(namespace);
+            namespaces[idx] = new NvmeNamespace(namespace, nativeDispatcher);
         }
         return namespaces[idx];
     }

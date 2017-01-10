@@ -23,8 +23,14 @@ package com.ibm.disni.nvmef.spdk;
 
 
 public class NvmeNamespace extends NatObject {
+    private NativeDispatcher nativeDispatcher;
 
-    protected NvmeNamespace(long objId) {
+    protected NvmeNamespace(long objId, NativeDispatcher nativeDispatcher) {
         super(objId);
+        this.nativeDispatcher = nativeDispatcher;
+    }
+
+    public boolean isActive() {
+        return nativeDispatcher._nvme_ns_is_active(getObjId());
     }
 }

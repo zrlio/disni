@@ -45,7 +45,7 @@ public class Nvme {
             }
 
             for (i = 0; i < Math.min(controllers, controllerIds.length); i++) {
-                controller.add(new NvmeController(controllerIds[i]));
+                controller.add(new NvmeController(controllerIds[i], nativeDispatcher));
             }
         } while (controllers > controllerIds.length);
     }

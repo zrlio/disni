@@ -42,7 +42,9 @@ public class SpdkProbe {
 
             int numberOfNamespaces = controller.getNumberOfNamespaces();
             for(int i = 0; i < numberOfNamespaces; i++) {
-                System.out.println("Namespace: " + controller.getNamespace(i + 1).getObjId());
+                NvmeNamespace namespace = controller.getNamespace(i + 1);
+                System.out.println("Namespace: " + namespace.getObjId());
+                System.out.println("Is active = " + namespace.isActive());
             }
         }
 
