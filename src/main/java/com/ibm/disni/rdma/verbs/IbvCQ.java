@@ -40,7 +40,7 @@ import java.io.IOException;
 /**
  * Represents a completion queue. 
  * 
- * Completion queues hold events indicated the completion of data transfer operations.
+ * IOCompletion queues hold events indicated the completion of data transfer operations.
  * 
  * Several queue pairs (QPs) can share the same completion queue.
  */

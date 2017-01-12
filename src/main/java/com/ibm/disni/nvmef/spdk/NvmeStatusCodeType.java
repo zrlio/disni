@@ -21,22 +21,15 @@
 
 package com.ibm.disni.nvmef.spdk;
 
-import java.io.IOException;
+public enum NvmeStatusCodeType {
+	GENERIC(0x0),
+	COMMAND_SPECIFIC(0x1),
+	MEDIA_ERROR(0x2),
+	VENDOR_SPECIFIC(0x7);
 
-public class NvmeQueuePair extends NatObject {
+	private int numVal;
 
-	private NativeDispatcher nativeDispatcher;
+	NvmeStatusCodeType(int numVal) { this.numVal = numVal; }
 
-	NvmeQueuePair(long objId, NativeDispatcher nativeDispatcher) {
-		super(objId);
-		this.nativeDispatcher = nativeDispatcher;
-	}
-
-	public int processCompletions(int maxCompletions) throws IOException {
-		int ret = nativeDispatcher._nvme_qpair_process_completions(getObjId(), maxCompletions);
-		if (ret < 0) {
-			throw new IOException("nvme_qpair_process_completions failed with " + ret);
-		}
-		return ret;
-	}
+	public int getNumVal() { return numVal; }
 }

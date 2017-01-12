@@ -53,6 +53,11 @@ struct probe_ctx {
     jsize size;
 };
 
+struct io_completion {
+    int status_code_type;
+    int status_code;
+};
+
 static void initialize_dpdk() {
     static bool dpdk_initialized = false;
     if (!dpdk_initialized) {
@@ -199,5 +204,46 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1n
   (JNIEnv* env, jobject thiz, jlong namespace_id) {
     spdk_nvme_ns* ns = reinterpret_cast<spdk_nvme_ns*>(namespace_id);
     return spdk_nvme_ns_get_size(ns);
+}
+
+static void command_cb(void* cb_data, const struct spdk_nvme_cpl* nvme_completion) {
+    io_completion* completion = reinterpret_cast<io_completion*>(cb_data);
+    completion->status_code = nvme_completion->status.sc;
+    completion->status_code_type = nvme_completion->status.sct;
+}
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvme_ns_io_cmd
+ * Signature: (JJJJIJZ)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ns_1io_1cmd
+  (JNIEnv* env, jobject thiz, jlong namespace_id, jlong qpair_id, jlong address,
+   jlong linearBlockAddress, jint count, jlong completion_address, jboolean write) {
+    spdk_nvme_ns* ns = reinterpret_cast<spdk_nvme_ns*>(namespace_id);
+    spdk_nvme_qpair* qpair = reinterpret_cast<spdk_nvme_qpair*>(qpair_id);
+
+    void* cb_data = reinterpret_cast<io_completion*>(completion_address);
+    void* payload = reinterpret_cast<void*>(address);
+    int ret;
+    if (write) {
+        ret = spdk_nvme_ns_cmd_write(ns, qpair, payload, linearBlockAddress,
+                count, command_cb, cb_data, 0);
+    } else {
+        ret = spdk_nvme_ns_cmd_read(ns, qpair, payload, linearBlockAddress,
+                count, command_cb, cb_data, 0);
+    }
+    return ret;
+}
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvme_qpair_process_completions
+ * Signature: (JI)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1qpair_1process_1completions
+  (JNIEnv* env, jobject thiz, jlong qpair_id, jint max_completions) {
+    spdk_nvme_qpair* qpair = reinterpret_cast<spdk_nvme_qpair*>(qpair_id);
+    return spdk_nvme_qpair_process_completions(qpair, max_completions);
 }
 

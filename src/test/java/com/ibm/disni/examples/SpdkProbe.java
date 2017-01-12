@@ -22,7 +22,9 @@
 package com.ibm.disni.examples;
 
 import com.ibm.disni.nvmef.spdk.*;
+import sun.nio.ch.DirectBuffer;
 
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 public class SpdkProbe {
@@ -54,5 +56,16 @@ public class SpdkProbe {
         // alloc qpair
         NvmeController controller = controllers.get(0);
         NvmeQueuePair queuePair = controller.allocQueuePair();
+        NvmeNamespace namespace = controller.getNamespace(1);
+
+        ByteBuffer buffer = ByteBuffer.allocateDirect(4096);
+        IOCompletion completion = namespace.read(queuePair, ((DirectBuffer)buffer).address(), 0, 1);
+
+        do {
+            queuePair.processCompletions(10);
+            completion.update();
+        } while (!completion.done());
+        System.out.println("read completed with status type = " + completion.getStatusCodeType() +
+                ", code = " + completion.getStatusCode());
     }
 }

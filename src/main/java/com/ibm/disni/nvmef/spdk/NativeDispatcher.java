@@ -27,24 +27,28 @@ import org.slf4j.Logger;
 import java.util.ArrayList;
 
 public class NativeDispatcher {
-    private static final Logger logger = DiSNILogger.getLogger();
+	private static final Logger logger = DiSNILogger.getLogger();
 
-    static {
-        System.loadLibrary("disni");
-    }
+	static {
+		System.loadLibrary("disni");
+	}
 
-    public native int _nvme_probe(int type, int addressFamily, String address, String serviceId, String subsystemNQN, long[] controllerIds);
+	public native int _nvme_probe(int type, int addressFamily, String address, String serviceId, String subsystemNQN, long[] controllerIds);
 
-    public native int _nvme_ctrlr_get_num_ns(long controller);
+	public native int _nvme_ctrlr_get_num_ns(long controller);
 
-    public native long _nvme_ctrlr_get_ns(long controller, int namespaceId);
+	public native long _nvme_ctrlr_get_ns(long controller, int namespaceId);
 
-    public native void _nvme_ctrlr_get_data(long controller, long buffer);
+	public native void _nvme_ctrlr_get_data(long controller, long buffer);
 
-    public native long _nvme_ctrlr_alloc_io_qpair(long controller, int priority);
+	public native long _nvme_ctrlr_alloc_io_qpair(long controller, int priority);
 
-    public native boolean _nvme_ns_is_active(long namespace);
+	public native boolean _nvme_ns_is_active(long namespace);
 
-    public native long _nvme_ns_get_size(long namespace);
-    
+	public native long _nvme_ns_get_size(long namespace);
+
+	public native int _nvme_ns_io_cmd(long namespace, long queuePair, long address, long linearBlockAddress,
+										int count, long completionAddress, boolean write);
+
+	public native int _nvme_qpair_process_completions(long queuePair, int maxCompletions);
 }

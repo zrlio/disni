@@ -21,77 +21,80 @@
 
 package com.ibm.disni.nvmef.spdk;
 
+import com.ibm.disni.util.MemoryAllocation;
 import sun.nio.ch.DirectBuffer;
 
 import java.io.IOException;
 import java.nio.ByteBuffer;
 
 public class NvmeController extends NatObject {
-    private NvmeNamespace namespaces[];
-    private int numberOfNamespaces;
+	private NvmeNamespace namespaces[];
+	private int numberOfNamespaces;
 
-    private NativeDispatcher nativeDispatcher;
+	private final NativeDispatcher nativeDispatcher;
+	private final MemoryAllocation memoryAllocation;
 
-    private NvmeControllerData data;
+	private NvmeControllerData data;
 
-    NvmeController(long objId, NativeDispatcher nativeDispatcher) {
-        super(objId);
-        this.nativeDispatcher = nativeDispatcher;
-        ByteBuffer buffer = ByteBuffer.allocateDirect(NvmeControllerData.CSIZE);
-        nativeDispatcher._nvme_ctrlr_get_data(getObjId(), ((DirectBuffer)buffer).address());
-        data = new NvmeControllerData();
-        data.update(buffer);
-    }
+	NvmeController(long objId, NativeDispatcher nativeDispatcher, MemoryAllocation memoryAllocation) {
+		super(objId);
+		this.nativeDispatcher = nativeDispatcher;
+		this.memoryAllocation = memoryAllocation;
+		ByteBuffer buffer = ByteBuffer.allocateDirect(NvmeControllerData.CSIZE);
+		nativeDispatcher._nvme_ctrlr_get_data(getObjId(), ((DirectBuffer) buffer).address());
+		data = new NvmeControllerData();
+		data.update(buffer);
+	}
 
-    public short getPCIVendorID() {
-        return data.getPciVendorID();
-    }
+	public short getPCIVendorID() {
+		return data.getPciVendorID();
+	}
 
-    public short getPCISubsystemVendorID() {
-        return data.getPciSubsystemVendorID();
-    }
+	public short getPCISubsystemVendorID() {
+		return data.getPciSubsystemVendorID();
+	}
 
-    public String getSerialNumber() {
-        return new String(data.getSerialNumber());
-    }
+	public String getSerialNumber() {
+		return new String(data.getSerialNumber());
+	}
 
-    public String getModelNumber() {
-        return new String(data.getModelNumber());
-    }
+	public String getModelNumber() {
+		return new String(data.getModelNumber());
+	}
 
-    public String getFirmwareRevision() {
-        return new String(data.getFirmwareRevision());
-    }
+	public String getFirmwareRevision() {
+		return new String(data.getFirmwareRevision());
+	}
 
-    public NvmeQueuePair allocQueuePair() throws IOException {
-        //TODO: priorities for weighted round-robin scheduling
-        long qPair = nativeDispatcher._nvme_ctrlr_alloc_io_qpair(getObjId(), 0);
-        if (qPair == 0) {
-            throw new IOException("nvme_ctrlr_alloc_io_qpair failed");
-        }
-        return new NvmeQueuePair(qPair, nativeDispatcher);
-    }
+	public NvmeQueuePair allocQueuePair() throws IOException {
+		//TODO: priorities for weighted round-robin scheduling
+		long qPair = nativeDispatcher._nvme_ctrlr_alloc_io_qpair(getObjId(), 0);
+		if (qPair == 0) {
+			throw new IOException("nvme_ctrlr_alloc_io_qpair failed");
+		}
+		return new NvmeQueuePair(qPair, nativeDispatcher);
+	}
 
-    public NvmeNamespace getNamespace(int id) throws IOException {
-        int idx = id - 1;
-        if (namespaces[idx] == null) {
-            long namespace = nativeDispatcher._nvme_ctrlr_get_ns(getObjId(), id);
-            if (namespace == 0) {
-                throw new IOException("nvme_ctrlr_get_ns failed");
-            }
-            namespaces[idx] = new NvmeNamespace(namespace, nativeDispatcher);
-        }
-        return namespaces[idx];
-    }
+	public NvmeNamespace getNamespace(int id) throws IOException {
+		int idx = id - 1;
+		if (namespaces[idx] == null) {
+			long namespace = nativeDispatcher._nvme_ctrlr_get_ns(getObjId(), id);
+			if (namespace == 0) {
+				throw new IOException("nvme_ctrlr_get_ns failed");
+			}
+			namespaces[idx] = new NvmeNamespace(namespace, nativeDispatcher, memoryAllocation);
+		}
+		return namespaces[idx];
+	}
 
-    public int getNumberOfNamespaces() throws IOException {
-        if (namespaces == null) {
-            numberOfNamespaces = nativeDispatcher._nvme_ctrlr_get_num_ns(getObjId());
-            if (numberOfNamespaces < 0) {
-                throw new IOException("nvme_ctrlr_get_num_ns failed with " + numberOfNamespaces);
-            }
-            namespaces = new NvmeNamespace[numberOfNamespaces];
-        }
-        return numberOfNamespaces;
-    }
+	public int getNumberOfNamespaces() throws IOException {
+		if (namespaces == null) {
+			numberOfNamespaces = nativeDispatcher._nvme_ctrlr_get_num_ns(getObjId());
+			if (numberOfNamespaces < 0) {
+				throw new IOException("nvme_ctrlr_get_num_ns failed with " + numberOfNamespaces);
+			}
+			namespaces = new NvmeNamespace[numberOfNamespaces];
+		}
+		return numberOfNamespaces;
+	}
 }

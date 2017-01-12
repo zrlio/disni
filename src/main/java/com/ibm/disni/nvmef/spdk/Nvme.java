@@ -21,32 +21,36 @@
 
 package com.ibm.disni.nvmef.spdk;
 
+import com.ibm.disni.util.MemoryAllocation;
+
 import java.io.IOException;
 import java.util.ArrayList;
 
 public class Nvme {
 
-    private NativeDispatcher nativeDispatcher;
+	private final NativeDispatcher nativeDispatcher;
+	private final MemoryAllocation memoryAllocation;
 
-    public Nvme() {
-        nativeDispatcher = new NativeDispatcher();
-    }
+	public Nvme() {
+		nativeDispatcher = new NativeDispatcher();
+		memoryAllocation = MemoryAllocation.getInstance();
+	}
 
-    public void probe(NvmeTransportId id, ArrayList<NvmeController> controller) throws IOException {
-        long controllerIds[] = new long[8];
-        int i;
-        int controllers;
-        do {
-            controllers = nativeDispatcher._nvme_probe(id.getType().getNumVal(), id.getAddressFamily().getNumVal(),
-                    id.getAddress(), id.getServiceId(),
-                    id.getSubsystemNQN(), controllerIds);
-            if (controllers < 0) {
-                throw new IOException("spdk_nvme_probe failed with " + controllers);
-            }
+	public void probe(NvmeTransportId id, ArrayList<NvmeController> controller) throws IOException {
+		long controllerIds[] = new long[8];
+		int i;
+		int controllers;
+		do {
+			controllers = nativeDispatcher._nvme_probe(id.getType().getNumVal(), id.getAddressFamily().getNumVal(),
+					id.getAddress(), id.getServiceId(),
+					id.getSubsystemNQN(), controllerIds);
+			if (controllers < 0) {
+				throw new IOException("spdk_nvme_probe failed with " + controllers);
+			}
 
-            for (i = 0; i < Math.min(controllers, controllerIds.length); i++) {
-                controller.add(new NvmeController(controllerIds[i], nativeDispatcher));
-            }
-        } while (controllers > controllerIds.length);
-    }
+			for (i = 0; i < Math.min(controllers, controllerIds.length); i++) {
+				controller.add(new NvmeController(controllerIds[i], nativeDispatcher, memoryAllocation));
+			}
+		} while (controllers > controllerIds.length);
+	}
 }

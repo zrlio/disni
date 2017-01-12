@@ -22,12 +22,18 @@
 package com.ibm.disni.nvmef.spdk;
 
 
-public class NvmeNamespace extends NatObject {
-    private NativeDispatcher nativeDispatcher;
+import com.ibm.disni.util.MemoryAllocation;
 
-    protected NvmeNamespace(long objId, NativeDispatcher nativeDispatcher) {
+import java.io.IOException;
+
+public class NvmeNamespace extends NatObject {
+    private final NativeDispatcher nativeDispatcher;
+	private final MemoryAllocation memoryAllocation;
+
+    NvmeNamespace(long objId, NativeDispatcher nativeDispatcher, MemoryAllocation memoryAllocation) {
         super(objId);
         this.nativeDispatcher = nativeDispatcher;
+		this.memoryAllocation = memoryAllocation;
     }
 
     public boolean isActive() {
@@ -37,4 +43,24 @@ public class NvmeNamespace extends NatObject {
     public long getSize() {
         return nativeDispatcher._nvme_ns_get_size(getObjId());
     }
+
+	public IOCompletion read(NvmeQueuePair queuePair, long address, long linearBlockAddress, int count) throws IOException {
+		IOCompletion completion = new IOCompletion(memoryAllocation);
+		int ret = nativeDispatcher._nvme_ns_io_cmd(getObjId(), queuePair.getObjId(), address,
+				linearBlockAddress, count, completion.address(), false);
+		if (ret < 0) {
+			throw new IOException("nvme_ns_cmd_read failed with " + ret);
+		}
+		return completion;
+	}
+
+	public IOCompletion write(NvmeQueuePair queuePair, long address, long linearBlockAddress, int count) throws IOException {
+		IOCompletion completion = new IOCompletion(memoryAllocation);
+		int ret = nativeDispatcher._nvme_ns_io_cmd(getObjId(), queuePair.getObjId(), address,
+				linearBlockAddress, count, completion.address(), true);
+		if (ret < 0) {
+			throw new IOException("nvme_ns_cmd_write failed with " + ret);
+		}
+		return completion;
+	}
 }

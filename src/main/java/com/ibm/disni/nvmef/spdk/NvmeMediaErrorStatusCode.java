@@ -21,22 +21,20 @@
 
 package com.ibm.disni.nvmef.spdk;
 
-import java.io.IOException;
 
-public class NvmeQueuePair extends NatObject {
+enum NvmeMediaErrorStatusCode {
+	WRITE_FAULTS(0x80),
+	UNRECOVERED_READ_ERROR(0x81),
+	GUARD_CHECK_ERROR(0x82),
+	APPLICATION_TAG_CHECK_ERROR(0x83),
+	REFERENCE_TAG_CHECK_ERROR(0x84),
+	COMPARE_FAILURE(0x85),
+	ACCESS_DENIED(0x86),
+	DEALLOCATED_OR_UNWRITTEN_BLOCK(0x87);
 
-	private NativeDispatcher nativeDispatcher;
+	private int numVal;
 
-	NvmeQueuePair(long objId, NativeDispatcher nativeDispatcher) {
-		super(objId);
-		this.nativeDispatcher = nativeDispatcher;
-	}
+	NvmeMediaErrorStatusCode(int numVal) { this.numVal = numVal; }
 
-	public int processCompletions(int maxCompletions) throws IOException {
-		int ret = nativeDispatcher._nvme_qpair_process_completions(getObjId(), maxCompletions);
-		if (ret < 0) {
-			throw new IOException("nvme_qpair_process_completions failed with " + ret);
-		}
-		return ret;
-	}
+	public int getNumVal() { return numVal; }
 }
