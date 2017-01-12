@@ -206,6 +206,17 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1n
     return spdk_nvme_ns_get_size(ns);
 }
 
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvme_ns_get_sector_size
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ns_1get_1sector_1size
+  (JNIEnv* env, jobject thiz, jlong namespace_id) {
+    spdk_nvme_ns* ns = reinterpret_cast<spdk_nvme_ns*>(namespace_id);
+    return spdk_nvme_ns_get_sector_size(ns);
+}
+
 static void command_cb(void* cb_data, const struct spdk_nvme_cpl* nvme_completion) {
     io_completion* completion = reinterpret_cast<io_completion*>(cb_data);
     completion->status_code = nvme_completion->status.sc;

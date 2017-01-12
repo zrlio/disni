@@ -47,9 +47,10 @@ public class SpdkProbe {
                 NvmeNamespace namespace = controller.getNamespace(i + 1);
                 System.out.println("Namespace: " + namespace.getObjId());
                 boolean active = namespace.isActive();
-                System.out.println("Is active = " + active);
+                System.out.println("\tIs active = " + active);
                 if (active) {
-                    System.out.println("Size (bytes) = " + namespace.getSize());
+                    System.out.println("\tSize (bytes) = " + namespace.getSize());
+                    System.out.println("\tSector Size (bytes) = " + namespace.getSectorSize());
                 }
             }
         }
