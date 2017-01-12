@@ -21,7 +21,7 @@
 
 package com.ibm.disni.nvmef.spdk;
 
-enum NvmeGenericCommandStatusCode {
+public enum NvmeGenericCommandStatusCode {
 	SUCCESS(0x00),
 	INVALID_OPCODE(0x01),
 	INVALID_FIELD(0x02),
@@ -59,4 +59,13 @@ enum NvmeGenericCommandStatusCode {
 	NvmeGenericCommandStatusCode(int numVal) { this.numVal = numVal; }
 
 	public int getNumVal() { return numVal; }
+
+	public static NvmeGenericCommandStatusCode valueOf(int numVal) {
+		for (NvmeGenericCommandStatusCode statusCode : NvmeGenericCommandStatusCode.values()) {
+			if (statusCode.getNumVal() == numVal) {
+				return statusCode;
+			}
+		}
+		throw new IllegalArgumentException();
+	}
 }

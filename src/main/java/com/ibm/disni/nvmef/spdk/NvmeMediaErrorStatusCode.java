@@ -22,7 +22,7 @@
 package com.ibm.disni.nvmef.spdk;
 
 
-enum NvmeMediaErrorStatusCode {
+public enum NvmeMediaErrorStatusCode {
 	WRITE_FAULTS(0x80),
 	UNRECOVERED_READ_ERROR(0x81),
 	GUARD_CHECK_ERROR(0x82),
@@ -37,4 +37,13 @@ enum NvmeMediaErrorStatusCode {
 	NvmeMediaErrorStatusCode(int numVal) { this.numVal = numVal; }
 
 	public int getNumVal() { return numVal; }
+
+	public static NvmeMediaErrorStatusCode valueOf(int numVal) {
+		for (NvmeMediaErrorStatusCode statusCode : NvmeMediaErrorStatusCode.values()) {
+			if (statusCode.getNumVal() == numVal) {
+				return statusCode;
+			}
+		}
+		throw new IllegalArgumentException();
+	}
 }

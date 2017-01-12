@@ -21,7 +21,7 @@
 
 package com.ibm.disni.nvmef.spdk;
 
-enum NmeCommandSpecificStatusCode {
+public enum NmeCommandSpecificStatusCode {
 	COMPLETION_QUEUE_INVALID(0x00),
 	INVALID_QUEUE_IDENTIFIER(0x01),
 	MAXIMUM_QUEUE_SIZE_EXCEEDED(0x02),
@@ -58,4 +58,13 @@ enum NmeCommandSpecificStatusCode {
 	NmeCommandSpecificStatusCode(int numVal) { this.numVal = numVal; }
 
 	public int getNumVal() { return numVal; }
+
+	public static NmeCommandSpecificStatusCode valueOf(int numVal) {
+		for (NmeCommandSpecificStatusCode statusCode : NmeCommandSpecificStatusCode.values()) {
+			if (statusCode.getNumVal() == numVal) {
+				return statusCode;
+			}
+		}
+		throw new IllegalArgumentException();
+	}
 }

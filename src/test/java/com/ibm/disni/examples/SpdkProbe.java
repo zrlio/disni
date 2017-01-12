@@ -66,8 +66,12 @@ public class SpdkProbe {
             queuePair.processCompletions(10);
             completion.update();
         } while (!completion.done());
-        System.out.println("write completed with status type = " + completion.getStatusCodeType() +
-                ", code = " + completion.getStatusCode());
+        completion.free();
+        System.out.println("write completed with status type = " + completion.getStatusCodeType());
+        if (completion.getStatusCodeType() == NvmeStatusCodeType.GENERIC.getNumVal()) {
+            System.out.println("Status code = " +
+                    NvmeGenericCommandStatusCode.valueOf(completion.getStatusCode()).name());
+        }
 
         ByteBuffer buffer = ByteBuffer.allocateDirect(4096);
         completion = namespace.read(queuePair, ((DirectBuffer)buffer).address(), 0, 1);
@@ -75,8 +79,12 @@ public class SpdkProbe {
             queuePair.processCompletions(10);
             completion.update();
         } while (!completion.done());
-        System.out.println("read completed with status type = " + completion.getStatusCodeType() +
-                ", code = " + completion.getStatusCode());
+        completion.free();
+        System.out.println("read completed with status type = " + completion.getStatusCodeType());
+        if (completion.getStatusCodeType() == NvmeStatusCodeType.GENERIC.getNumVal()) {
+            System.out.println("Status code = " +
+                    NvmeGenericCommandStatusCode.valueOf(completion.getStatusCode()).name());
+        }
 
         byte cString[] = new byte[5];
         buffer.get(cString);
