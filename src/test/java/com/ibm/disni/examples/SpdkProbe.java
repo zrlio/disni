@@ -58,14 +58,28 @@ public class SpdkProbe {
         NvmeQueuePair queuePair = controller.allocQueuePair();
         NvmeNamespace namespace = controller.getNamespace(1);
 
-        ByteBuffer buffer = ByteBuffer.allocateDirect(4096);
-        IOCompletion completion = namespace.read(queuePair, ((DirectBuffer)buffer).address(), 0, 1);
+        ByteBuffer writeBuf = ByteBuffer.allocateDirect(4096);
+        writeBuf.put(new byte[] {'H', 'e', 'l', 'l', 'o'});
+        IOCompletion completion = namespace.write(queuePair, ((DirectBuffer)writeBuf).address(), 0, 1);
 
+        do {
+            queuePair.processCompletions(10);
+            completion.update();
+        } while (!completion.done());
+        System.out.println("write completed with status type = " + completion.getStatusCodeType() +
+                ", code = " + completion.getStatusCode());
+
+        ByteBuffer buffer = ByteBuffer.allocateDirect(4096);
+        completion = namespace.read(queuePair, ((DirectBuffer)buffer).address(), 0, 1);
         do {
             queuePair.processCompletions(10);
             completion.update();
         } while (!completion.done());
         System.out.println("read completed with status type = " + completion.getStatusCodeType() +
                 ", code = " + completion.getStatusCode());
+
+        byte cString[] = new byte[5];
+        buffer.get(cString);
+        System.out.println("Read " + new String(cString));
     }
 }
