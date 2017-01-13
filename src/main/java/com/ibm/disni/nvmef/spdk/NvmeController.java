@@ -46,26 +46,6 @@ public class NvmeController extends NatObject {
 		data.update(buffer);
 	}
 
-	public short getPCIVendorID() {
-		return data.getPciVendorID();
-	}
-
-	public short getPCISubsystemVendorID() {
-		return data.getPciSubsystemVendorID();
-	}
-
-	public String getSerialNumber() {
-		return new String(data.getSerialNumber());
-	}
-
-	public String getModelNumber() {
-		return new String(data.getModelNumber());
-	}
-
-	public String getFirmwareRevision() {
-		return new String(data.getFirmwareRevision());
-	}
-
 	public NvmeQueuePair allocQueuePair() throws IOException {
 		//TODO: priorities for weighted round-robin scheduling
 		long qPair = nativeDispatcher._nvme_ctrlr_alloc_io_qpair(getObjId(), 0);
@@ -96,5 +76,9 @@ public class NvmeController extends NatObject {
 			namespaces = new NvmeNamespace[numberOfNamespaces];
 		}
 		return numberOfNamespaces;
+	}
+
+	public NvmeControllerData getData() {
+		return data;
 	}
 }

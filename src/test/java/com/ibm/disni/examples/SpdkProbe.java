@@ -34,13 +34,79 @@ public class SpdkProbe {
         ArrayList<NvmeController> controllers = new ArrayList<NvmeController>();
         nvme.probe(transportId, controllers);
         for (NvmeController controller : controllers) {
+            NvmeControllerData data = controller.getData();
             System.out.println("-------------------------------------------");
             System.out.println("Controller: " + controller.getObjId());
-            System.out.println("PCI Vendor ID = " + Integer.toHexString(0xffff & controller.getPCIVendorID()));
-            System.out.println("PCI Subsystem Vendor ID = " + Integer.toHexString(0xffff & controller.getPCISubsystemVendorID()));
-            System.out.println("Serial Number = " + controller.getSerialNumber());
-            System.out.println("Model Number = " + controller.getModelNumber());
-            System.out.println("Firmware Revision = " + controller.getFirmwareRevision());
+            System.out.println("PCI Vendor ID = " + Integer.toHexString(0xffff & data.getPCIVendorID()));
+            System.out.println("PCI Subsystem Vendor ID = " + Integer.toHexString(0xffff & data.getPCISubsystemVendorID()));
+            System.out.println("Serial Number = " + data.getSerialNumber());
+            System.out.println("Model Number = " + data.getModelNumber());
+            System.out.println("Firmware Revision = " + data.getFirmwareRevision());
+
+            System.out.println("Controller multi-path I/O and namespace sharing capabilities:");
+            NvmeControllerData.MultipathIOCapabilities multipathIOCapabilities = data.getMultipathIOCapabilities();
+            System.out.println(" Multi port = " + multipathIOCapabilities.hasMultiPort());
+            System.out.println(" Multi host = " + multipathIOCapabilities.hasMultiHost());
+            System.out.println(" SR-IOV = " + multipathIOCapabilities.hasSingleRootIOVirtualization());
+
+            System.out.println("Maximum data transfer size = " + data.getMaximumDataTransferSize());
+            System.out.println("Controller ID = " + data.getControllerId());
+
+            NvmeControllerData.NvmeVersion version = data.getVersion();
+            System.out.println("NVMe Version = " + version.getMajor() + "." + version.getMinor() + "." + version.getTertiary());
+
+            System.out.println("RTD3 resume latency = " + data.getRTD3ResumeLatency());
+            System.out.println("RTD3 entry latency = " + data.getRTD3EntryLatency());
+
+            System.out.println("Optional asychronous events supported:");
+            NvmeControllerData.OptionalAsynchronousEventSupport optionalAsynchronousEventSupport = data.getOptionalAsynchronousEventSupport();
+            System.out.println(" Supports sending Namespace Attribute Notices = " + optionalAsynchronousEventSupport.hasNamespaceAttributeNotices());
+            System.out.println(" Supports sending Firmware Activation Notices = " + optionalAsynchronousEventSupport.hasFirmwareActivationNotices());
+
+            System.out.println("Controller Attributes: ");
+            NvmeControllerData.ControllerAttributes controllerAttributes = data.getControllerAttributes();
+            System.out.println(" Supports Host ID exhid = " + controllerAttributes.isHostIDexhidSupported());
+
+            System.out.println("Optional admin command support: ");
+            NvmeControllerData.OptionalAdminCommandSupport adminCommandSupport = data.getOptionalAdminCommandSupport();
+            System.out.println(" Security = " + adminCommandSupport.hasSecurity());
+            System.out.println(" Format = " + adminCommandSupport.hasFormat());
+            System.out.println(" Firmware = " + adminCommandSupport.hasFirmware());
+            System.out.println(" Namespace Manage = " + adminCommandSupport.hasNamespaceManage());
+
+            System.out.println("Abort command limit = " + data.getAbortCommandLimit());
+            System.out.println("Asychronous event request limit = " + data.getAsynchronousEventRequestLimit());
+
+            System.out.println("Firmware updates: ");
+            NvmeControllerData.FirmwareUpdates firmwareUpdates = data.getFirmwareUpdates();
+            System.out.println(" Slot 1 read only = " + firmwareUpdates.isSlot1ReadOnly());
+            System.out.println(" Number of slots = " + firmwareUpdates.getNumberSlots());
+            System.out.println(" Activation without reset = " + firmwareUpdates.hasActivationWithoutReset());
+
+            System.out.println("Log page attributes: ");
+            NvmeControllerData.LogPageAttributes logPageAttributes = data.getLogPageAttributes();
+            System.out.println(" Namespace SMART = " + logPageAttributes.hasNamespaceSMART());
+            System.out.println(" celp = " + logPageAttributes.hasCelp());
+            System.out.println(" edlp = " + logPageAttributes.hasEdlp());
+
+            System.out.println("Error log page entries = " + data.getErrorLogPageEntries());
+            System.out.println("Number of power states supported = " + data.getNumberPowerStatesSupported());
+
+            System.out.println("Admin vendor specific command configuration: ");
+            NvmeControllerData.AdminVendorSpecificCommandConfiguration adminVendorSpecificCommandConfiguration = data.getAdminVendorSpecificCommandConfiguration();
+            System.out.println(" specific format = " + adminVendorSpecificCommandConfiguration.isSpecificFormat());
+
+            System.out.println("Autonomous power state transition attributes: ");
+            NvmeControllerData.AutonomousPowerStateTransitionAttributes autonomousPowerStateTransitionAttributes = data.getAutonomousPowerStateTransitionAttributes();
+            System.out.println("Supported = " + autonomousPowerStateTransitionAttributes.isSupported());
+
+            System.out.println("Warning composite temperature threshold = " + data.getWarningCompositeTemperatureThreshold());
+            System.out.println("Critical composite temperature threshold = " + data.getCriticalCompositeTemperatureThreshold());
+            System.out.println("Maximum time for formware activation = " + data.getMaximumTimeForFirmwareActivation());
+            System.out.println("Host memory buffer preferred size = " + data.getHostMemoryBufferPreferredSize());
+            System.out.println("Host memory buffer minimum size = " + data.getHostMemoryBufferMinimumSize());
+            System.out.println("total NVM capacity = " + Long.toHexString(data.getTotalNVMcapacity()[0]) + Long.toHexString(data.getTotalNVMcapacity()[1]));
+            System.out.println("unallocated NVM capacity = " + Long.toHexString(data.getUnallocatedNVMcapacity()[0]) + Long.toHexString(data.getUnallocatedNVMcapacity()[1]));
 
             int numberOfNamespaces = controller.getNumberOfNamespaces();
             for(int i = 0; i < numberOfNamespaces; i++) {
