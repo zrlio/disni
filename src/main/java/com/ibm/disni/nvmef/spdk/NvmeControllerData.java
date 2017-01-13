@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class NvmeControllerData {
-	public static int CSIZE = 512;
+	public static int CSIZE = 1024;
 	private short pciVendorID;
 	private short pciSubsystemVendorID;
 	private byte serialNumber[];
@@ -341,16 +341,16 @@ public class NvmeControllerData {
 		return pciSubsystemVendorID;
 	}
 
-	public byte[] getSerialNumber() {
-		return serialNumber;
+	public String getSerialNumber() {
+		return new String(serialNumber);
 	}
 
-	public byte[] getModelNumber() {
-		return modelNumber;
+	public String getModelNumber() {
+		return new String(modelNumber);
 	}
 
-	public byte[] getFirmwareRevision() {
-		return firmwareRevision;
+	public String getFirmwareRevision() {
+		return new String(firmwareRevision);
 	}
 
 	public MultipathIOCapabilities getMultipathIOCapabilities() {

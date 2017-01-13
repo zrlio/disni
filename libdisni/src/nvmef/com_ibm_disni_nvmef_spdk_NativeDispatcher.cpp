@@ -169,7 +169,7 @@ JNIEXPORT void JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ct
     spdk_nvme_ctrlr* ctrlr = reinterpret_cast<spdk_nvme_ctrlr*>(controller_id);
     const spdk_nvme_ctrlr_data* ctrlr_data = spdk_nvme_ctrlr_get_data(ctrlr);
     //FIXME: complete data
-    memcpy(reinterpret_cast<void*>(address), ctrlr_data, 72);
+    memcpy(reinterpret_cast<void*>(address), ctrlr_data, 1024);
 }
 
 /*
