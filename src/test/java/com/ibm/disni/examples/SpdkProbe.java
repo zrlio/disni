@@ -42,6 +42,8 @@ public class SpdkProbe {
             System.out.println("Serial Number = " + data.getSerialNumber());
             System.out.println("Model Number = " + data.getModelNumber());
             System.out.println("Firmware Revision = " + data.getFirmwareRevision());
+            System.out.println("Recommended arbitration burst = " + data.getRecommendedArbitrationBurst());
+            System.out.println("IEEE oui identifier = ");
 
             System.out.println("Controller multi-path I/O and namespace sharing capabilities:");
             NvmeControllerData.MultipathIOCapabilities multipathIOCapabilities = data.getMultipathIOCapabilities();

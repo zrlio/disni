@@ -31,6 +31,8 @@ public class NvmeControllerData {
 	private byte serialNumber[];
 	private byte modelNumber[];
 	private byte firmwareRevision[];
+	private byte recommendedArbitrationBurst;
+	private byte IEEEOuiIdentifier[];
 	private MultipathIOCapabilities multipathIOCapabilities;
 	private byte maximumDataTransferSize;
 	private short controllerId;
@@ -60,6 +62,7 @@ public class NvmeControllerData {
 		serialNumber = new byte[20];
 		modelNumber = new byte[40];
 		firmwareRevision = new byte[8];
+		IEEEOuiIdentifier = new byte[3];
 		totalNVMcapacity = new long[2];
 		unallocatedNVMcapacity = new long[2];
 	}
@@ -115,6 +118,14 @@ public class NvmeControllerData {
 
 	public byte getAsynchronousEventRequestLimit() {
 		return asynchronousEventRequestLimit;
+	}
+
+	public byte getRecommendedArbitrationBurst() {
+		return recommendedArbitrationBurst;
+	}
+
+	public byte[] getIEEEOuiIdentifier() {
+		return IEEEOuiIdentifier;
 	}
 
 	public static class MultipathIOCapabilities {
@@ -304,6 +315,8 @@ public class NvmeControllerData {
 		buffer.get(serialNumber);
 		buffer.get(modelNumber);
 		buffer.get(firmwareRevision);
+		recommendedArbitrationBurst = buffer.get();
+		buffer.get(IEEEOuiIdentifier);
 		multipathIOCapabilities = new MultipathIOCapabilities(buffer.get());
 		maximumDataTransferSize = buffer.get();
 		controllerId = buffer.getShort();
