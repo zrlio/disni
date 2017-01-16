@@ -122,7 +122,7 @@ public class Nvmef {
 		final int transferSize = 128*1024;
 		System.out.println("Throughput - QD = " + queueDepth + ", Size = 128KiB");
 		System.out.println("Read throughput (sequential) = " +
-				transferSize / nvmef.run(iterations, queueDepth, transferSize, AccessPattern.SEQUENTIAL, false) * 1000 +
+				transferSize * 1000 / nvmef.run(iterations, queueDepth, transferSize, AccessPattern.SEQUENTIAL, false) +
 				"MB/s");
 	}
 }
