@@ -39,7 +39,12 @@ public class Nvmef {
 		NvmeNamespace namespace = controller.getNamespace(1);
 		NvmeQueuePair qpair = controller.allocQueuePair();
 
+		Random rand = new Random(System.nanoTime());
+
 		ByteBuffer buffer = ByteBuffer.allocateDirect(namespace.getSectorSize());
+		byte bytes[] = new byte[buffer.capacity()];
+		rand.nextBytes(bytes);
+		buffer.put(bytes);
 
 		final int ITERS = 1000;
 		IOCompletion completion;
@@ -54,7 +59,6 @@ public class Nvmef {
 		long end = System.nanoTime();
 		System.out.println("Read latency (same location) = " + (end - start)/ITERS + "ns");
 
-		Random rand = new Random(System.nanoTime());
 		start = System.nanoTime();
 		for (int i = 0; i < ITERS; i++) {
 			completion = namespace.read(qpair, ((DirectBuffer)buffer).address(), rand.nextInt(1024*1024), 1);
@@ -65,5 +69,27 @@ public class Nvmef {
 		}
 		end = System.nanoTime();
 		System.out.println("Read latency (random location) = " + (end - start)/ITERS + "ns");
+
+		start = System.nanoTime();
+		for (int i = 0; i < ITERS; i++) {
+			completion = namespace.write(qpair, ((DirectBuffer)buffer).address(), 1024, 1);
+			do {
+				qpair.processCompletions(1);
+				completion.update();
+			} while (!completion.done());
+		}
+		end = System.nanoTime();
+		System.out.println("Write latency (same location) = " + (end - start)/ITERS + "ns");
+
+		start = System.nanoTime();
+		for (int i = 0; i < ITERS; i++) {
+			completion = namespace.write(qpair, ((DirectBuffer)buffer).address(), rand.nextInt(1024*1024), 1);
+			do {
+				qpair.processCompletions(1);
+				completion.update();
+			} while (!completion.done());
+		}
+		end = System.nanoTime();
+		System.out.println("Write latency (random location) = " + (end - start)/ITERS + "ns");
 	}
 }
