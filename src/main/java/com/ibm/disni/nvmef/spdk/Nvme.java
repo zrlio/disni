@@ -24,7 +24,7 @@ package com.ibm.disni.nvmef.spdk;
 import com.ibm.disni.util.MemoryAllocation;
 
 import java.io.IOException;
-import java.util.ArrayList;
+import java.util.List;
 
 public class Nvme {
 
@@ -36,7 +36,7 @@ public class Nvme {
 		memoryAllocation = MemoryAllocation.getInstance();
 	}
 
-	public void probe(NvmeTransportId id, ArrayList<NvmeController> controller) throws IOException {
+	public void probe(NvmeTransportId id, List<NvmeController> controller) throws IOException {
 		long controllerIds[] = new long[8];
 		int i;
 		int controllers;

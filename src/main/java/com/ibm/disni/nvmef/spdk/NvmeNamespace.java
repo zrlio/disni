@@ -44,7 +44,7 @@ public class NvmeNamespace extends NatObject {
         return nativeDispatcher._nvme_ns_get_size(getObjId());
     }
 
-	public long getSectorSize() {
+	public int getSectorSize() {
 		return nativeDispatcher._nvme_ns_get_sector_size(getObjId());
 	}
 

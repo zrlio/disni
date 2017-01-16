@@ -209,9 +209,9 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1n
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _nvme_ns_get_sector_size
- * Signature: (J)J
+ * Signature: (J)I
  */
-JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ns_1get_1sector_1size
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ns_1get_1sector_1size
   (JNIEnv* env, jobject thiz, jlong namespace_id) {
     spdk_nvme_ns* ns = reinterpret_cast<spdk_nvme_ns*>(namespace_id);
     return spdk_nvme_ns_get_sector_size(ns);

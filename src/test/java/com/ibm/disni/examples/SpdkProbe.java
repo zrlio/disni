@@ -51,7 +51,13 @@ public class SpdkProbe {
             System.out.println(" Multi host = " + multipathIOCapabilities.hasMultiHost());
             System.out.println(" SR-IOV = " + multipathIOCapabilities.hasSingleRootIOVirtualization());
 
-            System.out.println("Maximum data transfer size = " + data.getMaximumDataTransferSize());
+            System.out.print("Maximum data transfer size = ")
+            if (data.getMaximumDataTransferSize() == 0) {
+                System.out.println("unlimited");
+            } else {
+                //FIXME cap.bits.mpsmin
+                System.out.println( 1l << (12 + data.getMaximumDataTransferSize()));
+            }
             System.out.println("Controller ID = " + data.getControllerId());
 
             NvmeControllerData.NvmeVersion version = data.getVersion();
