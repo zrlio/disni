@@ -29,6 +29,7 @@ import java.util.ArrayList;
 import java.util.Random;
 
 public class Nvmef {
+
 	public static void main(String[] args) throws Exception {
 		Nvme nvme = new Nvme();
 		NvmeTransportId tid = new NvmeTransportId(NvmeTransportType.RDMA, NvmfAddressFamily.IPV4, "10.40.0.17", "4420",
@@ -40,13 +41,13 @@ public class Nvmef {
 		NvmeQueuePair qpair = controller.allocQueuePair();
 
 		Random rand = new Random(System.nanoTime());
-
-		ByteBuffer buffer = ByteBuffer.allocateDirect(namespace.getSectorSize());
+		// 128KB = maximum transfer size
+		ByteBuffer buffer = ByteBuffer.allocateDirect(1024*128);
 		byte bytes[] = new byte[buffer.capacity()];
 		rand.nextBytes(bytes);
 		buffer.put(bytes);
 
-		final int ITERS = 1000;
+		final int ITERS = 10000;
 		IOCompletion completion;
 		long start = System.nanoTime();
 		for (int i = 0; i < ITERS; i++) {
@@ -91,5 +92,17 @@ public class Nvmef {
 		}
 		end = System.nanoTime();
 		System.out.println("Write latency (random location) = " + (end - start)/ITERS + "ns");
+
+
+		start = System.nanoTime();
+		for (int i = 0; i < ITERS; i++) {
+			completion = namespace.read(qpair, ((DirectBuffer)buffer).address(), rand.nextInt(1024*1024), 262144);
+			do {
+				qpair.processCompletions(1);
+				completion.update();
+			} while (!completion.done());
+		}
+		end = System.nanoTime();
+		System.out.println("Read qd = 1 / 128KB (random location) = " + (end - start)/ITERS + "ns");
 	}
 }
