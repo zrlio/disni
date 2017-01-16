@@ -98,7 +98,7 @@ public class Nvmef {
 					j++;
 				}
 			}
-			queuePair.processCompletions(completions.length);
+			while (queuePair.processCompletions(completions.length) == 0);
 		}
 		long end = System.nanoTime();
 		return (end - start)/iterations;
