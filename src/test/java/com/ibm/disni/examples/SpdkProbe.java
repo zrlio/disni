@@ -51,7 +51,7 @@ public class SpdkProbe {
             System.out.println(" Multi host = " + multipathIOCapabilities.hasMultiHost());
             System.out.println(" SR-IOV = " + multipathIOCapabilities.hasSingleRootIOVirtualization());
 
-            System.out.print("Maximum data transfer size = ")
+            System.out.print("Maximum data transfer size = ");
             if (data.getMaximumDataTransferSize() == 0) {
                 System.out.println("unlimited");
             } else {
