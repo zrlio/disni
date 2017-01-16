@@ -28,13 +28,14 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.Random;
+import java.util.concurrent.ThreadLocalRandom;
 
 public class Nvmef {
 
 	private final NvmeNamespace namespace;
 	private final NvmeQueuePair queuePair;
 
-	private final Random random;
+	private final ThreadLocalRandom random;
 
 	Nvmef(String address, String port, String subsystemNQN) throws IOException {
 		Nvme nvme = new Nvme();
@@ -46,7 +47,7 @@ public class Nvmef {
 		namespace = controller.getNamespace(1);
 		queuePair = controller.allocQueuePair();
 
-		random = new Random(System.nanoTime());
+		random = ThreadLocalRandom.current();
 	}
 
 	enum AccessPattern {
@@ -84,7 +85,7 @@ public class Nvmef {
 							lba = j * sectorCount;
 							break;
 						case RANDOM:
-							lba = random.nextInt((int)(namespace.getSize() / namespace.getSectorSize()));
+							lba = random.nextLong(namespace.getSize() / namespace.getSectorSize());
 							break;
 						case SAME:
 							lba = 1024;
