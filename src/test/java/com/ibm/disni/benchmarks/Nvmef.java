@@ -36,8 +36,6 @@ public class Nvmef {
 
 	private final Random random;
 
-	final static int ITERS = 10000;
-
 	Nvmef(String address, String port, String subsystemNQN) throws IOException {
 		Nvme nvme = new Nvme();
 		NvmeTransportId tid = new NvmeTransportId(NvmeTransportType.RDMA, NvmfAddressFamily.IPV4, "10.40.0.17", "4420",
@@ -57,7 +55,7 @@ public class Nvmef {
 		SAME
 	}
 
-	long run(int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws IOException {
+	long run(int iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws IOException {
 		IOCompletion completions[] = new IOCompletion[queueDepth];
 		ByteBuffer buffer = ByteBuffer.allocateDirect(transferSize);
 		byte bytes[] = new byte[buffer.capacity()];
@@ -67,7 +65,7 @@ public class Nvmef {
 		int sectorCount = transferSize / namespace.getSectorSize();
 
 		long start = System.nanoTime();
-		for (int j = 0; j < ITERS; ) {
+		for (int j = 0; j < iterations; ) {
 			for (int i = 0; i < completions.length; i++) {
 				boolean post = false;
 				if (completions[i] == null) {
@@ -103,7 +101,7 @@ public class Nvmef {
 			queuePair.processCompletions(completions.length);
 		}
 		long end = System.nanoTime();
-		return (end - start)/ITERS;
+		return (end - start)/iterations;
 	}
 
 	public static void main(String[] args) throws Exception {
@@ -112,6 +110,17 @@ public class Nvmef {
 			System.exit(-1);
 		}
 		Nvmef nvmef = new Nvmef(args[0], args[1], args[2]);
-		System.out.println("Read latency (random) = " + nvmef.run(1, 512, AccessPattern.RANDOM, false) + "ns");
+		int iterations = 10000;
+		System.out.println("Latency - QD = 1, Size = 512byte");
+		System.out.println("Read latency (random) = " +
+				nvmef.run(iterations, 1, 512, AccessPattern.RANDOM, false) + "ns");
+		System.out.println("Write latency (random) = " +
+				nvmef.run(iterations, 1, 512, AccessPattern.RANDOM, true) + "ns");
+
+		final int queueDepth = 64;
+		iterations = 100000;
+		System.out.println("Throughput - QD = " + queueDepth + ", Size = 128KiB");
+		System.out.println("Read throughput (sequential) = " +
+				nvmef.run(iterations, queueDepth, 1024*128, AccessPattern.SEQUENTIAL, false) + "ns");
 	}
 }
