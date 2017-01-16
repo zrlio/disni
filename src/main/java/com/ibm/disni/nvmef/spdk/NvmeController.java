@@ -36,14 +36,15 @@ public class NvmeController extends NatObject {
 
 	private NvmeControllerData data;
 
-	NvmeController(long objId, NativeDispatcher nativeDispatcher, MemoryAllocation memoryAllocation) {
+	NvmeController(long objId, NativeDispatcher nativeDispatcher, MemoryAllocation memoryAllocation) throws IOException {
 		super(objId);
 		this.nativeDispatcher = nativeDispatcher;
 		this.memoryAllocation = memoryAllocation;
-		ByteBuffer buffer = ByteBuffer.allocateDirect(NvmeControllerData.CSIZE);
-		nativeDispatcher._nvme_ctrlr_get_data(getObjId(), ((DirectBuffer) buffer).address());
-		data = new NvmeControllerData();
-		data.update(buffer);
+		numberOfNamespaces = nativeDispatcher._nvme_ctrlr_get_num_ns(getObjId());
+		if (numberOfNamespaces < 0) {
+			throw new IOException("nvme_ctrlr_get_num_ns failed with " + numberOfNamespaces);
+		}
+		namespaces = new NvmeNamespace[numberOfNamespaces];
 	}
 
 	public NvmeQueuePair allocQueuePair() throws IOException {
@@ -68,17 +69,16 @@ public class NvmeController extends NatObject {
 	}
 
 	public int getNumberOfNamespaces() throws IOException {
-		if (namespaces == null) {
-			numberOfNamespaces = nativeDispatcher._nvme_ctrlr_get_num_ns(getObjId());
-			if (numberOfNamespaces < 0) {
-				throw new IOException("nvme_ctrlr_get_num_ns failed with " + numberOfNamespaces);
-			}
-			namespaces = new NvmeNamespace[numberOfNamespaces];
-		}
 		return numberOfNamespaces;
 	}
 
 	public NvmeControllerData getData() {
+		if (data == null) {
+			ByteBuffer buffer = ByteBuffer.allocateDirect(NvmeControllerData.CSIZE);
+			nativeDispatcher._nvme_ctrlr_get_data(getObjId(), ((DirectBuffer) buffer).address());
+			data = new NvmeControllerData();
+			data.update(buffer);
+		}
 		return data;
 	}
 }
