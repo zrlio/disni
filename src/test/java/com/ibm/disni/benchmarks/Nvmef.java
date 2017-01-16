@@ -84,7 +84,7 @@ public class Nvmef {
 							lba = j * sectorCount;
 							break;
 						case RANDOM:
-							lba = random.nextInt(1024*1024);
+							lba = random.nextInt((int)(namespace.getSize() / namespace.getSectorSize()));
 							break;
 						case SAME:
 							lba = 1024;
