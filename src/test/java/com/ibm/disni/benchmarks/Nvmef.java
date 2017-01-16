@@ -110,8 +110,13 @@ public class Nvmef {
 			System.exit(-1);
 		}
 		Nvmef nvmef = new Nvmef(args[0], args[1], args[2]);
-		int iterations = 10000;
+
+		//Warmup
+		nvmef.run(1000, 1, 512, AccessPattern.RANDOM, false);
+		nvmef.run(1000, 1, 512, AccessPattern.RANDOM, true);
+
 		System.out.println("Latency - QD = 1, Size = 512byte");
+		int iterations = 10000;
 		System.out.println("Read latency (random) = " +
 				nvmef.run(iterations, 1, 512, AccessPattern.RANDOM, false) + "ns");
 		System.out.println("Write latency (random) = " +
