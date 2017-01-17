@@ -72,7 +72,6 @@ public class Nvmef {
 				if (completions[i] == null) {
 					post = true;
 				} else {
-					completions[i].update();
 					if (completions[i].done()) {
 						post = true;
 					}

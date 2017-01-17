@@ -32,6 +32,8 @@ public class IOCompletion {
 	private int statusCodeType;
 	private int statusCode;
 
+	private static final int INVALID_STATUS_CODE_TYPE = -1;
+
 	private final MemBuf memBuf;
 	private final int position;
 
@@ -41,7 +43,22 @@ public class IOCompletion {
 		ByteBuffer buffer = memBuf.getBuffer();
 		buffer.order(ByteOrder.nativeOrder());
 		position =  buffer.position();
-		buffer.putInt(-1);
+		buffer.putInt(INVALID_STATUS_CODE_TYPE);
+	}
+
+	private void update() {
+		ByteBuffer buffer = memBuf.getBuffer();
+		buffer.position(position);
+		statusCodeType = buffer.getInt();
+		statusCode = buffer.getInt();
+	}
+
+	private void free() {
+		memBuf.free();
+	}
+
+	long address() {
+		return memBuf.address();
 	}
 
 	public int getStatusCodeType() {
@@ -53,21 +70,12 @@ public class IOCompletion {
 	}
 
 	public boolean done() {
-		return getStatusCodeType() != -1;
-	}
-
-	long address() {
-		return memBuf.address();
-	}
-
-	public void update() {
-		ByteBuffer buffer = memBuf.getBuffer();
-		buffer.position(position);
-		statusCodeType = buffer.getInt();
-		statusCode = buffer.getInt();
-	}
-
-	public void free() {
-		memBuf.free();
+		if (getStatusCodeType() == INVALID_STATUS_CODE_TYPE) {
+			update();
+			if (getStatusCodeType() != INVALID_STATUS_CODE_TYPE) {
+				free();
+			}
+		}
+		return getStatusCodeType() != INVALID_STATUS_CODE_TYPE;
 	}
 }
