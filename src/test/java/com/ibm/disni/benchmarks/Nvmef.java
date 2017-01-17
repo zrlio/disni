@@ -56,7 +56,7 @@ public class Nvmef {
 		SAME
 	}
 
-	long run(int iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws IOException {
+	long run(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws IOException {
 		IOCompletion completions[] = new IOCompletion[queueDepth];
 		ByteBuffer buffer = ByteBuffer.allocateDirect(transferSize);
 		byte bytes[] = new byte[buffer.capacity()];
@@ -66,7 +66,7 @@ public class Nvmef {
 		int sectorCount = transferSize / namespace.getSectorSize();
 
 		long start = System.nanoTime();
-		for (int j = 0; j < iterations; ) {
+		for (long j = 0; j < iterations; ) {
 			for (int i = 0; i < completions.length; i++) {
 				boolean post = false;
 				if (completions[i] == null) {
@@ -111,6 +111,10 @@ public class Nvmef {
 		}
 		Nvmef nvmef = new Nvmef(args[0], args[1], args[2]);
 
+		final int maxTransferSize = 128*1024;
+		//Write whole device once
+		nvmef.run(nvmef.namespace.getSize()/maxTransferSize, 64, maxTransferSize, AccessPattern.SEQUENTIAL, true);
+
 		//Warmup
 		nvmef.run(1000, 1, 512, AccessPattern.RANDOM, false);
 		nvmef.run(1000, 1, 512, AccessPattern.RANDOM, true);
@@ -124,10 +128,10 @@ public class Nvmef {
 
 		final int queueDepth = 64;
 		iterations = 100000;
-		final int transferSize = 128*1024;
+
 		System.out.println("Throughput - QD = " + queueDepth + ", Size = 128KiB");
 		System.out.println("Read throughput (sequential) = " +
-				transferSize * 1000 / nvmef.run(iterations, queueDepth, transferSize, AccessPattern.SEQUENTIAL, false) +
+				maxTransferSize * 1000 / nvmef.run(iterations, queueDepth, maxTransferSize, AccessPattern.SEQUENTIAL, false) +
 				"MB/s");
 	}
 }
