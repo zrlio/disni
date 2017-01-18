@@ -44,6 +44,7 @@ public class IOCompletion {
 		buffer.order(ByteOrder.nativeOrder());
 		position =  buffer.position();
 		buffer.putInt(INVALID_STATUS_CODE_TYPE);
+		update();
 	}
 
 	private void update() {
