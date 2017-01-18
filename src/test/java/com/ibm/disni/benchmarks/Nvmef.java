@@ -66,14 +66,16 @@ public class Nvmef {
 		int sectorCount = transferSize / namespace.getSectorSize();
 
 		long start = System.nanoTime();
-		for (long j = 0; j < iterations; ) {
+		long completed = 0;
+		for (long posted = 0; posted < iterations || completed < iterations; ) {
 			for (int i = 0; i < completions.length; i++) {
 				boolean post = false;
 				if (completions[i] == null) {
 					post = true;
 				} else {
 					if (completions[i].done()) {
-						post = true;
+						completed++;
+						post = completed < iterations;
 					}
 				}
 
@@ -81,7 +83,7 @@ public class Nvmef {
 					long lba = 0;
 					switch (accessPattern) {
 						case SEQUENTIAL:
-							lba = j * sectorCount;
+							lba = posted * sectorCount;
 							break;
 						case RANDOM:
 							lba = random.nextLong(namespace.getSize() / namespace.getSectorSize());
@@ -95,7 +97,7 @@ public class Nvmef {
 					} else {
 						completions[i] = namespace.read(queuePair, ((DirectBuffer)buffer).address(), lba, sectorCount);
 					}
-					j++;
+					posted++;
 				}
 			}
 			while (queuePair.processCompletions(completions.length) == 0);
