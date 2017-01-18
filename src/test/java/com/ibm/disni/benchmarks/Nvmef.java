@@ -99,7 +99,7 @@ public class Nvmef {
 					posted++;
 				}
 			}
-			queuePair.processCompletions(completions.length);
+			while(completed < iterations && queuePair.processCompletions(completions.length) == 0);
 		}
 		long end = System.nanoTime();
 		return (end - start)/iterations;
@@ -114,7 +114,7 @@ public class Nvmef {
 
 		final int maxTransferSize = 128*1024;
 		//Write whole device once
-		nvmef.run(nvmef.namespace.getSize()/maxTransferSize, 64, maxTransferSize, AccessPattern.SEQUENTIAL, true);
+		//nvmef.run(nvmef.namespace.getSize()/maxTransferSize, 64, maxTransferSize, AccessPattern.SEQUENTIAL, true);
 
 		//Warmup
 		nvmef.run(1000, 1, 512, AccessPattern.RANDOM, false);
