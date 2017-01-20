@@ -62,8 +62,8 @@ public class IOCompletion {
 		return memBuf.address();
 	}
 
-	public int getStatusCodeType() {
-		return statusCodeType;
+	public NvmeStatusCodeType getStatusCodeType() {
+		return NvmeStatusCodeType.valueOf(statusCodeType);
 	}
 
 	public int getStatusCode() {
@@ -71,12 +71,12 @@ public class IOCompletion {
 	}
 
 	public boolean done() {
-		if (getStatusCodeType() == INVALID_STATUS_CODE_TYPE) {
+		if (statusCodeType == INVALID_STATUS_CODE_TYPE) {
 			update();
-			if (getStatusCodeType() != INVALID_STATUS_CODE_TYPE) {
+			if (statusCodeType != INVALID_STATUS_CODE_TYPE) {
 				free();
 			}
 		}
-		return getStatusCodeType() != INVALID_STATUS_CODE_TYPE;
+		return statusCodeType != INVALID_STATUS_CODE_TYPE;
 	}
 }

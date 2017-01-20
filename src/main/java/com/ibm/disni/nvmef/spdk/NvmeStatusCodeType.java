@@ -31,5 +31,14 @@ public enum NvmeStatusCodeType {
 
 	NvmeStatusCodeType(int numVal) { this.numVal = numVal; }
 
-	public int getNumVal() { return numVal; }
+	static NvmeStatusCodeType valueOf(int numVal) {
+		for (NvmeStatusCodeType statusCodeType : NvmeStatusCodeType.values()) {
+			if (numVal == statusCodeType.getNumVal()) {
+				return statusCodeType;
+			}
+		}
+		throw new IllegalArgumentException();
+	}
+
+	int getNumVal() { return numVal; }
 }

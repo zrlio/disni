@@ -140,8 +140,8 @@ public class SpdkProbe {
         do {
             queuePair.processCompletions(10);
         } while (!completion.done());
-        System.out.println("write completed with status type = " + completion.getStatusCodeType());
-        if (completion.getStatusCodeType() == NvmeStatusCodeType.GENERIC.getNumVal()) {
+        System.out.println("write completed with status type = " + completion.getStatusCodeType().name());
+        if (completion.getStatusCodeType() == NvmeStatusCodeType.GENERIC) {
             System.out.println("Status code = " +
                     NvmeGenericCommandStatusCode.valueOf(completion.getStatusCode()).name());
         }
@@ -151,8 +151,8 @@ public class SpdkProbe {
         do {
             queuePair.processCompletions(10);
         } while (!completion.done());
-        System.out.println("read completed with status type = " + completion.getStatusCodeType());
-        if (completion.getStatusCodeType() == NvmeStatusCodeType.GENERIC.getNumVal()) {
+        System.out.println("read completed with status type = " + completion.getStatusCodeType().name());
+        if (completion.getStatusCodeType() == NvmeStatusCodeType.GENERIC) {
             System.out.println("Status code = " +
                     NvmeGenericCommandStatusCode.valueOf(completion.getStatusCode()).name());
         }
