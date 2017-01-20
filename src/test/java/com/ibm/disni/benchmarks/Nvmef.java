@@ -112,7 +112,7 @@ public class Nvmef {
 		}
 		Nvmef nvmef = new Nvmef(args[0], args[1], args[2]);
 
-		final int maxTransferSize = 128*1024;
+		final int maxTransferSize = nvmef.namespace.getMaxIOTransferSize();
 		//Write whole device once
 		//nvmef.run(nvmef.namespace.getSize()/maxTransferSize, 64, maxTransferSize, AccessPattern.SEQUENTIAL, true);
 

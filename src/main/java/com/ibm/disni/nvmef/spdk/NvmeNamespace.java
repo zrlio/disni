@@ -48,6 +48,8 @@ public class NvmeNamespace extends NatObject {
 		return nativeDispatcher._nvme_ns_get_sector_size(getObjId());
 	}
 
+	public int getMaxIOTransferSize() { return nativeDispatcher._nvme_ns_get_max_io_xfer_size(getObjId()); }
+
 	public IOCompletion read(NvmeQueuePair queuePair, long address, long linearBlockAddress, int count) throws IOException {
 		IOCompletion completion = new IOCompletion(memoryAllocation);
 		int ret = nativeDispatcher._nvme_ns_io_cmd(getObjId(), queuePair.getObjId(), address,

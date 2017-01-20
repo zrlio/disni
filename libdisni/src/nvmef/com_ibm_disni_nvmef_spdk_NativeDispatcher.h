@@ -73,6 +73,14 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ns
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvme_ns_get_max_io_xfer_size
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ns_1get_1max_1io_1xfer_1size
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _nvme_ns_io_cmd
  * Signature: (JJJJIJZ)I
  */

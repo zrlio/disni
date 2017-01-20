@@ -49,6 +49,8 @@ public class NativeDispatcher {
 
 	public native int _nvme_ns_get_sector_size(long namespace);
 
+	public native int _nvme_ns_get_max_io_xfer_size(long namespace);
+
 	public native int _nvme_ns_io_cmd(long namespace, long queuePair, long address, long linearBlockAddress,
 										int count, long completionAddress, boolean write);
 
