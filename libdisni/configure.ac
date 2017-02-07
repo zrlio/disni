@@ -26,6 +26,9 @@ AC_SUBST([jdk])
 AC_ARG_WITH([spdk], [AS_HELP_STRING([--with-spdk],[spdk base directory])], [spdk=$withval], [AC_ERROR([spdk directory not specified])])
 AC_SUBST([spdk])
 
+AC_ARG_WITH([dpdk], [AS_HELP_STRING([--with-dpdk],[dpdk base directory])], [dpdk=$withval], [AC_ERROR([dpdk directory not specified])])
+AC_SUBST([dpdk])
+
 AC_ARG_ENABLE(logging, [  --enable-logging],
 [if test "$enableval" = yes; then
   AC_DEFINE([ENABLE_LOGGING], , [Enable logging])
