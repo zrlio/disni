@@ -17,56 +17,41 @@ public class NvmeEndpoint {
 	private NvmeEndpointGroup group;
     private NvmeQueuePair queuePair;
     private NvmeNamespace namespace;
-    private AtomicLong issuedOperations;
-    private AtomicLong completedOperations;
 	
 	public NvmeEndpoint(NvmeEndpointGroup group){
 		this.group = group;
 		this.queuePair = null;
 		this.namespace = null;
-		this.issuedOperations = new AtomicLong(0);
-		this.completedOperations = new AtomicLong(0);
 	}
 	
-	public synchronized void connect(SocketAddress dst, int timeout) throws IOException {
-		InetSocketAddress inetAddress = (InetSocketAddress) dst;
-		String host = inetAddress.getAddress().getHostAddress();
-		int port = inetAddress.getPort();
-		NvmeController controller = group.probe(host, 0);
-		this.namespace = controller.getNamespace(1);
-		this.queuePair = controller.allocQueuePair();
-	}
+	public void connect(String address, String port, int controller, int namespace) throws IOException {
+		NvmeController nvmecontroller = group.probe(address, port, controller);
+		this.namespace = nvmecontroller.getNamespace(namespace);
+		this.queuePair = nvmecontroller.allocQueuePair();		
+	}	
 	
-	public IOCompletion write(ByteBuffer buffer) throws IOException{
-		IOCompletion completion = namespace.write(queuePair, ((DirectBuffer) buffer).address(), 0, 1);
-		long id = issuedOperations.getAndIncrement();
-		//completion.attachId(id);
+	public IOCompletion write(ByteBuffer buffer, long linearBlockAddress, int count) throws IOException{
+		IOCompletion completion = namespace.write(queuePair, ((DirectBuffer) buffer).address(), linearBlockAddress, count);
 		return completion;
 	}
 	
-	public IOCompletion read(ByteBuffer buffer) throws IOException{
-		IOCompletion completion = namespace.read(queuePair, ((DirectBuffer) buffer).address(), 0, 1);
-		long id = issuedOperations.getAndIncrement();
-		//completion.attachId(id);
+	public IOCompletion read(ByteBuffer buffer, long linearBlockAddress, int count) throws IOException{
+		IOCompletion completion = namespace.read(queuePair, ((DirectBuffer) buffer).address(), linearBlockAddress, count);
 		return completion;
 	}	
 	
-	public boolean poll(IOCompletion completion) throws IOException{
-		int ret = queuePair.processCompletions(10);
-		if (ret > 0){
-			completedOperations.incrementAndGet();
-		}
-		/*
-		 * if (completedId.get() >= completion.id()){
-		 * return true;
-		 * } else {
-		 * return false;
-		 * }
-		 */
-		return true;
+	public int processCompletions(int length) throws IOException {
+		return queuePair.processCompletions(length);
 	}
 	
-	public synchronized void close() throws IOException, InterruptedException {
-		
+	public int getSectorSize() { 
+		return namespace.getSectorSize();
 	}
+
+	public long getSize() {
+		return namespace.getSize();
+	}
+
+
+
 }

@@ -27,10 +27,10 @@ public class NvmeEndpointGroup {
 	
 	//--------------- internal ------------------
 
-	NvmeController probe(String host, int i) throws IOException {
+	NvmeController probe(String host, String port, int index) throws IOException {
 		ArrayList<NvmeController> controllers = new ArrayList<NvmeController>();
 		NvmeTransportId transportId = new NvmeTransportId(NvmeTransportType.RDMA, NvmfAddressFamily.IPV4, host, "4420", "nqn.2014-08.org.nvmexpress.discovery");
 		nvme.probe(transportId, controllers);
-		return controllers.get(i);
+		return controllers.get(index);
 	}
 }
