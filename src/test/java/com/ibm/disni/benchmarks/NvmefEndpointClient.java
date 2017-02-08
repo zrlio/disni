@@ -1,6 +1,8 @@
 package com.ibm.disni.benchmarks;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ThreadLocalRandom;
@@ -15,11 +17,12 @@ public class NvmefEndpointClient {
 	private NvmeEndpointGroup group;
 	private NvmeEndpoint endpoint;
 	
-	public NvmefEndpointClient(String address, String port, String subsystem) throws IOException {
+	public NvmefEndpointClient(String address, String port, String subsystem) throws Exception {
 		this.random = ThreadLocalRandom.current();
 		this.group = new NvmeEndpointGroup();
 		this.endpoint = group.createEndpoint();
-		URL url = new URL("nvmef", address, Integer.parseInt(port), "/0/1");
+		URI url = new URI("nvmef://" + address + ":" + port + "/0/1");
+//		URI url = new URI("nvmef", address, port, "/0/1");
 		endpoint.connect(url);
 	}
 	
@@ -76,7 +79,7 @@ public class NvmefEndpointClient {
 		return (end - start)/iterations;
 	}
 
-	public static void main(String[] args) throws IOException{
+	public static void main(String[] args) throws Exception{
 		if (args.length < 3) {
 			System.out.println("<address> <port> <subsystemNQN>");
 			System.exit(-1);

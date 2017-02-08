@@ -3,7 +3,7 @@ package com.ibm.disni.nvmef;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.URL;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicLong;
@@ -34,9 +34,9 @@ public class NvmeEndpoint {
 	
 	//rdma://<host>:<port>
 	//nvmef:://<host>:<port>/controller/namespace"
-	public void connect(URL url) throws IOException {
-		if (!url.getProtocol().equalsIgnoreCase("nvmef")){
-			throw new IOException("URL has wrong protocol " + url.getProtocol());
+	public void connect(URI url) throws IOException {
+		if (!url.getScheme().equalsIgnoreCase("nvmef")){
+			throw new IOException("URL has wrong protocol " + url.getScheme());
 		}
 		
 		String address = url.getAuthority();
