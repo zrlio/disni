@@ -69,8 +69,8 @@ public class NvmeEndpoint {
 		}
 		String tokens[] = new String[tokenizer.countTokens()];
 		for (int i = 0; i < tokenizer.countTokens(); i++){
-			tokens[i] = tokenizer.nextToken();
 			tokenizer.hasMoreTokens();
+			tokens[i] = tokenizer.nextToken();
 		}
 		int controller = 0;
 		System.out.println("path " + path);
