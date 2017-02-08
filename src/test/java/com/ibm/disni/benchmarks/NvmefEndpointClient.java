@@ -23,8 +23,6 @@ package com.ibm.disni.benchmarks;
 
 import java.io.IOException;
 import java.net.URI;
-import java.net.URISyntaxException;
-import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -43,7 +41,6 @@ public class NvmefEndpointClient {
 		this.group = new NvmeEndpointGroup();
 		this.endpoint = group.createEndpoint();
 		URI url = new URI("nvmef://" + address + ":" + port + "/0/1");
-//		URI url = new URI("nvmef", address, port, "/0/1");
 		endpoint.connect(url);
 	}
 	
