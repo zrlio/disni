@@ -31,7 +31,7 @@ import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
 public class NvmefClient {
-
+	private final ArrayList<NvmeController> controllers;
 	private final NvmeNamespace namespace;
 	private final NvmeQueuePair queuePair;
 
@@ -41,13 +41,21 @@ public class NvmefClient {
 		Nvme nvme = new Nvme();
 		NvmeTransportId tid = new NvmeTransportId(NvmeTransportType.RDMA, NvmfAddressFamily.IPV4, "10.40.0.17", "4420",
 				"nqn.2014-08.org.nvmexpress.discovery");
-		ArrayList<NvmeController> controllers = new ArrayList<NvmeController>();
+		controllers = new ArrayList<NvmeController>();
 		nvme.probe(tid, controllers);
 		NvmeController controller = controllers.get(0);
 		namespace = controller.getNamespace(1);
 		queuePair = controller.allocQueuePair();
 
 		random = ThreadLocalRandom.current();
+	}
+
+	void close() throws IOException {
+		// Freeing the queue pair is not really necessary as it is freed when detaching the controller
+		queuePair.free();
+		for (NvmeController controller : controllers) {
+			controller.detach();
+		}
 	}
 
 	enum AccessPattern {
@@ -134,5 +142,7 @@ public class NvmefClient {
 		System.out.println("Read throughput (sequential) = " +
 				maxTransferSize * 1000 / nvmef.run(iterations, queueDepth, maxTransferSize, AccessPattern.SEQUENTIAL, false) +
 				"MB/s");
+
+		nvmef.close();
 	}
 }

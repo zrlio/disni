@@ -39,4 +39,11 @@ public class NvmeQueuePair extends NatObject {
 		}
 		return ret;
 	}
+
+	public void free() throws IOException {
+		int ret = nativeDispatcher._nvme_ctrlr_free_io_qpair(getObjId());
+		if (ret != 0) {
+			throw new IOException("spdk_nvme_ctrlr_free_io_qpair failed with " + ret);
+		}
+	}
 }
