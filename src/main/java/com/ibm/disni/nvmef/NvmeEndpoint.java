@@ -28,7 +28,7 @@ public class NvmeEndpoint {
 		NvmeController nvmecontroller = group.probe(address, port, controller);
 		this.namespace = nvmecontroller.getNamespace(namespace);
 		this.queuePair = nvmecontroller.allocQueuePair();		
-	}	
+	}
 	
 	public IOCompletion write(ByteBuffer buffer, long linearBlockAddress, int count) throws IOException{
 		IOCompletion completion = namespace.write(queuePair, ((DirectBuffer) buffer).address(), linearBlockAddress, count);
@@ -51,7 +51,8 @@ public class NvmeEndpoint {
 	public long getSize() {
 		return namespace.getSize();
 	}
-
-
-
+	
+	public int getMaxIOTransferSize() {
+		return namespace.getMaxIOTransferSize();
+	}	
 }
