@@ -60,7 +60,7 @@ public class NvmeEndpoint {
 			throw new IOException("URL has wrong protocol " + url.getScheme());
 		}
 		
-		String address = url.getAuthority();
+		String address = url.getHost();
 		String port = Integer.toString(url.getPort());
 		String path = url.getPath();
 		StringTokenizer tokenizer = new StringTokenizer(path, "/");
@@ -68,10 +68,6 @@ public class NvmeEndpoint {
 			throw new IOException("URL format error, too many elements in path");
 		}
 		String tokens[] = new String[tokenizer.countTokens()];
-//		for (int i = 0; i < tokenizer.countTokens(); i++){
-//			tokenizer.hasMoreTokens();
-//			tokens[i] = tokenizer.nextToken();
-//		}
 		int i = 0;
 		while(tokenizer.hasMoreTokens()){
 			tokens[i] = tokenizer.nextToken();
@@ -79,14 +75,11 @@ public class NvmeEndpoint {
 			i++;
 		}
 		int controller = 0;
-		System.out.println("path " + path);
 		if (tokens.length > 0){
-			System.out.println("controller " + tokens[0]);
 			controller = Integer.parseInt(tokens[0]);
 		}
 		int namespace = 1;
 		if (tokens.length > 1){
-			System.out.println("namespace " + tokens[1]);
 			namespace = Integer.parseInt(tokens[1]);
 		}
 		System.out.println("connecting to address " + address + ", port " + port + ", path " + path + ", controller " + controller + ", namespace" + namespace);
