@@ -79,6 +79,7 @@ public class NvmefEndpointClient {
 			System.out.println("<address> <port> <subsystemNQN>");
 			System.exit(-1);
 		}
+		System.out.println("Starting NvmefEndpointClient, address " + args[0] + ", port " + args[1]);
 		NvmefEndpointClient client = new NvmefEndpointClient(args[0], args[1], args[2]);
 		
 		final int maxTransferSize = client.getMaxIOTransferSize();
