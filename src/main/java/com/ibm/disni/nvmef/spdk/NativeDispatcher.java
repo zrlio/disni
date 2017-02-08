@@ -35,6 +35,8 @@ public class NativeDispatcher {
 
 	public native int _nvme_probe(int type, int addressFamily, String address, String serviceId, String subsystemNQN, long[] controllerIds);
 
+	public native int _nvme_detach(long controller);
+
 	public native int _nvme_ctrlr_get_num_ns(long controller);
 
 	public native long _nvme_ctrlr_get_ns(long controller, int namespaceId);
@@ -42,6 +44,8 @@ public class NativeDispatcher {
 	public native void _nvme_ctrlr_get_data(long controller, long buffer);
 
 	public native long _nvme_ctrlr_alloc_io_qpair(long controller, int priority);
+
+	public native int _nvme_ctrlr_free_io_qpair(long queuePair);
 
 	public native boolean _nvme_ns_is_active(long namespace);
 

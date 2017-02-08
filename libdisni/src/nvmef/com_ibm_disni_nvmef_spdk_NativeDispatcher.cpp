@@ -138,6 +138,17 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1pr
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvme_detach
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1detach
+  (JNIEnv* env, jobject* thiz, jlong controller_id) {
+    spdk_nvme_ctrlr* ctrlr = reinterpret_cast<spdk_nvme_ctrlr*>(controller_id);
+    return spdk_nvme_detach(ctrlr);
+}
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _nvme_ctrlr_get_num_ns
  * Signature: (J)I
  */
@@ -182,6 +193,17 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1c
     spdk_nvme_ctrlr* ctrlr = reinterpret_cast<spdk_nvme_ctrlr*>(controller_id);
     spdk_nvme_qpair* qpair = spdk_nvme_ctrlr_alloc_io_qpair(ctrlr, static_cast<spdk_nvme_qprio>(0));
     return reinterpret_cast<jlong>(qpair);
+}
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvme_ctrlr_free_io_qpair
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1free_1io_1qpair
+  (JNIEnv* env, jobject thiz, jlong qpair_id) {
+    spdk_nvme_qpair* qpair = reinterpret_cast<spdk_nvme_qpair*>(qpair_id);
+    return spdk_nvme_ctrlr_free_io_qpair(qpair);
 }
 
 /*

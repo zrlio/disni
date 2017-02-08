@@ -81,4 +81,11 @@ public class NvmeController extends NatObject {
 		}
 		return data;
 	}
+
+	public void detach() throws IOException {
+		int ret = nativeDispatcher._nvme_detach(getObjId());
+		if (ret != 0) {
+			throw new IOException("spdk_nvme_detach failed with " + ret);
+		}
+	}
 }
