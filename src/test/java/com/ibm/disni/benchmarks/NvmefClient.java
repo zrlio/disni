@@ -30,14 +30,14 @@ import java.util.ArrayList;
 import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class Nvmef {
+public class NvmefClient {
 
 	private final NvmeNamespace namespace;
 	private final NvmeQueuePair queuePair;
 
 	private final ThreadLocalRandom random;
 
-	Nvmef(String address, String port, String subsystemNQN) throws IOException {
+	NvmefClient(String address, String port, String subsystemNQN) throws IOException {
 		Nvme nvme = new Nvme();
 		NvmeTransportId tid = new NvmeTransportId(NvmeTransportType.RDMA, NvmfAddressFamily.IPV4, "10.40.0.17", "4420",
 				"nqn.2014-08.org.nvmexpress.discovery");
@@ -110,7 +110,7 @@ public class Nvmef {
 			System.out.println("<address> <port> <subsystemNQN>");
 			System.exit(-1);
 		}
-		Nvmef nvmef = new Nvmef(args[0], args[1], args[2]);
+		NvmefClient nvmef = new NvmefClient(args[0], args[1], args[2]);
 
 		final int maxTransferSize = nvmef.namespace.getMaxIOTransferSize();
 		//Write whole device once

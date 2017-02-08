@@ -4,7 +4,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ThreadLocalRandom;
 
-import com.ibm.disni.benchmarks.Nvmef.AccessPattern;
+import com.ibm.disni.benchmarks.NvmefClient.AccessPattern;
 import com.ibm.disni.nvmef.NvmeEndpoint;
 import com.ibm.disni.nvmef.NvmeEndpointGroup;
 import com.ibm.disni.nvmef.spdk.IOCompletion;
