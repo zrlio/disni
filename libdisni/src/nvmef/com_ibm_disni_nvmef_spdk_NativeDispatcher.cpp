@@ -1,5 +1,5 @@
 /*
- * jVerbs: RDMA verbs support for the Java Virtual Machine
+ * DiSNI: Direct Storage and Networking Interface
  *
  * Author: Jonas Pfefferle <jpf@zurich.ibm.com>
  *
