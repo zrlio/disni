@@ -22,15 +22,10 @@
 package com.ibm.disni.nvmef;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
-import java.net.SocketAddress;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.StringTokenizer;
-import java.util.concurrent.atomic.AtomicLong;
-
 import sun.nio.ch.DirectBuffer;
-
 import com.ibm.disni.nvmef.spdk.IOCompletion;
 import com.ibm.disni.nvmef.spdk.NvmeController;
 import com.ibm.disni.nvmef.spdk.NvmeNamespace;
@@ -47,12 +42,6 @@ public class NvmeEndpoint {
 		this.namespace = null;
 	}
 	
-//	public void connect(String address, String port, int controller, int namespace) throws IOException {
-//		NvmeController nvmecontroller = group.probe(address, port, controller);
-//		this.namespace = nvmecontroller.getNamespace(namespace);
-//		this.queuePair = nvmecontroller.allocQueuePair();		
-//	}
-	
 	//rdma://<host>:<port>
 	//nvmef:://<host>:<port>/controller/namespace"
 	public void connect(URI url) throws IOException {
@@ -62,27 +51,42 @@ public class NvmeEndpoint {
 		
 		String address = url.getHost();
 		String port = Integer.toString(url.getPort());
-		String path = url.getPath();
-		StringTokenizer tokenizer = new StringTokenizer(path, "/");
-		if (tokenizer.countTokens() > 2){
-			throw new IOException("URL format error, too many elements in path");
-		}
-		String tokens[] = new String[tokenizer.countTokens()];
-		int i = 0;
-		while(tokenizer.hasMoreTokens()){
-			tokens[i] = tokenizer.nextToken();
-			System.out.println("parsing token " + tokens[i]);
-			i++;
-		}
 		int controller = 0;
-		if (tokens.length > 0){
-			controller = Integer.parseInt(tokens[0]);
-		}
 		int namespace = 1;
-		if (tokens.length > 1){
-			namespace = Integer.parseInt(tokens[1]);
+		
+		String path = url.getPath();
+		if (path != null){
+			StringTokenizer tokenizer = new StringTokenizer(path, "/");
+			if (tokenizer.countTokens() > 2){
+				throw new IOException("URL format error, too many elements in path");
+			}
+			for (int i = 0; tokenizer.hasMoreTokens(); i++){
+				switch(i) {
+				case 0:
+					controller = Integer.parseInt(tokenizer.nextToken());
+					break;
+				case 1:
+					namespace = Integer.parseInt(tokenizer.nextToken());
+					break;
+				}
+			}
+			
+//			String tokens[] = new String[tokenizer.countTokens()];
+//			int i = 0;
+//			while(tokenizer.hasMoreTokens()){
+//				tokens[i] = tokenizer.nextToken();
+//				System.out.println("parsing token " + tokens[i]);
+//				i++;
+//			}
+//			if (tokens.length > 0){
+//				controller = Integer.parseInt(tokens[0]);
+//			}
+//			if (tokens.length > 1){
+//				namespace = Integer.parseInt(tokens[1]);
+//			}
 		}
-		System.out.println("connecting to address " + address + ", port " + port + ", path " + path + ", controller " + controller + ", namespace" + namespace);
+		
+		System.out.println("connecting to address " + address);
 		NvmeController nvmecontroller = group.probe(address, port, controller);
 		this.namespace = nvmecontroller.getNamespace(namespace);
 		this.queuePair = nvmecontroller.allocQueuePair();		
