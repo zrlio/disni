@@ -291,3 +291,86 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1qp
     return spdk_nvme_qpair_process_completions(qpair, max_completions);
 }
 
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvmf_tgt_init
+ * Signature: (SSII)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1tgt_1init
+  (JNIEnv* env, jobject thiz, jshort max_queue_depth,
+   jshort max_connections_per_session, jint in_capsule_data_size,
+   jint max_io_size) {
+    return spdk_nvmef_tgt_init(max_queue_depth, max_connections_per_session,
+            in_capsule_data_size, max_io_size);
+}
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvmf_create_subsystem
+ * Signature: (Ljava/lang/String;II)J
+ */
+JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1create_1subsystem
+  (JNIEnv* env, jobject thiz, jstring nqn, jint type, jint mode) {
+    if (env->IsSameObject(nqn, NULL)) {
+        return -EFAULT;
+    }
+    const char* nqn = env->GetStringUTFChars(nqn, NULL);
+    if (nqn == NULL) {
+        return -EFAULT;
+    }
+    // int ret = spdk_nvmef_create_subsystem(nqn,
+    //         static_cast<spdk_nvmf_subtype>(type),
+    //         static_cast<spdk_nvmf_subsystem_mode>(mode),
+    //         NULL, connect_cb, disconnect_cb);
+    env->ReleaseStringUTFChars(address, addr);
+}
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvmf_delete_subsystem
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1delete_1subsystem
+  (JNIEnv* env, jobject thiz, jlong subsystem_id) {
+
+}
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvmf_subsystem_add_listener
+ * Signature: (JLjava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1subsystem_1add_1listener
+  (JNIEnv *, jobject, jlong, jstring, jstring, jstring);
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvmf_subsystem_poll
+ * Signature: (J[J)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1subsystem_1poll
+  (JNIEnv *, jobject, jlong, jlongArray);
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvmf_subsystem_add_ctrlr
+ * Signature: (JJLjava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1subsystem_1add_1ctrlr
+  (JNIEnv *, jobject, jlong, jlong, jstring);
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvmef_acceptor_poll
+ * Signature: ([J)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmef_1acceptor_1poll
+  (JNIEnv *, jobject, jlongArray);
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvmf_tgt_fini
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1tgt_1fini
+  (JNIEnv *, jobject);

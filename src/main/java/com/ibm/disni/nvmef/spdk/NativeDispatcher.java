@@ -70,11 +70,13 @@ public class NativeDispatcher {
 
 	public native int _nvmf_subsystem_add_listener(long subsystem, String transportName, String address, String serviceId);
 
-	// polls for IO completions and handles IO requests
-	public native int _nvmf_subsystem_poll(long subsystem);
+	// polls for IO completions and handles IO requests including connect requests
+	public native int _nvmf_subsystem_poll(long subsystem, long connects[]);
 
-	// polls on all transports/listeners for accept events
-	public native int _nvmef_acceptor_poll();
+	public native int _nvmf_subsystem_add_ctrlr(long subsystem, long controller, String pciAddress);
+
+	// polls on all transports/listeners for accept events + disconnect events
+	public native int _nvmef_acceptor_poll(long disconnects[]);
 
 	public native int _nvmf_tgt_fini();
 }
