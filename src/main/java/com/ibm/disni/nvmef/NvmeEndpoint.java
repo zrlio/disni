@@ -25,7 +25,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.StringTokenizer;
+import java.util.concurrent.atomic.AtomicBoolean;
+
 import sun.nio.ch.DirectBuffer;
+
 import com.ibm.disni.nvmef.spdk.IOCompletion;
 import com.ibm.disni.nvmef.spdk.NvmeController;
 import com.ibm.disni.nvmef.spdk.NvmeNamespace;
@@ -35,16 +38,18 @@ public class NvmeEndpoint {
 	private NvmeEndpointGroup group;
     private NvmeQueuePair queuePair;
     private NvmeNamespace namespace;
+    private AtomicBoolean isOpen;
 	
 	public NvmeEndpoint(NvmeEndpointGroup group){
 		this.group = group;
 		this.queuePair = null;
 		this.namespace = null;
+		this.isOpen = new AtomicBoolean(false);
 	}
 	
 	//rdma://<host>:<port>
 	//nvmef:://<host>:<port>/controller/namespace"
-	public void connect(URI url) throws IOException {
+	public synchronized void connect(URI url) throws IOException {
 		if (!url.getScheme().equalsIgnoreCase("nvmef")){
 			throw new IOException("URL has wrong protocol " + url.getScheme());
 		}
@@ -70,29 +75,18 @@ public class NvmeEndpoint {
 					break;
 				}
 			}
-			
-//			String tokens[] = new String[tokenizer.countTokens()];
-//			int i = 0;
-//			while(tokenizer.hasMoreTokens()){
-//				tokens[i] = tokenizer.nextToken();
-//				System.out.println("parsing token " + tokens[i]);
-//				i++;
-//			}
-//			if (tokens.length > 0){
-//				controller = Integer.parseInt(tokens[0]);
-//			}
-//			if (tokens.length > 1){
-//				namespace = Integer.parseInt(tokens[1]);
-//			}
 		}
 		
-		System.out.println("connecting to address " + address);
 		NvmeController nvmecontroller = group.probe(address, port, controller);
 		this.namespace = nvmecontroller.getNamespace(namespace);
-		this.queuePair = nvmecontroller.allocQueuePair();		
+		this.queuePair = nvmecontroller.allocQueuePair();	
+		this.isOpen.set(true);
 	}	
 	
 	public IOCompletion write(ByteBuffer buffer, long linearBlockAddress) throws IOException{
+		if (!isOpen.get()){
+			throw new IOException("endpoint is closed");
+		}
 		if (buffer.remaining() % namespace.getSectorSize() != 0){
 			throw new IOException("buffer must a multiple of sector size");
 		}
@@ -103,6 +97,9 @@ public class NvmeEndpoint {
 	}
 	
 	public IOCompletion read(ByteBuffer buffer, long linearBlockAddress) throws IOException{
+		if (!isOpen.get()){
+			throw new IOException("endpoint is closed");
+		}		
 		if (buffer.remaining() % namespace.getSectorSize() != 0){
 			throw new IOException("buffer must a multiple of sector size");
 		}		
@@ -110,7 +107,12 @@ public class NvmeEndpoint {
 		int sectorCount = buffer.remaining() / namespace.getSectorSize();
 		IOCompletion completion = namespace.read(queuePair, ((DirectBuffer) buffer).address(), linearBlockAddress, sectorCount);
 		return completion;
-	}	
+	}
+	
+	public synchronized void close() throws IOException, InterruptedException {
+		queuePair.free();
+		isOpen.set(false);
+	}
 	
 	public int processCompletions(int length) throws IOException {
 		return queuePair.processCompletions(length);
