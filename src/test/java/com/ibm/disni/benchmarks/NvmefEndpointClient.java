@@ -1,6 +1,7 @@
 package com.ibm.disni.benchmarks;
 
 import java.io.IOException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -18,11 +19,12 @@ public class NvmefEndpointClient {
 		this.random = ThreadLocalRandom.current();
 		this.group = new NvmeEndpointGroup();
 		this.endpoint = group.createEndpoint();
-		endpoint.connect(address, port, 0, 1);
+		URL url = new URL("nvmef", address, Integer.parseInt(port), "/0/1");
+		endpoint.connect(url);
 	}
 	
 	public int getMaxIOTransferSize() {
-		return endpoint.getMaxIOTransferSize();
+		return endpoint.getMaxTransferSize();
 	}
 
 	public long run(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws IOException{
@@ -54,16 +56,16 @@ public class NvmefEndpointClient {
 							lba = posted * sectorCount;
 							break;
 						case RANDOM:
-							lba = random.nextLong(endpoint.getSize() / endpoint.getSectorSize());
+							lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
 							break;
 						case SAME:
 							lba = 1024;
 							break;
 					}
 					if (write) {
-						completions[i] = endpoint.write(buffer, lba, sectorCount);
+						completions[i] = endpoint.write(buffer, lba);
 					} else {
-						completions[i] = endpoint.read(buffer, lba, sectorCount);
+						completions[i] = endpoint.read(buffer, lba);
 					}
 					posted++;
 				}
