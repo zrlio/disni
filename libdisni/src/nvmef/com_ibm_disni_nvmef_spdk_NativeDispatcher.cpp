@@ -142,7 +142,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1pr
  * Signature: (J)I
  */
 JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1detach
-  (JNIEnv* env, jobject* thiz, jlong controller_id) {
+  (JNIEnv* env, jobject thiz, jlong controller_id) {
     spdk_nvme_ctrlr* ctrlr = reinterpret_cast<spdk_nvme_ctrlr*>(controller_id);
     return spdk_nvme_detach(ctrlr);
 }

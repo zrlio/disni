@@ -59,4 +59,22 @@ public class NativeDispatcher {
 										int count, long completionAddress, boolean write);
 
 	public native int _nvme_qpair_process_completions(long queuePair, int maxCompletions);
+
+	/* NvmeF target */
+
+	public native int _nvmf_tgt_init(short maxQueueDepth, short maxConnectionPerSession, int inCapsuleDataSize, int maxIOSize);
+
+	public native long _nvmf_create_subsystem(String nqn, int type, int mode);
+
+	public native long _nvmf_delete_subsystem(long subsystem);
+
+	public native int _nvmf_subsystem_add_listener(long subsystem, String transportName, String address, String serviceId);
+
+	// polls for IO completions and handles IO requests
+	public native int _nvmf_subsystem_poll(long subsystem);
+
+	// polls on all transports/listeners for accept events
+	public native int _nvmef_acceptor_poll();
+
+	public native int _nvmf_tgt_fini();
 }
