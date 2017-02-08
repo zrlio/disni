@@ -73,11 +73,14 @@ public class NvmeEndpoint {
 			tokenizer.hasMoreTokens();
 		}
 		int controller = 0;
+		System.out.println("path " + path);
 		if (tokens.length > 0){
+			System.out.println("controller " + tokens[0]);
 			controller = Integer.parseInt(tokens[0]);
 		}
 		int namespace = 1;
 		if (tokens.length > 1){
+			System.out.println("namespace " + tokens[1]);
 			namespace = Integer.parseInt(tokens[1]);
 		}
 		System.out.println("connecting to address " + address + ", port " + port + ", path " + path + ", controller " + controller + ", namespace" + namespace);
