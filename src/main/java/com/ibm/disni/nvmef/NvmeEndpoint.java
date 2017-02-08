@@ -24,7 +24,9 @@ package com.ibm.disni.nvmef;
 import java.io.IOException;
 import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.URI;
 import java.nio.ByteBuffer;
+import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicLong;
 
 import sun.nio.ch.DirectBuffer;
@@ -45,19 +47,62 @@ public class NvmeEndpoint {
 		this.namespace = null;
 	}
 	
-	public void connect(String address, String port, int controller, int namespace) throws IOException {
+//	public void connect(String address, String port, int controller, int namespace) throws IOException {
+//		NvmeController nvmecontroller = group.probe(address, port, controller);
+//		this.namespace = nvmecontroller.getNamespace(namespace);
+//		this.queuePair = nvmecontroller.allocQueuePair();		
+//	}
+	
+	//rdma://<host>:<port>
+	//nvmef:://<host>:<port>/controller/namespace"
+	public void connect(URI url) throws IOException {
+		if (!url.getScheme().equalsIgnoreCase("nvmef")){
+			throw new IOException("URL has wrong protocol " + url.getScheme());
+		}
+		
+		String address = url.getAuthority();
+		String port = Integer.toString(url.getPort());
+		String path = url.getPath();
+		StringTokenizer tokenizer = new StringTokenizer(path, "/");
+		if (tokenizer.countTokens() > 2){
+			throw new IOException("URL format error, too many elements in path");
+		}
+		String tokens[] = new String[tokenizer.countTokens()];
+		for (int i = 0; i < tokenizer.countTokens(); i++){
+			tokens[i] = tokenizer.nextToken();
+			tokenizer.hasMoreTokens();
+		}
+		int controller = 0;
+		if (tokens.length > 0){
+			controller = Integer.parseInt(tokens[0]);
+		}
+		int namespace = 1;
+		if (tokens.length > 1){
+			namespace = Integer.parseInt(tokens[1]);
+		}
+		System.out.println("connecting to address " + address + ", port " + port + ", path " + path + ", controller " + controller + ", namespace" + namespace);
 		NvmeController nvmecontroller = group.probe(address, port, controller);
 		this.namespace = nvmecontroller.getNamespace(namespace);
 		this.queuePair = nvmecontroller.allocQueuePair();		
-	}
+	}	
 	
-	public IOCompletion write(ByteBuffer buffer, long linearBlockAddress, int count) throws IOException{
-		IOCompletion completion = namespace.write(queuePair, ((DirectBuffer) buffer).address(), linearBlockAddress, count);
+	public IOCompletion write(ByteBuffer buffer, long linearBlockAddress) throws IOException{
+		if (buffer.remaining() % namespace.getSectorSize() != 0){
+			throw new IOException("buffer must a multiple of sector size");
+		}
+		
+		int sectorCount = buffer.remaining() / namespace.getSectorSize();
+		IOCompletion completion = namespace.write(queuePair, ((DirectBuffer) buffer).address(), linearBlockAddress, sectorCount);
 		return completion;
 	}
 	
-	public IOCompletion read(ByteBuffer buffer, long linearBlockAddress, int count) throws IOException{
-		IOCompletion completion = namespace.read(queuePair, ((DirectBuffer) buffer).address(), linearBlockAddress, count);
+	public IOCompletion read(ByteBuffer buffer, long linearBlockAddress) throws IOException{
+		if (buffer.remaining() % namespace.getSectorSize() != 0){
+			throw new IOException("buffer must a multiple of sector size");
+		}		
+		
+		int sectorCount = buffer.remaining() / namespace.getSectorSize();
+		IOCompletion completion = namespace.read(queuePair, ((DirectBuffer) buffer).address(), linearBlockAddress, sectorCount);
 		return completion;
 	}	
 	
@@ -69,11 +114,11 @@ public class NvmeEndpoint {
 		return namespace.getSectorSize();
 	}
 
-	public long getSize() {
+	public long getNamespaceSize() {
 		return namespace.getSize();
 	}
 	
-	public int getMaxIOTransferSize() {
+	public int getMaxTransferSize() {
 		return namespace.getMaxIOTransferSize();
 	}	
 }

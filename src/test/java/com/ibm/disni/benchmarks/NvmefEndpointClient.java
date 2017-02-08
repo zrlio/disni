@@ -22,6 +22,9 @@
 package com.ibm.disni.benchmarks;
 
 import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.net.URL;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ThreadLocalRandom;
 
@@ -35,15 +38,17 @@ public class NvmefEndpointClient {
 	private NvmeEndpointGroup group;
 	private NvmeEndpoint endpoint;
 	
-	public NvmefEndpointClient(String address, String port, String subsystem) throws IOException {
+	public NvmefEndpointClient(String address, String port, String subsystem) throws Exception {
 		this.random = ThreadLocalRandom.current();
 		this.group = new NvmeEndpointGroup();
 		this.endpoint = group.createEndpoint();
-		endpoint.connect(address, port, 0, 1);
+		URI url = new URI("nvmef://" + address + ":" + port + "/0/1");
+//		URI url = new URI("nvmef", address, port, "/0/1");
+		endpoint.connect(url);
 	}
 	
 	public int getMaxIOTransferSize() {
-		return endpoint.getMaxIOTransferSize();
+		return endpoint.getMaxTransferSize();
 	}
 
 	public long run(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws IOException{
@@ -75,16 +80,16 @@ public class NvmefEndpointClient {
 							lba = posted * sectorCount;
 							break;
 						case RANDOM:
-							lba = random.nextLong(endpoint.getSize() / endpoint.getSectorSize());
+							lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
 							break;
 						case SAME:
 							lba = 1024;
 							break;
 					}
 					if (write) {
-						completions[i] = endpoint.write(buffer, lba, sectorCount);
+						completions[i] = endpoint.write(buffer, lba);
 					} else {
-						completions[i] = endpoint.read(buffer, lba, sectorCount);
+						completions[i] = endpoint.read(buffer, lba);
 					}
 					posted++;
 				}
@@ -95,7 +100,7 @@ public class NvmefEndpointClient {
 		return (end - start)/iterations;
 	}
 
-	public static void main(String[] args) throws IOException{
+	public static void main(String[] args) throws Exception{
 		if (args.length < 3) {
 			System.out.println("<address> <port> <subsystemNQN>");
 			System.exit(-1);

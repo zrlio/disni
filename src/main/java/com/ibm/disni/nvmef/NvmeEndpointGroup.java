@@ -50,7 +50,7 @@ public class NvmeEndpointGroup {
 
 	NvmeController probe(String host, String port, int index) throws IOException {
 		ArrayList<NvmeController> controllers = new ArrayList<NvmeController>();
-		NvmeTransportId transportId = new NvmeTransportId(NvmeTransportType.RDMA, NvmfAddressFamily.IPV4, host, "4420", "nqn.2014-08.org.nvmexpress.discovery");
+		NvmeTransportId transportId = new NvmeTransportId(NvmeTransportType.RDMA, NvmfAddressFamily.IPV4, host, port, "nqn.2014-08.org.nvmexpress.discovery");
 		nvme.probe(transportId, controllers);
 		return controllers.get(index);
 	}
