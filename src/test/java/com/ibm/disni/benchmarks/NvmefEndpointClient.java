@@ -40,7 +40,7 @@ public class NvmefEndpointClient {
 		this.random = ThreadLocalRandom.current();
 		this.group = new NvmeEndpointGroup();
 		this.endpoint = group.createEndpoint();
-		URI url = new URI("nvmef://" + address + ":" + port + "/0/1");
+		URI url = new URI("nvmef://" + address + ":" + port + "/0/1?subsystem=" + subsystem);
 		endpoint.connect(url);
 	}
 	

@@ -27,8 +27,7 @@ import java.util.ArrayList;
 import com.ibm.disni.nvmef.spdk.Nvme;
 import com.ibm.disni.nvmef.spdk.NvmeController;
 import com.ibm.disni.nvmef.spdk.NvmeTransportId;
-import com.ibm.disni.nvmef.spdk.NvmeTransportType;
-import com.ibm.disni.nvmef.spdk.NvmfAddressFamily;
+import com.ibm.disni.nvmef.spdk.NvmfTarget;
 
 public class NvmeEndpointGroup {
 	private Nvme nvme;
@@ -48,10 +47,13 @@ public class NvmeEndpointGroup {
 	
 	//--------------- internal ------------------
 
-	NvmeController probe(String host, String port, int index) throws IOException {
+	NvmeController probe(NvmeTransportId transportId, int index) throws IOException {
 		ArrayList<NvmeController> controllers = new ArrayList<NvmeController>();
-		NvmeTransportId transportId = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, host, port, "nqn.2014-08.org.nvmexpress.discovery");
 		nvme.probe(transportId, controllers);
 		return controllers.get(index);
 	}
+
+	NvmfTarget createNvmfTarget() throws Exception {
+		return nvme.createNvmfTarget((short)128, (short)4, 4096, 128*1024 /* 128 KB */);
+	}	
 }
