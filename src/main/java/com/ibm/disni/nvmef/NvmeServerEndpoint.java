@@ -79,15 +79,15 @@ public class NvmeServerEndpoint {
 			while (queryTokenizer.hasMoreTokens()){
 				String param = queryTokenizer.nextToken();
 				if (param.startsWith("subsystem")){
-					subsystem = param.substring(9);
+					subsystem = param.substring(10);
 				}
 				if (param.startsWith("pci")){
-					pci = param.substring(3);
+					pci = param.substring(4);
 				}				
 			}			
 		}
 		
-		System.out.println("binding to address " + address + ", port " + port + ", subsystem " + subsystem + ", controller " + controller);
+		System.out.println("binding to address " + address + ", port " + port + ", subsystem " + subsystem + ", pci " + pci + ", controller " + controller);
 		NvmeTransportId transportId = NvmeTransportId.pcie(pci);
 		NvmeController nvmecontroller = group.probe(transportId, controller);
 		this.target = group.createNvmfTarget();
