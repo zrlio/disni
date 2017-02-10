@@ -31,6 +31,8 @@ public class Nvme {
 	private final NativeDispatcher nativeDispatcher;
 	private final MemoryAllocation memoryAllocation;
 
+	private NvmfTarget nvmfTarget;
+
 	public Nvme() {
 		nativeDispatcher = new NativeDispatcher();
 		memoryAllocation = MemoryAllocation.getInstance();
@@ -52,5 +54,18 @@ public class Nvme {
 				controller.add(new NvmeController(controllerIds[i], nativeDispatcher, memoryAllocation));
 			}
 		} while (controllers > controllerIds.length);
+	}
+
+	public NvmfTarget createNvmfTarget(short maxQueueDepth, short maxConnectionPerSession,
+									   int inCapsuleDataSize, int maxIOSize) throws Exception {
+		nvmfTarget = new NvmfTarget(nativeDispatcher, maxQueueDepth, maxConnectionPerSession, inCapsuleDataSize,
+				maxIOSize);
+	}
+
+	public NvmfTarget getNvmfTarget() throws Exception {
+		if (nvmfTarget == null) {
+			throw new Exception("Target not initialized");
+		}
+		return nvmfTarget;
 	}
 }
