@@ -34,6 +34,7 @@ public class NvmefServer {
 		}
 
 		Nvme nvme = new Nvme();
+		nvme.logEnableTrace();
 		NvmeTransportId transportId = NvmeTransportId.pcie(args[0]);
 		List<NvmeController> controllers = new ArrayList<NvmeController>();
 		nvme.probe(transportId, controllers);
