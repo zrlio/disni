@@ -2,23 +2,23 @@ package com.ibm.disni.benchmarks;
 
 import java.io.IOException;
 import java.net.URI;
-import java.util.concurrent.ThreadLocalRandom;
-import com.ibm.disni.benchmarks.NvmefClient.AccessPattern;
+import com.ibm.disni.nvmef.NvmeEndpoint;
 import com.ibm.disni.nvmef.NvmeEndpointGroup;
 import com.ibm.disni.nvmef.NvmeServerEndpoint;
 
 public class NvmefEndpointServer {
 	private NvmeEndpointGroup group;
-	private NvmeServerEndpoint endpoint;
+	private NvmeServerEndpoint serverEndpoint;
 	
 	public NvmefEndpointServer(String address, String port, String subsystem, String pci) throws Exception {
 		this.group = new NvmeEndpointGroup();
-		this.endpoint = group.createServerEndpoint();
+		this.serverEndpoint = group.createServerEndpoint();
 		URI url = new URI("nvmef://" + address + ":" + port + "/0/1?subsystem=" + subsystem + "&pci=" + pci);
-		endpoint.bind(url);
+		serverEndpoint.bind(url);
 	}
 
 	public void run() throws IOException{
+		NvmeEndpoint endpoint = serverEndpoint.accept();
 	}
 
 	public static void main(String[] args) throws Exception{
