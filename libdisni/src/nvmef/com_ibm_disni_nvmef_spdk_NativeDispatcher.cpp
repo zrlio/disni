@@ -400,7 +400,11 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1su
  * Signature: (J[J)I
  */
 JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1subsystem_1poll
-  (JNIEnv *, jobject, jlong, jlongArray);
+  (JNIEnv* env, jobject thiz, jlong subsystem_id, jlongArray connects) {
+    spdk_nvmf_subsystem* subsystem = reinterpret_cast<spdk_nvmf_subsystem*>(subsystem_id);
+    spdk_nvmf_subsystem_poll(subsystem);
+    return 0;
+}
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
