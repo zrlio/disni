@@ -27,7 +27,11 @@
 #include <spdk/nvmf_spec.h>
 #include <spdk/nvmf.h>
 #include <spdk/pci_ids.h>
+
+//FIXME: spdk is missing extern C in log.h
+extern "C" {
 #include <spdk/log.h>
+}
 
 #include <rte_config.h>
 #include <rte_lcore.h>
