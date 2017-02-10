@@ -28,8 +28,13 @@ import java.util.List;
 
 public class NvmefServer {
 	public static void main(String[] args) throws Exception {
+		if (args.length < 4) {
+			System.out.println("<pci-address> <subsystemNQN> <address> <port>");
+			System.exit(-1);
+		}
+
 		Nvme nvme = new Nvme();
-		NvmeTransportId transportId = NvmeTransportId.pcie("0000:11:00.0");
+		NvmeTransportId transportId = NvmeTransportId.pcie(args[0]);
 		List<NvmeController> controllers = new ArrayList<NvmeController>();
 		nvme.probe(transportId, controllers);
 		for (NvmeController controller : controllers) {
