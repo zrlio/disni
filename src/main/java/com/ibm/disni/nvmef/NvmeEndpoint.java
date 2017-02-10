@@ -87,7 +87,7 @@ public class NvmeEndpoint {
 			while (queryTokenizer.hasMoreTokens()){
 				String param = queryTokenizer.nextToken();
 				if (param.startsWith("subsystem")){
-					subsystem = param.substring(9);
+					subsystem = param.substring(10);
 				}
 			}			
 		}
