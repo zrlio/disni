@@ -412,7 +412,25 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1su
  * Signature: (JJLjava/lang/String;)I
  */
 JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1subsystem_1add_1ctrlr
-  (JNIEnv *, jobject, jlong, jlong, jstring);
+  (JNIEnv* env, jobject thiz, jlong subsystem_id, jlong controller_id,
+   jstring pci_address) {
+    spdk_nvmf_subsystem* subsystem = reinterpret_cast<spdk_nvmf_subsystem*>(subsystem_id);
+    spdk_nvme_ctrlr* ctrlr = reinterpret_cast<spdk_nvme_ctrlr*>(controller_id);
+
+    if (env->IsSameObject(pci_address, NULL)) {
+        return -EFAULT;
+    }
+    JNIString pci_addr_str(*env, pci_address);
+    if (pci_addr_str.c_str() == NULL) {
+        return -EFAULT;
+    }
+    spdk_pci_addr pci_addr;
+    int ret = spdk_pci_addr_parse(&pci_addr, pci_addr_str.c_str());
+    if (ret != 0) {
+        return ret;
+    }
+    return nvmf_subsystem_add_ctrlr(subsystem, ctrlr, &pci_addr);
+}
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
