@@ -41,7 +41,10 @@ public class NvmfTarget {
 		initialized = true;
 	}
 
-
+	void poll() {
+		//TODO: handle disconnects
+		nativeDispatcher._nvmef_acceptor_poll(null);
+	}
 
 	void fini() throws Exception {
 		int ret = nativeDispatcher._nvmf_tgt_fini();

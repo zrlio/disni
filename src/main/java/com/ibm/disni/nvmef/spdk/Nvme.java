@@ -60,6 +60,7 @@ public class Nvme {
 									   int inCapsuleDataSize, int maxIOSize) throws Exception {
 		nvmfTarget = new NvmfTarget(nativeDispatcher, maxQueueDepth, maxConnectionPerSession, inCapsuleDataSize,
 				maxIOSize);
+		return nvmfTarget;
 	}
 
 	public NvmfTarget getNvmfTarget() throws Exception {
