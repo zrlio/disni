@@ -33,6 +33,8 @@ public class NativeDispatcher {
 		System.loadLibrary("disni");
 	}
 
+	public native int _log_set_trace_flag(String name);
+
 	public native int _nvme_probe(int type, int addressFamily, String address, String serviceId, String subsystemNQN, long[] controllerIds);
 
 	public native int _nvme_detach(long controller);

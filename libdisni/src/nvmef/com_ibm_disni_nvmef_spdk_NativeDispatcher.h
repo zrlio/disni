@@ -9,6 +9,14 @@ extern "C" {
 #endif
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _log_set_trace_flag
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1log_1set_1trace_1flag
+  (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _nvme_probe
  * Signature: (IILjava/lang/String;Ljava/lang/String;Ljava/lang/String;[J)I
  */

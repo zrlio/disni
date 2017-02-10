@@ -27,6 +27,7 @@
 #include <spdk/nvmf_spec.h>
 #include <spdk/nvmf.h>
 #include <spdk/pci_ids.h>
+#include <spdk/log.h>
 
 #include <rte_config.h>
 #include <rte_lcore.h>
@@ -78,6 +79,17 @@ class JNIString {
             return c_str_;
         }
 };
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _log_set_trace_flag
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1log_1set_1trace_1flag
+  (JNIEnv* env, jobject thiz, jstring name) {
+    JNIString flag(*env, name);
+    return spdk_log_set_trace_flag(flag.c_str());
+}
 
 static void initialize_dpdk() {
     static bool dpdk_initialized = false;
