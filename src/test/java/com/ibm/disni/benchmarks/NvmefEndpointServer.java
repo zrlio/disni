@@ -40,7 +40,9 @@ public class NvmefEndpointServer {
 	}
 
 	public void run() throws IOException{
-		NvmeEndpoint endpoint = serverEndpoint.accept();
+		while(true){
+			NvmeEndpoint endpoint = serverEndpoint.accept();
+		}
 	}
 
 	public static void main(String[] args) throws Exception{
