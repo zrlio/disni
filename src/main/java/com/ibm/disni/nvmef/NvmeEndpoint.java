@@ -2,6 +2,7 @@
  * DiSNI: Direct Storage and Networking Interface
  *
  * Author: Jonas Pfefferle <jpf@zurich.ibm.com>
+ *         Patrick Stuedi  <stu@zurich.ibm.com>
  *
  * Copyright (C) 2016, IBM Corporation
  *

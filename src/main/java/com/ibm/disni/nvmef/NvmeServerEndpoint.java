@@ -2,6 +2,7 @@
  * DiSNI: Direct Storage and Networking Interface
  *
  * Author: Jonas Pfefferle <jpf@zurich.ibm.com>
+ *         Patrick Stuedi  <stu@zurich.ibm.com>
  *
  * Copyright (C) 2016, IBM Corporation
  *
@@ -22,10 +23,8 @@
 package com.ibm.disni.nvmef;
 
 import java.io.IOException;
-import java.net.SocketAddress;
 import java.net.URI;
 import java.util.StringTokenizer;
-
 import com.ibm.disni.nvmef.spdk.NvmeController;
 import com.ibm.disni.nvmef.spdk.NvmeTransportId;
 import com.ibm.disni.nvmef.spdk.NvmfSubsystem;
@@ -34,7 +33,6 @@ import com.ibm.disni.nvmef.spdk.NvmfSubtype;
 import com.ibm.disni.nvmef.spdk.NvmfTarget;
 import com.ibm.disni.nvmef.spdk.NvmfTransportName;
 
-//this class is most likely not used
 public class NvmeServerEndpoint {
 	private NvmeEndpointGroup group;
 	private NvmfTarget target;
@@ -106,7 +104,8 @@ public class NvmeServerEndpoint {
 		}		
 	}
 	
-	public synchronized void close() throws IOException, InterruptedException {
-		
+	public synchronized void close() throws Exception {
+		target.fini();
+		nvmesubsystem.delete();
 	}
 }
