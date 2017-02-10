@@ -41,12 +41,20 @@ public class NvmfTarget {
 		initialized = true;
 	}
 
-	void poll() {
+	public NvmfSubsystem createSubsystem(String nqn, NvmfSubtype type, NvmfSubsystemMode mode) throws Exception {
+		long objId = nativeDispatcher._nvmf_create_subsystem(nqn, type.getNumVal(), mode.getNumVal());
+		if (objId == 0) {
+			throw new Exception("spdk_nvmf_create_subsystem failed");
+		}
+		return new NvmfSubsystem(objId, nativeDispatcher, nqn, type, mode);
+	}
+
+	public void poll() {
 		//TODO: handle disconnects
 		nativeDispatcher._nvmef_acceptor_poll(null);
 	}
 
-	void fini() throws Exception {
+	public void fini() throws Exception {
 		int ret = nativeDispatcher._nvmf_tgt_fini();
 		if (ret != 0) {
 			throw new Exception("spdk_nvmf_tgt_fini failed with " + ret);
