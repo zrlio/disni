@@ -39,8 +39,7 @@ public class NvmefClient {
 
 	NvmefClient(String address, String port, String subsystemNQN) throws IOException {
 		Nvme nvme = new Nvme();
-		NvmeTransportId tid = new NvmeTransportId(NvmeTransportType.RDMA, NvmfAddressFamily.IPV4, address, port,
-				subsystemNQN);
+		NvmeTransportId tid = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, address, port, subsystemNQN);
 		controllers = new ArrayList<NvmeController>();
 		nvme.probe(tid, controllers);
 		NvmeController controller = controllers.get(0);

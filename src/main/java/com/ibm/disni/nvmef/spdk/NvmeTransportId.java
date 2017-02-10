@@ -28,12 +28,21 @@ public class NvmeTransportId {
 	private String serviceId;
 	private String subsystemNQN;
 
-	public NvmeTransportId(NvmeTransportType type, NvmfAddressFamily addressFamily, String address, String serviceId, String subsystemNQN) {
+	NvmeTransportId(NvmeTransportType type, NvmfAddressFamily addressFamily, String address, String serviceId, String subsystemNQN) {
 		this.type = type;
 		this.addressFamily = addressFamily;
 		this.address = address;
 		this.serviceId = serviceId;
 		this.subsystemNQN = subsystemNQN;
+	}
+
+	public static NvmeTransportId rdma(NvmfAddressFamily addressFamily, String address, String serviceId, String subsystemNQN) {
+		return new NvmeTransportId(NvmeTransportType.RDMA, addressFamily, address, serviceId, subsystemNQN);
+	}
+
+	public static NvmeTransportId pcie(String pciAddress) {
+		// for transport type PCIE the rest of the parameters are ignored by spdk (at least for now)
+		return new NvmeTransportId(NvmeTransportType.PCIE, NvmfAddressFamily.INTRA_HOST, pciAddress, "", "");
 	}
 
 	public NvmeTransportType getType() {
