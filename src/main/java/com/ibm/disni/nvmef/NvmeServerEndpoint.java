@@ -51,6 +51,7 @@ public class NvmeServerEndpoint {
 			throw new IOException("URL has wrong protocol " + uri.getScheme());
 		}
 		
+		System.out.println("uri passed to bind " + uri.toString());
 		String address = uri.getHost();
 		String port = Integer.toString(uri.getPort());
 		int controller = 0;

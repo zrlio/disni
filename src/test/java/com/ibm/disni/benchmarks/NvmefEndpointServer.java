@@ -32,7 +32,7 @@ public class NvmefEndpointServer {
 		String address = args[2];
 		String port = args[3];
 		
-		NvmefEndpointServer server = new NvmefEndpointServer(pci, subsystem, address, port);
+		NvmefEndpointServer server = new NvmefEndpointServer(address, port, subsystem, pci);
 		server.run();
 	}
 }
