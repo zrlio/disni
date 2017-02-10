@@ -59,6 +59,26 @@ struct io_completion {
     int status_code;
 };
 
+class JNIString {
+    private:
+        jstring str_;
+        JNIEnv& env_;
+        const char* c_str_;
+    public:
+        JNIString(JNIEnv& env, jstring str) : str_(str), env_(env),
+        c_str_(env_.GetStringUTFChars(str, NULL)) {}
+
+        ~JNIString() {
+            if (c_str_ != NULL) {
+                env_.ReleaseStringUTFChars(str_, c_str_);
+            }
+        }
+
+        const char* c_str() const {
+            return c_str_;
+        }
+};
+
 static void initialize_dpdk() {
     static bool dpdk_initialized = false;
     if (!dpdk_initialized) {
@@ -99,32 +119,29 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1pr
     if (env->IsSameObject(address, NULL)) {
         return -EFAULT;
     }
-    const char* addr = env->GetStringUTFChars(address, NULL);
-    if (addr == NULL) {
+    JNIString addr(*env, address);
+    if (addr.c_str() == NULL) {
         return -EFAULT;
     }
-    strncpy(trid.traddr, addr, sizeof(trid.traddr));
-    env->ReleaseStringUTFChars(address, addr);
+    strncpy(trid.traddr, addr.c_str(), sizeof(trid.traddr));
 
     if (env->IsSameObject(service_id, NULL)) {
         return -EFAULT;
     }
-    const char* svcid = env->GetStringUTFChars(service_id, NULL);
-    if (svcid == NULL) {
+    JNIString svcid(*env, service_id);
+    if (svcid.c_str() == NULL) {
         return -EFAULT;
     }
-    strncpy(trid.trsvcid, svcid, sizeof(trid.trsvcid));
-    env->ReleaseStringUTFChars(service_id, svcid);
+    strncpy(trid.trsvcid, svcid.c_str(), sizeof(trid.trsvcid));
 
     if (env->IsSameObject(subsystemNQN, NULL)) {
         return -EFAULT;
     }
-    const char* subnqn = env->GetStringUTFChars(subsystemNQN, NULL);
-    if (subnqn == NULL) {
+    JNIString subnqn(*env, subsystemNQN);
+    if (subnqn.c_str() == NULL) {
         return -EFAULT;
     }
-    strncpy(trid.subnqn, subnqn, sizeof(trid.subnqn));
-    env->ReleaseStringUTFChars(subsystemNQN, subnqn);
+    strncpy(trid.subnqn, subnqn.c_str(), sizeof(trid.subnqn));
 
     jboolean is_copy;
     jlong* ctrl_ids = env->GetLongArrayElements(controller_ids, &is_copy);
@@ -338,11 +355,12 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1c
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _nvmf_delete_subsystem
- * Signature: (J)J
+ * Signature: (J)V
  */
-JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1delete_1subsystem
+JNIEXPORT void JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1delete_1subsystem
   (JNIEnv* env, jobject thiz, jlong subsystem_id) {
-
+    spdk_nvmf_subsystem* subsystem = reinterpret_cast<spdk_nvmf_subsystem*>(subsystem_id);
+    spdk_nvmf_delete_subsystem(subsystem);
 }
 
 /*
@@ -351,7 +369,30 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1d
  * Signature: (JLjava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
  */
 JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1subsystem_1add_1listener
-  (JNIEnv *, jobject, jlong, jstring, jstring, jstring);
+  (JNIEnv* env, jobject thiz, jlong subsystem_id, jstring transport_name,
+   jstring address, jstring service_id) {
+    spdk_nvmf_subsystem* subsystem = reinterpret_cast<spdk_nvmf_subsystem*>(subsystem_id);
+    if (    env->IsSameObject(address, NULL) ||
+            env->IsSameObject(service_id, NULL) ||
+            env->IsSameObject(transport_name, NULL)) {
+        return -EFAULT;
+    }
+    JNIString addr(*env, address);
+    if (addr.c_str() == NULL) {
+        return -EFAULT;
+    }
+    JNIString svcid(*env, service_id);
+    if (svcid.c_str() == NULL) {
+        return -EFAULT;
+    }
+    JNIString trname(*env, transport_name);
+    if (trname.c_str() == NULL) {
+        return -EFAULT;
+    }
+
+    return spdk_nvmf_subsystem_add_listener(subsystem, trname.c_str(),
+            addr.c_str(), svcid.c_str());
+}
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher

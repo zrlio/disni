@@ -66,7 +66,7 @@ public class NativeDispatcher {
 
 	public native long _nvmf_create_subsystem(String nqn, int type, int mode);
 
-	public native long _nvmf_delete_subsystem(long subsystem);
+	public native void _nvmf_delete_subsystem(long subsystem);
 
 	public native int _nvmf_subsystem_add_listener(long subsystem, String transportName, String address, String serviceId);
 

@@ -130,9 +130,9 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1c
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _nvmf_delete_subsystem
- * Signature: (J)J
+ * Signature: (J)V
  */
-JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1delete_1subsystem
+JNIEXPORT void JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1delete_1subsystem
   (JNIEnv *, jobject, jlong);
 
 /*
