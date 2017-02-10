@@ -60,8 +60,7 @@ public class NvmeEndpoint {
 		String port = Integer.toString(url.getPort());
 		int controller = 0;
 		int namespace = 1;
-		String subsystem = "tmp";
-//		String subsystem = "nqn.2014-08.org.nvmexpress.discovery";
+		String subsystem = "";
 		
 		String path = url.getPath();
 		if (path != null){
@@ -92,7 +91,7 @@ public class NvmeEndpoint {
 			}			
 		}
 		
-		System.out.println("connecting to address " + address + ", port " + port + ", subsystem " + subsystem + ", controller " + controller);
+//		System.out.println("connecting to address " + address + ", port " + port + ", subsystem " + subsystem + ", controller " + controller);
 		NvmeTransportId transportId = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, address, port, subsystem);
 		NvmeController nvmecontroller = group.probe(transportId, controller);
 		this.namespace = nvmecontroller.getNamespace(namespace);

@@ -55,8 +55,8 @@ public class NvmeServerEndpoint {
 		String address = uri.getHost();
 		String port = Integer.toString(uri.getPort());
 		int controller = 0;
-		String subsystem = "tmp";
-		String pci = "tmp2";
+		String subsystem = "";
+		String pci = "";
 		
 		String path = uri.getPath();
 		if (path != null){
@@ -66,7 +66,6 @@ public class NvmeServerEndpoint {
 			}
 			for (int i = 0; pathTokenizer.hasMoreTokens(); i++){
 				String token = pathTokenizer.nextToken();
-				System.out.println("token " + token + ", i " + i);
 				switch(i) {
 				case 0:
 					controller = Integer.parseInt(token);
@@ -89,7 +88,7 @@ public class NvmeServerEndpoint {
 			}			
 		}
 		
-		System.out.println("binding to address " + address + ", port " + port + ", subsystem " + subsystem + ", pci " + pci + ", controller " + controller);
+//		System.out.println("binding to address " + address + ", port " + port + ", subsystem " + subsystem + ", pci " + pci + ", controller " + controller);
 		NvmeTransportId transportId = NvmeTransportId.pcie(pci);
 		NvmeController nvmecontroller = group.probe(transportId, controller);
 		this.target = group.createNvmfTarget();
