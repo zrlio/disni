@@ -65,9 +65,11 @@ public class NvmeServerEndpoint {
 				throw new IOException("URL format error, too many elements in path");
 			}
 			for (int i = 0; pathTokenizer.hasMoreTokens(); i++){
+				String token = pathTokenizer.nextToken();
+				System.out.println("token " + token + ", i " + i);
 				switch(i) {
 				case 0:
-					controller = Integer.parseInt(pathTokenizer.nextToken());
+					controller = Integer.parseInt(token);
 					break;
 				}
 			}
