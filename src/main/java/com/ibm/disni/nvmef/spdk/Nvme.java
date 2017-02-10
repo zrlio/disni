@@ -38,6 +38,10 @@ public class Nvme {
 		memoryAllocation = MemoryAllocation.getInstance();
 	}
 
+	public void logEnableTrace() {
+		nativeDispatcher._log_set_trace_flag("all");
+	}
+
 	public void probe(NvmeTransportId id, List<NvmeController> controller) throws IOException {
 		long controllerIds[] = new long[8];
 		int i;
