@@ -6,5 +6,5 @@ libnvmef_la_SOURCES = com_ibm_disni_nvmef_spdk_NativeDispatcher.cpp
 
 include_HEADERS = com_ibm_disni_nvmef_spdk_NativeDispatcher.h
 
-libnvmef_la_LIBADD = -L@spdk@/build/lib -lspdk_nvme -lspdk_env_dpdk -lspdk_log -lspdk_util -L@dpdk@/lib -lrte_eal -lrte_mempool
+libnvmef_la_LIBADD = -L@spdk@/build/lib -lspdk_nvmf -lspdk_nvme -lspdk_env_dpdk -lspdk_log -lspdk_util -lspdk_trace -L@dpdk@/lib -lrte_eal -lrte_mempool
 
