@@ -438,7 +438,10 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1su
  * Signature: ([J)I
  */
 JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmef_1acceptor_1poll
-  (JNIEnv *, jobject, jlongArray);
+  (JNIEnv* env, jobject thiz, jlongArray disconnects) {
+      spdk_nvmf_acceptor_poll();
+      return 0;
+}
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
@@ -446,4 +449,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmef_1a
  * Signature: ()I
  */
 JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1tgt_1fini
-  (JNIEnv *, jobject);
+  (JNIEnv* env, jobject thiz) {
+    return spdk_nvmf_tgt_fini();
+}
+
