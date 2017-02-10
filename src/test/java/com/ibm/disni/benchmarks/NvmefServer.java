@@ -61,7 +61,7 @@ public class NvmefServer {
 		System.out.println("Create subsystem with NQN " + nqn);
 		NvmfTarget target = nvme.createNvmfTarget((short)16, (short)8, 0, 128*1024*1024 /* 128 MB */);
 		NvmfSubsystem subsystem =
-				target.createSubsystem("nqn.2016-06.io.spdk:cnode1", NvmfSubtype.NVME, NvmfSubsystemMode.DIRECT);
+				target.createSubsystem(nqn, NvmfSubtype.NVME, NvmfSubsystemMode.DIRECT);
 		subsystem.addController(controller, pci_addr);
 		subsystem.addListener(NvmfTransportName.RDMA, address, port);
 

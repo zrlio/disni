@@ -25,12 +25,12 @@
 #include <spdk/env.h>
 #include <spdk/nvme_intel.h>
 #include <spdk/nvmf_spec.h>
-#include <spdk/nvmf.h>
 #include <spdk/pci_ids.h>
 
-//FIXME: spdk is missing extern C in log.h
+//FIXME: spdk is missing extern C in some headers
 extern "C" {
 #include <spdk/log.h>
+#include <spdk/nvmf.h>
 }
 
 #include <rte_config.h>
