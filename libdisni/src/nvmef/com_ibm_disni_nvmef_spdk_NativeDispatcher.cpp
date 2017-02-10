@@ -25,6 +25,7 @@
 #include <spdk/env.h>
 #include <spdk/nvme_intel.h>
 #include <spdk/nvmf_spec.h>
+#include <spdk/nvmf.h>
 #include <spdk/pci_ids.h>
 
 #include <rte_config.h>
@@ -300,8 +301,16 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1tg
   (JNIEnv* env, jobject thiz, jshort max_queue_depth,
    jshort max_connections_per_session, jint in_capsule_data_size,
    jint max_io_size) {
-    return spdk_nvmef_tgt_init(max_queue_depth, max_connections_per_session,
+    return spdk_nvmf_tgt_init(max_queue_depth, max_connections_per_session,
             in_capsule_data_size, max_io_size);
+}
+
+static void connect_cb(void* cb_ctx, spdk_nvmf_request* req) {
+    spdk_nvmf_handle_connect(req);
+}
+
+static void disconnect_cb(void* cb_ctx, spdk_nvmf_conn *conn) {
+    spdk_nvmf_session_disconnect(conn);
 }
 
 /*
@@ -314,15 +323,16 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1c
     if (env->IsSameObject(nqn, NULL)) {
         return -EFAULT;
     }
-    const char* nqn = env->GetStringUTFChars(nqn, NULL);
-    if (nqn == NULL) {
+    const char* nqn_raw = env->GetStringUTFChars(nqn, NULL);
+    if (nqn_raw == NULL) {
         return -EFAULT;
     }
-    // int ret = spdk_nvmef_create_subsystem(nqn,
-    //         static_cast<spdk_nvmf_subtype>(type),
-    //         static_cast<spdk_nvmf_subsystem_mode>(mode),
-    //         NULL, connect_cb, disconnect_cb);
-    env->ReleaseStringUTFChars(address, addr);
+    spdk_nvmf_subsystem* subsystem = spdk_nvmf_create_subsystem(nqn_raw,
+            static_cast<spdk_nvmf_subtype>(type),
+            static_cast<spdk_nvmf_subsystem_mode>(mode),
+            NULL, connect_cb, disconnect_cb);
+    env->ReleaseStringUTFChars(nqn, nqn_raw);
+    return reinterpret_cast<jlong>(subsystem);
 }
 
 /*
