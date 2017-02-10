@@ -33,19 +33,41 @@ public class NvmefServer {
 			System.exit(-1);
 		}
 
+		String pci_addr = args[0];
+		String nqn = args[1];
+		String address = args[2];
+		String port = args[3];
+
 		Nvme nvme = new Nvme();
 		nvme.logEnableTrace();
-		NvmeTransportId transportId = NvmeTransportId.pcie(args[0]);
+		NvmeTransportId transportId = NvmeTransportId.pcie(pci_addr);
 		List<NvmeController> controllers = new ArrayList<NvmeController>();
 		nvme.probe(transportId, controllers);
-		for (NvmeController controller : controllers) {
-			NvmeControllerData data = controller.getData();
-			System.out.println("Controller: " + controller.getObjId());
-			System.out.println("PCI Vendor ID = " + Integer.toHexString(0xffff & data.getPCIVendorID()));
-			System.out.println("PCI Subsystem Vendor ID = " +
-					Integer.toHexString(0xffff & data.getPCISubsystemVendorID()));
-			System.out.println("Serial Number = " + data.getSerialNumber());
-			System.out.println("Model Number = " + data.getModelNumber());
+		if (controllers.size() == 0) {
+			System.out.println("No Nvme device with PCIe address " + pci_addr + " found!");
+			System.exit(-2);
+		}
+		System.out.println("Local controller found:");
+		NvmeController controller = controllers.get(0);
+		NvmeControllerData data = controller.getData();
+		System.out.println("Controller: " + controller.getObjId());
+		System.out.println("PCI Vendor ID = " + Integer.toHexString(0xffff & data.getPCIVendorID()));
+		System.out.println("PCI Subsystem Vendor ID = " +
+				Integer.toHexString(0xffff & data.getPCISubsystemVendorID()));
+		System.out.println("Serial Number = " + data.getSerialNumber());
+		System.out.println("Model Number = " + data.getModelNumber());
+		System.out.println();
+
+		System.out.println("Create subsystem with NQN " + nqn);
+		NvmfTarget target = nvme.createNvmfTarget((short)16, (short)8, 0, 128*1024*1024 /* 128 MB */);
+		NvmfSubsystem subsystem =
+				target.createSubsystem("nqn.2016-06.io.spdk:cnode1", NvmfSubtype.NVME, NvmfSubsystemMode.DIRECT);
+		subsystem.addController(controller, pci_addr);
+		subsystem.addListener(NvmfTransportName.RDMA, address, port);
+
+		while (true) {
+			target.poll();
+			subsystem.poll();
 		}
 	}
 }
