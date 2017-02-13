@@ -70,8 +70,10 @@ public class NvmefServer {
 		while (true) {
 			target.poll();
 			subsystem.poll(connections);
-			System.out.println(connections.size() + " new connections!");
-			connections.clear();
+			if (connections.size() != 0) {
+				System.out.println(connections.size() + " new connections!");
+				connections.clear();
+			}
 		}
 	}
 }
