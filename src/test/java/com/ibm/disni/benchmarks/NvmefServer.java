@@ -23,6 +23,7 @@ package com.ibm.disni.benchmarks;
 
 import com.ibm.disni.nvmef.spdk.*;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -65,9 +66,12 @@ public class NvmefServer {
 		subsystem.addController(controller, pci_addr);
 		subsystem.addListener(NvmfTransportName.RDMA, address, port);
 
+		ArrayList<NvmfConnection> connections = new ArrayList<NvmfConnection>();
 		while (true) {
 			target.poll();
-			subsystem.poll();
+			subsystem.poll(connections);
+			System.out.println(connections.size() + " new connections!");
+			connections.clear();
 		}
 	}
 }

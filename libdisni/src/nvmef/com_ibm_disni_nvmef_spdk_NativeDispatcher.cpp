@@ -338,12 +338,23 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1tg
             in_capsule_data_size, max_io_size);
 }
 
+struct subsystem_connections {
+    uint32_t connects;
+    uint32_t disconnects;
+};
+
 static void connect_cb(void* cb_ctx, spdk_nvmf_request* req) {
     spdk_nvmf_handle_connect(req);
+    subsystem_connections* conns =
+        reinterpret_cast<subsystem_connections*>(cb_ctx);
+    conns->connects++;
 }
 
 static void disconnect_cb(void* cb_ctx, spdk_nvmf_conn *conn) {
     spdk_nvmf_session_disconnect(conn);
+    subsystem_connections* conns =
+        reinterpret_cast<subsystem_connections*>(cb_ctx);
+    conns->disconnects++;
 }
 
 /*
@@ -360,10 +371,13 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1c
     if (nqn_raw == NULL) {
         return -EFAULT;
     }
+    subsystem_connections* conns = new subsystem_connections();
+    conns->connects = 0;
+    conns->disconnects = 0;
     spdk_nvmf_subsystem* subsystem = spdk_nvmf_create_subsystem(nqn_raw,
             static_cast<spdk_nvmf_subtype>(type),
             static_cast<spdk_nvmf_subsystem_mode>(mode),
-            NULL, connect_cb, disconnect_cb);
+            reinterpret_cast<void*>(conns), connect_cb, disconnect_cb);
     env->ReleaseStringUTFChars(nqn, nqn_raw);
     return reinterpret_cast<jlong>(subsystem);
 }
@@ -375,8 +389,12 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1c
  */
 JNIEXPORT void JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1delete_1subsystem
   (JNIEnv* env, jobject thiz, jlong subsystem_id) {
-    spdk_nvmf_subsystem* subsystem = reinterpret_cast<spdk_nvmf_subsystem*>(subsystem_id);
+    spdk_nvmf_subsystem* subsystem =
+        reinterpret_cast<spdk_nvmf_subsystem*>(subsystem_id);
+    subsystem_connections* conns =
+        reinterpret_cast<subsystem_connections*>(subsystem->cb_ctx);
     spdk_nvmf_delete_subsystem(subsystem);
+    delete conns;
 }
 
 /*
@@ -419,7 +437,11 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1su
   (JNIEnv* env, jobject thiz, jlong subsystem_id, jlongArray connects) {
     spdk_nvmf_subsystem* subsystem = reinterpret_cast<spdk_nvmf_subsystem*>(subsystem_id);
     spdk_nvmf_subsystem_poll(subsystem);
-    return 0;
+    subsystem_connections* conns =
+        reinterpret_cast<subsystem_connections*>(subsystem->cb_ctx);
+    uint32_t cs = conns->connects;
+    conns->connects = 0;
+    return cs;
 }
 
 /*

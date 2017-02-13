@@ -21,6 +21,8 @@
 
 package com.ibm.disni.nvmef.spdk;
 
+import java.util.List;
+
 public class NvmfSubsystem extends NatObject {
 	private final NativeDispatcher nativeDispatcher;
 	private final String nqn;
@@ -50,9 +52,11 @@ public class NvmfSubsystem extends NatObject {
 		}
 	}
 
-	public void poll() {
-		//TODO: handle connects
-		nativeDispatcher._nvmf_subsystem_poll(getObjId(), null);
+	public void poll(List<NvmfConnection> connects) {
+		int ret = nativeDispatcher._nvmf_subsystem_poll(getObjId(), null);
+		for (int i = 0; i < ret; i++) {
+			connects.add(new NvmfConnection());
+		}
 	}
 
 	public void delete() {
