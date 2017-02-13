@@ -28,6 +28,7 @@ import java.util.ArrayList;
 import com.ibm.disni.nvmef.spdk.Nvme;
 import com.ibm.disni.nvmef.spdk.NvmeController;
 import com.ibm.disni.nvmef.spdk.NvmeTransportId;
+import com.ibm.disni.nvmef.spdk.NvmfConnection;
 import com.ibm.disni.nvmef.spdk.NvmfTarget;
 
 public class NvmeEndpointGroup {
@@ -43,7 +44,7 @@ public class NvmeEndpointGroup {
 	}
 	
 	public NvmeEndpoint createEndpoint(){
-		return new NvmeEndpoint(this);
+		return new NvmeEndpoint(this, null);
 	}
 	
 	//--------------- internal ------------------
@@ -56,5 +57,9 @@ public class NvmeEndpointGroup {
 
 	NvmfTarget createNvmfTarget() throws Exception {
 		return nvme.createNvmfTarget((short)128, (short)4, 4096, 128*1024 /* 128 KB */);
+	}
+
+	public NvmeEndpoint createEndpoint(NvmfConnection newConnection) {
+		return new NvmeEndpoint(this, newConnection);
 	}	
 }

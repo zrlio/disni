@@ -36,6 +36,7 @@ import com.ibm.disni.nvmef.spdk.NvmeNamespace;
 import com.ibm.disni.nvmef.spdk.NvmeQueuePair;
 import com.ibm.disni.nvmef.spdk.NvmeTransportId;
 import com.ibm.disni.nvmef.spdk.NvmfAddressFamily;
+import com.ibm.disni.nvmef.spdk.NvmfConnection;
 
 public class NvmeEndpoint {
 	private NvmeEndpointGroup group;
@@ -43,16 +44,19 @@ public class NvmeEndpoint {
     private NvmeNamespace namespace;
     private AtomicBoolean isOpen;
 	
-	public NvmeEndpoint(NvmeEndpointGroup group){
+	public NvmeEndpoint(NvmeEndpointGroup group, NvmfConnection newConnection) {
 		this.group = group;
 		this.queuePair = null;
 		this.namespace = null;
-		this.isOpen = new AtomicBoolean(false);
+		this.isOpen = new AtomicBoolean(newConnection != null);
 	}
-	
+
 	//rdma://<host>:<port>
 	//nvmef:://<host>:<port>/controller/namespace"
 	public synchronized void connect(URI url) throws IOException {
+		if (isOpen.get()){
+			return;
+		}
 		if (!url.getScheme().equalsIgnoreCase("nvmef")){
 			throw new IOException("URL has wrong protocol " + url.getScheme());
 		}

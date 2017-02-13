@@ -26,18 +26,23 @@ import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
-
+import java.util.concurrent.LinkedBlockingQueue;
 import com.ibm.disni.nvmef.spdk.*;
 
 public class NvmeServerEndpoint {
 	private NvmeEndpointGroup group;
 	private NvmfTarget target;
 	private NvmfSubsystem nvmesubsystem;
+	private ArrayList<NvmfConnection> currentConnects;
+	private LinkedBlockingQueue<NvmfConnection> establishedConnects;
+	
 	
 	public NvmeServerEndpoint(NvmeEndpointGroup group){
 		this.group = group;
 		this.target = null;
 		this.nvmesubsystem = null;
+		this.currentConnects = new ArrayList<NvmfConnection>();
+		this.establishedConnects = new LinkedBlockingQueue<NvmfConnection>();
 	}
 	
 	public synchronized NvmeServerEndpoint bind(URI uri) throws Exception {
@@ -94,10 +99,27 @@ public class NvmeServerEndpoint {
 	}
 	
 	public NvmeEndpoint accept() throws IOException {
-		ArrayList<NvmfConnection> connects = new ArrayList<NvmfConnection>();
-		while (true) {
+		currentConnects.clear();
+		while (establishedConnects.isEmpty()) {
 			target.poll();
-			nvmesubsystem.poll(connects);
+			nvmesubsystem.poll(currentConnects);
+			if (!currentConnects.isEmpty()){
+				for (int i = 0; i < currentConnects.size(); i++){
+					this.establishedConnects.add(currentConnects.get(i));
+				}
+			}
+		}		
+		NvmfConnection newConnection = establishedConnects.poll();
+		return group.createEndpoint(newConnection);
+	}
+	
+	public void pollSubsystem(){
+		currentConnects.clear();
+		this.nvmesubsystem.poll(currentConnects);
+		if (!currentConnects.isEmpty()){
+			for (int i = 0; i < currentConnects.size(); i++){
+				this.establishedConnects.add(currentConnects.get(i));
+			}
 		}		
 	}
 	
