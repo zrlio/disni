@@ -24,14 +24,10 @@ package com.ibm.disni.nvmef;
 
 import java.io.IOException;
 import java.net.URI;
+import java.util.ArrayList;
 import java.util.StringTokenizer;
-import com.ibm.disni.nvmef.spdk.NvmeController;
-import com.ibm.disni.nvmef.spdk.NvmeTransportId;
-import com.ibm.disni.nvmef.spdk.NvmfSubsystem;
-import com.ibm.disni.nvmef.spdk.NvmfSubsystemMode;
-import com.ibm.disni.nvmef.spdk.NvmfSubtype;
-import com.ibm.disni.nvmef.spdk.NvmfTarget;
-import com.ibm.disni.nvmef.spdk.NvmfTransportName;
+
+import com.ibm.disni.nvmef.spdk.*;
 
 public class NvmeServerEndpoint {
 	private NvmeEndpointGroup group;
@@ -98,9 +94,10 @@ public class NvmeServerEndpoint {
 	}
 	
 	public NvmeEndpoint accept() throws IOException {
+		ArrayList<NvmfConnection> connects = new ArrayList<NvmfConnection>();
 		while (true) {
 			target.poll();
-			nvmesubsystem.poll();
+			nvmesubsystem.poll(connects);
 		}		
 	}
 	
