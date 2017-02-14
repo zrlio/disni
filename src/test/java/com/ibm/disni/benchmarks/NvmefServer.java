@@ -48,7 +48,7 @@ public class NvmefServer {
 			System.out.println("No Nvme device with PCIe address " + pci_addr + " found!");
 			System.exit(-2);
 		}
-		System.out.println("Local controller found:");
+		System.out.println(controllers.size() + " local controllers found.");
 		NvmeController controller = controllers.get(0);
 		NvmeControllerData data = controller.getData();
 		System.out.println("Controller: " + controller.getObjId());

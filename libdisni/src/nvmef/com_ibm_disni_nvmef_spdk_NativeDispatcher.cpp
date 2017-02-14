@@ -54,7 +54,8 @@ static const char *ealargs[] = {
 };
 
 struct probe_ctx {
-    size_t idx;
+    size_t probe_count;
+    size_t attach_idx;
     jlong* ctrl_ids;
     jsize size;
 };
@@ -111,13 +112,13 @@ static void initialize_dpdk() {
 static bool probe_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
         struct spdk_nvme_ctrlr_opts *opts) {
     probe_ctx* ctx = reinterpret_cast<probe_ctx*>(cb_ctx);
-    return ctx->idx++ < ctx->size;
+    return ctx->probe_count++ < ctx->size;
 }
 
 static void attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
         struct spdk_nvme_ctrlr *ctrlr, const struct spdk_nvme_ctrlr_opts *opts) {
     probe_ctx* ctx = reinterpret_cast<probe_ctx*>(cb_ctx);
-    ctx->ctrl_ids[ctx->idx - 1] = reinterpret_cast<jlong>(ctrlr);
+    ctx->ctrl_ids[ctx->attach_idx++] = reinterpret_cast<jlong>(ctrlr);
 }
 
 /*
@@ -164,10 +165,10 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1pr
     if (ctrl_ids == NULL) {
         return -EFAULT;
     }
-    probe_ctx ctx = {0, ctrl_ids, env->GetArrayLength(controller_ids)};
+    probe_ctx ctx = {0, 0, ctrl_ids, env->GetArrayLength(controller_ids)};
     int ret = spdk_nvme_probe(&trid, &ctx, probe_cb, attach_cb, NULL);
     env->ReleaseLongArrayElements(controller_ids, ctrl_ids, 0);
-    return ret < 0 ? ret : ctx.idx;
+    return ret < 0 ? ret : ctx.attach_idx;
 }
 
 /*

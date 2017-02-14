@@ -35,6 +35,7 @@ public class NvmeServerEndpoint {
 	private NvmfSubsystem nvmesubsystem;
 	private ArrayList<NvmfConnection> currentConnects;
 	private LinkedBlockingQueue<NvmfConnection> establishedConnects;
+	private NvmeController nvmecontroller;
 	
 	
 	public NvmeServerEndpoint(NvmeEndpointGroup group){
@@ -89,7 +90,7 @@ public class NvmeServerEndpoint {
 		
 //		System.out.println("binding to address " + address + ", port " + port + ", subsystem " + subsystem + ", pci " + pci + ", controller " + controller);
 		NvmeTransportId transportId = NvmeTransportId.pcie(pci);
-		NvmeController nvmecontroller = group.probe(transportId, controller);
+		nvmecontroller = group.probe(transportId, controller);
 		this.target = group.createNvmfTarget();
 		this.nvmesubsystem = target.createSubsystem(subsystem, NvmfSubtype.NVME, NvmfSubsystemMode.DIRECT);
 		nvmesubsystem.addController(nvmecontroller, pci);
@@ -126,5 +127,9 @@ public class NvmeServerEndpoint {
 	public synchronized void close() throws Exception {
 		target.fini();
 		nvmesubsystem.delete();
+	}
+
+	public NvmeController getNvmecontroller() {
+		return nvmecontroller;
 	}
 }
