@@ -29,13 +29,18 @@ import java.util.ArrayList;
 
 public class SpdkProbe {
     public static void main(String[] args) throws Exception {
-        if (args.length < 3) {
-            System.out.println("<address> <port> <subsystemNQN>");
+        if (args.length != 3 || args.length != 1) {
+            System.out.println("<address> [<port> <subsystemNQN>]");
             System.exit(-1);
         }
 
         Nvme nvme = new Nvme();
-        NvmeTransportId transportId = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, args[0], args[1], args[2]);
+        NvmeTransportId transportId;
+        if (args.length == 3) {
+            transportId = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, args[0], args[1], args[2]);
+        } else {
+            transportId = NvmeTransportId.pcie(args[0]);
+        }
         ArrayList<NvmeController> controllers = new ArrayList<NvmeController>();
         nvme.probe(transportId, controllers);
         for (NvmeController controller : controllers) {
