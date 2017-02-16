@@ -130,7 +130,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1pr
   (JNIEnv* env, jobject thiz, jint type, jint address_family, jstring address,
    jstring service_id, jstring subsystemNQN, jlongArray controller_ids) {
     initialize_dpdk();
-    spdk_nvme_transport_id trid;
+    spdk_nvme_transport_id trid = {};
     trid.trtype = static_cast<spdk_nvme_transport_type>(type);
     trid.adrfam = static_cast<spdk_nvmf_adrfam>(address_family);
     if (env->IsSameObject(address, NULL)) {
