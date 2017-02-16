@@ -84,4 +84,13 @@ public class NvmeTransportId {
 	public void setSubsystemNQN(String subsystemNQN) {
 		this.subsystemNQN = subsystemNQN;
 	}
+
+	@Override
+	public String toString() {
+		return "Transport type = " + type.name() +
+				", Adress Family = " + addressFamily.name() +
+				", address = " + address +
+				", serviceId = " + serviceId +
+				", subsystem NQN = " + subsystemNQN;
+	}
 }
