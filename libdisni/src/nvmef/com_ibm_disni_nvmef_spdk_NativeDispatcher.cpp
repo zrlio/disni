@@ -36,7 +36,10 @@ extern "C" {
 #include <rte_config.h>
 #include <rte_lcore.h>
 
+#include <sched.h>
+
 #include <iostream>
+#include <sstream>
 
 #include <cstdio>
 #include <cstring>
@@ -85,14 +88,20 @@ class JNIString {
 JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1rte_1eal_1init
   (JNIEnv* env, jobject thiz, jobjectArray args) {
     jsize length = env->GetArrayLength(args);
-    const char** cargs = new const char*[length];
+    int argc = length + 2;
+    const char** cargs = new const char*[argc];
     JNIString** jnistrs = new JNIString*[length];
     for (jsize i = 0; i < length; i++) {
         jstring string = (jstring) env->GetObjectArrayElement(args, i);
         jnistrs[i] = new JNIString(env, string);
         cargs[i] = jnistrs[i]->c_str();
     }
-    int ret = rte_eal_init(length, const_cast<char**>(cargs));
+    cargs[length] = "-l";
+    std::stringstream ss;
+    ss << sched_getcpu();
+    cargs[length + 1] = ss.str().c_str();
+
+    int ret = rte_eal_init(argc, const_cast<char**>(cargs));
     for (jsize i = 0; i < length; i++) {
         delete jnistrs[i];
     }

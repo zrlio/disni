@@ -48,6 +48,7 @@ public class Nvme {
 			}
 		}
 		ArrayList<String> args = new ArrayList<String>();
+		args.add("nvme");
 		if (!pcie) {
 			args.add("--no-pci");
 		}
