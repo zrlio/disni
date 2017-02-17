@@ -29,7 +29,7 @@ import java.util.ArrayList;
 
 public class SpdkProbe {
     public static void main(String[] args) throws Exception {
-        if (args.length != 3 || args.length != 1) {
+        if (args.length != 3 && args.length != 1) {
             System.out.println("<address> [<port> <subsystemNQN>]");
             System.exit(-1);
         }

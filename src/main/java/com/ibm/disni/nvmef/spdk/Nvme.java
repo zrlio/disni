@@ -61,7 +61,7 @@ public class Nvme {
 		args.add("--proc-type");
 		args.add("primary");
 
-		int ret = nativeDispatcher._rte_eal_init((String[])args.toArray());
+		int ret = nativeDispatcher._rte_eal_init(args.toArray(new String[args.size()]));
 		if (ret < 0) {
 			throw new IllegalArgumentException("rte_eal_init failed with " + ret);
 		}
