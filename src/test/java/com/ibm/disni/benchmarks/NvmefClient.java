@@ -38,8 +38,8 @@ public class NvmefClient {
 	private final ThreadLocalRandom random;
 
 	NvmefClient(String address, String port, String subsystemNQN) throws IOException {
-		Nvme nvme = new Nvme();
 		NvmeTransportId tid = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, address, port, subsystemNQN);
+		Nvme nvme = new Nvme(new NvmeTransportType[]{tid.getType()}, "/dev/hugepages", 512);
 		controllers = new ArrayList<NvmeController>();
 		nvme.probe(tid, controllers);
 		NvmeController controller = controllers.get(0);

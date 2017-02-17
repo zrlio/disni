@@ -33,7 +33,14 @@ public class NativeDispatcher {
 		System.loadLibrary("disni");
 	}
 
+	/* DPDK eal initialization is necessary to setup hugepages, VFIO etc. */
+	public native int _rte_eal_init(String[] args);
+
+	/* SPDK NVMe common functions */
+
 	public native int _log_set_trace_flag(String name);
+
+	public native boolean _nvme_transport_available(int transportType);
 
 	public native int _nvme_probe(int type, int addressFamily, String address, String serviceId, String subsystemNQN, long[] controllerIds);
 
@@ -62,7 +69,7 @@ public class NativeDispatcher {
 
 	public native int _nvme_qpair_process_completions(long queuePair, int maxCompletions);
 
-	/* NvmeF target */
+	/* NVMf target */
 
 	public native int _nvmf_tgt_init(short maxQueueDepth, short maxConnectionPerSession, int inCapsuleDataSize, int maxIOSize);
 

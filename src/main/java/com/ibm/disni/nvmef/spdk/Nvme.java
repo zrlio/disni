@@ -24,6 +24,7 @@ package com.ibm.disni.nvmef.spdk;
 import com.ibm.disni.util.MemoryAllocation;
 
 import java.io.IOException;
+import java.util.ArrayList;
 import java.util.List;
 
 public class Nvme {
@@ -33,9 +34,37 @@ public class Nvme {
 
 	private NvmfTarget nvmfTarget;
 
-	public Nvme() {
+	public Nvme(NvmeTransportType[] transportTypes, String hugePath, long memoryPoolSize) throws IllegalArgumentException {
 		nativeDispatcher = new NativeDispatcher();
 		memoryAllocation = MemoryAllocation.getInstance();
+
+		boolean pcie = false;
+		for(NvmeTransportType type : transportTypes) {
+			if (!nativeDispatcher._nvme_transport_available(type.getNumVal())) {
+				throw new IllegalArgumentException("Unsupported transport " + type.name());
+			}
+			if (type == NvmeTransportType.PCIE) {
+				pcie = true;
+			}
+		}
+		ArrayList<String> args = new ArrayList<String>();
+		if (!pcie) {
+			args.add("--no-pci");
+		}
+
+		args.add("--huge-dir");
+		args.add(hugePath);
+
+		args.add("-m");
+		args.add(Long.toString(memoryPoolSize));
+
+		args.add("--proc-type");
+		args.add("primary");
+
+		int ret = nativeDispatcher._rte_eal_init((String[])args.toArray());
+		if (ret < 0) {
+			throw new IllegalArgumentException("rte_eal_init failed with " + ret);
+		}
 	}
 
 	public void logEnableTrace() {

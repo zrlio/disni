@@ -34,13 +34,14 @@ public class SpdkProbe {
             System.exit(-1);
         }
 
-        Nvme nvme = new Nvme();
         NvmeTransportId transportId;
         if (args.length == 3) {
             transportId = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, args[0], args[1], args[2]);
         } else {
             transportId = NvmeTransportId.pcie(args[0]);
+
         }
+        Nvme nvme = new Nvme(new NvmeTransportType[]{transportId.getType()}, "/dev/hugepages", 512);
         ArrayList<NvmeController> controllers = new ArrayList<NvmeController>();
         nvme.probe(transportId, controllers);
         for (NvmeController controller : controllers) {

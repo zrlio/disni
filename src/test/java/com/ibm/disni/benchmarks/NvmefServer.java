@@ -39,8 +39,10 @@ public class NvmefServer {
 		String address = args[2];
 		String port = args[3];
 
-		Nvme nvme = new Nvme();
+		Nvme nvme = new Nvme(new NvmeTransportType[]{NvmeTransportType.PCIE, NvmeTransportType.RDMA},
+				"/dev/hugepages", 512);
 		nvme.logEnableTrace();
+
 		NvmeTransportId transportId = NvmeTransportId.pcie(pci_addr);
 		List<NvmeController> controllers = new ArrayList<NvmeController>();
 		nvme.probe(transportId, controllers);

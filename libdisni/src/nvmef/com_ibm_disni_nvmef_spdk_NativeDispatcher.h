@@ -9,11 +9,27 @@ extern "C" {
 #endif
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _rte_eal_init
+ * Signature: ([Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1rte_1eal_1init
+  (JNIEnv *, jobject, jobjectArray);
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _log_set_trace_flag
  * Signature: (Ljava/lang/String;)I
  */
 JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1log_1set_1trace_1flag
   (JNIEnv *, jobject, jstring);
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvme_transport_available
+ * Signature: (I)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1transport_1available
+  (JNIEnv *, jobject, jint);
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher

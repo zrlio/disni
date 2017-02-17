@@ -37,6 +37,7 @@ extern "C" {
 #include <rte_lcore.h>
 
 #include <iostream>
+#include <vector>
 
 #include <cstdio>
 #include <cstring>
@@ -44,14 +45,6 @@ extern "C" {
 #include <cstdlib>
 
 #define PACKAGE_NAME "com/ibm/disni/nvmef/spdk"
-
-static const char *ealargs[] = {
-	"identify",
-	"-c 0x1",
-	"-n 4",
-	"-m 512",
-	"--proc-type=auto",
-};
 
 struct probe_ctx {
     size_t probe_count;
@@ -68,15 +61,15 @@ struct io_completion {
 class JNIString {
     private:
         jstring str_;
-        JNIEnv& env_;
+        JNIEnv* env_;
         const char* c_str_;
     public:
-        JNIString(JNIEnv& env, jstring str) : str_(str), env_(env),
-        c_str_(env_.GetStringUTFChars(str, NULL)) {}
+        JNIString(JNIEnv* env, jstring str) : str_(str), env_(env),
+        c_str_(env_->GetStringUTFChars(str, NULL)) {}
 
         ~JNIString() {
             if (c_str_ != NULL) {
-                env_.ReleaseStringUTFChars(str_, c_str_);
+                env_->ReleaseStringUTFChars(str_, c_str_);
             }
         }
 
@@ -87,26 +80,43 @@ class JNIString {
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _rte_eal_init
+ * Signature: ([Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1rte_1eal_1init
+  (JNIEnv* env, jobject thiz, jobjectArray args) {
+    jsize length = env->GetArrayLength(args);
+    const char** cargs = new const char*[length];
+    std::vector<JNIString> jnistrs;
+    for (jsize i = 0; i < length; i++) {
+        jstring string = (jstring) env->GetObjectArrayElement(args, i);
+        jnistrs.push_back(JNIString(env, string));
+        cargs[i] = jnistrs.back().c_str();
+    }
+    return rte_eal_init(length, const_cast<char**>(cargs));
+}
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _log_set_trace_flag
  * Signature: (Ljava/lang/String;)I
  */
 JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1log_1set_1trace_1flag
   (JNIEnv* env, jobject thiz, jstring name) {
-    JNIString flag(*env, name);
+    JNIString flag(env, name);
     return spdk_log_set_trace_flag(flag.c_str());
 }
 
-static void initialize_dpdk() {
-    static bool dpdk_initialized = false;
-    if (!dpdk_initialized) {
-        int ret = rte_eal_init(sizeof(ealargs) / sizeof(ealargs[0]),
-                  (char **)(void *)(uintptr_t)ealargs);
-        if (ret < 0) {
-            std::cerr << "could not initialize dpdk\n";
-            exit(1);
-        }
-        dpdk_initialized = true;
-    }
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvme_transport_available
+ * Signature: (I)Z
+ */
+JNIEXPORT jboolean JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1transport_1available
+  (JNIEnv* env, jobject thiz, jint transport_type) {
+    spdk_nvme_transport_type trtype =
+        static_cast<spdk_nvme_transport_type>(transport_type);
+    return spdk_nvme_transport_available(trtype);
 }
 
 static bool probe_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
@@ -129,14 +139,13 @@ static void attach_cb(void *cb_ctx, const struct spdk_nvme_transport_id *trid,
 JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1probe
   (JNIEnv* env, jobject thiz, jint type, jint address_family, jstring address,
    jstring service_id, jstring subsystemNQN, jlongArray controller_ids) {
-    initialize_dpdk();
     spdk_nvme_transport_id trid = {};
     trid.trtype = static_cast<spdk_nvme_transport_type>(type);
     trid.adrfam = static_cast<spdk_nvmf_adrfam>(address_family);
     if (env->IsSameObject(address, NULL)) {
         return -EFAULT;
     }
-    JNIString addr(*env, address);
+    JNIString addr(env, address);
     if (addr.c_str() == NULL) {
         return -EFAULT;
     }
@@ -145,7 +154,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1pr
     if (env->IsSameObject(service_id, NULL)) {
         return -EFAULT;
     }
-    JNIString svcid(*env, service_id);
+    JNIString svcid(env, service_id);
     if (svcid.c_str() == NULL) {
         return -EFAULT;
     }
@@ -154,7 +163,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1pr
     if (env->IsSameObject(subsystemNQN, NULL)) {
         return -EFAULT;
     }
-    JNIString subnqn(*env, subsystemNQN);
+    JNIString subnqn(env, subsystemNQN);
     if (subnqn.c_str() == NULL) {
         return -EFAULT;
     }
@@ -412,15 +421,15 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1su
             env->IsSameObject(transport_name, NULL)) {
         return -EFAULT;
     }
-    JNIString addr(*env, address);
+    JNIString addr(env, address);
     if (addr.c_str() == NULL) {
         return -EFAULT;
     }
-    JNIString svcid(*env, service_id);
+    JNIString svcid(env, service_id);
     if (svcid.c_str() == NULL) {
         return -EFAULT;
     }
-    JNIString trname(*env, transport_name);
+    JNIString trname(env, transport_name);
     if (trname.c_str() == NULL) {
         return -EFAULT;
     }
@@ -459,7 +468,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1su
     if (env->IsSameObject(pci_address, NULL)) {
         return -EFAULT;
     }
-    JNIString pci_addr_str(*env, pci_address);
+    JNIString pci_addr_str(env, pci_address);
     if (pci_addr_str.c_str() == NULL) {
         return -EFAULT;
     }
