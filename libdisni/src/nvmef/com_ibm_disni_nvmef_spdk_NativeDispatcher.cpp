@@ -37,7 +37,6 @@ extern "C" {
 #include <rte_lcore.h>
 
 #include <iostream>
-#include <vector>
 
 #include <cstdio>
 #include <cstring>
@@ -87,13 +86,18 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1rte_1eal
   (JNIEnv* env, jobject thiz, jobjectArray args) {
     jsize length = env->GetArrayLength(args);
     const char** cargs = new const char*[length];
-    std::vector<JNIString> jnistrs;
+    JNIString** jnistrs = new JNIString*[length];
     for (jsize i = 0; i < length; i++) {
         jstring string = (jstring) env->GetObjectArrayElement(args, i);
-        jnistrs.push_back(JNIString(env, string));
-        cargs[i] = jnistrs.back().c_str();
+        jnistrs[i] = new JNIString(env, string);
+        cargs[i] = jnistrs[i]->c_str();
     }
-    return rte_eal_init(length, const_cast<char**>(cargs));
+    int ret = rte_eal_init(length, const_cast<char**>(cargs));
+    for (jsize i = 0; i < length; i++) {
+        delete jnistrs[i];
+    }
+    delete[] cargs;
+    delete[] jnistrs;
 }
 
 /*
