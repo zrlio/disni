@@ -27,6 +27,7 @@ import java.net.URI;
 import java.util.ArrayList;
 import java.util.StringTokenizer;
 import java.util.concurrent.LinkedBlockingQueue;
+
 import com.ibm.disni.nvmef.spdk.*;
 
 public class NvmeServerEndpoint {
@@ -47,54 +48,13 @@ public class NvmeServerEndpoint {
 	}
 	
 	public synchronized NvmeServerEndpoint bind(URI uri) throws Exception {
-		if (!uri.getScheme().equalsIgnoreCase("nvmef")){
-			throw new IOException("URL has wrong protocol " + uri.getScheme());
-		}
-		
-		System.out.println("uri passed to bind " + uri.toString());
-		String address = uri.getHost();
-		String port = Integer.toString(uri.getPort());
-		int controller = 0;
-		String subsystem = "";
-		String pci = "";
-		
-		String path = uri.getPath();
-		if (path != null){
-			StringTokenizer pathTokenizer = new StringTokenizer(path, "/");
-			if (pathTokenizer.countTokens() > 2){
-				throw new IOException("URL format error, too many elements in path");
-			}
-			for (int i = 0; pathTokenizer.hasMoreTokens(); i++){
-				String token = pathTokenizer.nextToken();
-				switch(i) {
-				case 0:
-					controller = Integer.parseInt(token);
-					break;
-				}
-			}
-		}
-		
-		String query = uri.getQuery();
-		if (query != null){
-			StringTokenizer queryTokenizer = new StringTokenizer(query, "&");
-			while (queryTokenizer.hasMoreTokens()){
-				String param = queryTokenizer.nextToken();
-				if (param.startsWith("subsystem")){
-					subsystem = param.substring(10);
-				}
-				if (param.startsWith("pci")){
-					pci = param.substring(4);
-				}				
-			}			
-		}
-		
-//		System.out.println("binding to address " + address + ", port " + port + ", subsystem " + subsystem + ", pci " + pci + ", controller " + controller);
-		NvmeTransportId transportId = NvmeTransportId.pcie(pci);
-		nvmecontroller = group.probe(transportId, controller);
+		NvmeResourceIdentifier nvmeResource = NvmeResourceIdentifier.parse(uri);
+		NvmeTransportId transportId = NvmeTransportId.pcie(nvmeResource.getPci());
+		nvmecontroller = group.probe(transportId, nvmeResource.getController());
 		this.target = group.createNvmfTarget();
-		this.nvmesubsystem = target.createSubsystem(subsystem, NvmfSubtype.NVME, NvmfSubsystemMode.DIRECT);
-		nvmesubsystem.addController(nvmecontroller, pci);
-		nvmesubsystem.addListener(NvmfTransportName.RDMA, address, port);		
+		this.nvmesubsystem = target.createSubsystem(nvmeResource.getSubsystem(), NvmfSubtype.NVME, NvmfSubsystemMode.DIRECT);
+		nvmesubsystem.addController(nvmecontroller, nvmeResource.getPci());
+		nvmesubsystem.addListener(NvmfTransportName.RDMA, nvmeResource.getAddress(), nvmeResource.getPort());		
 		
 		return this;
 	}

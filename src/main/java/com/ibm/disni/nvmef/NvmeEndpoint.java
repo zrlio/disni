@@ -53,53 +53,14 @@ public class NvmeEndpoint {
 
 	//rdma://<host>:<port>
 	//nvmef:://<host>:<port>/controller/namespace"
-	public synchronized void connect(URI url) throws IOException {
+	public synchronized void connect(URI uri) throws IOException {
 		if (isOpen.get()){
 			return;
 		}
-		if (!url.getScheme().equalsIgnoreCase("nvmef")){
-			throw new IOException("URL has wrong protocol " + url.getScheme());
-		}
-		
-		String address = url.getHost();
-		String port = Integer.toString(url.getPort());
-		int controller = 0;
-		int namespace = 1;
-		String subsystem = "";
-		
-		String path = url.getPath();
-		if (path != null){
-			StringTokenizer pathTokenizer = new StringTokenizer(path, "/");
-			if (pathTokenizer.countTokens() > 2){
-				throw new IOException("URL format error, too many elements in path");
-			}
-			for (int i = 0; pathTokenizer.hasMoreTokens(); i++){
-				switch(i) {
-				case 0:
-					controller = Integer.parseInt(pathTokenizer.nextToken());
-					break;
-				case 1:
-					namespace = Integer.parseInt(pathTokenizer.nextToken());
-					break;
-				}
-			}
-		}
-		
-		String query = url.getQuery();
-		if (query != null){
-			StringTokenizer queryTokenizer = new StringTokenizer(query, "&");
-			while (queryTokenizer.hasMoreTokens()){
-				String param = queryTokenizer.nextToken();
-				if (param.startsWith("subsystem")){
-					subsystem = param.substring(10);
-				}
-			}			
-		}
-		
-//		System.out.println("connecting to address " + address + ", port " + port + ", subsystem " + subsystem + ", controller " + controller);
-		NvmeTransportId transportId = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, address, port, subsystem);
-		NvmeController nvmecontroller = group.probe(transportId, controller);
-		this.namespace = nvmecontroller.getNamespace(namespace);
+		NvmeResourceIdentifier nvmeResource = NvmeResourceIdentifier.parse(uri);
+		NvmeTransportId transportId = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, nvmeResource.getAddress(), nvmeResource.getPort(), nvmeResource.getSubsystem());
+		NvmeController nvmecontroller = group.probe(transportId, nvmeResource.getController());
+		this.namespace = nvmecontroller.getNamespace(nvmeResource.getNamespace());
 		this.queuePair = nvmecontroller.allocQueuePair();	
 		this.isOpen.set(true);
 	}	

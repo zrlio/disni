@@ -24,16 +24,18 @@ package com.ibm.disni.benchmarks;
 
 import java.io.IOException;
 import java.net.URI;
+
 import com.ibm.disni.nvmef.NvmeEndpoint;
 import com.ibm.disni.nvmef.NvmeEndpointGroup;
 import com.ibm.disni.nvmef.NvmeServerEndpoint;
+import com.ibm.disni.nvmef.spdk.NvmeTransportType;
 
 public class NvmefEndpointServer {
 	private NvmeEndpointGroup group;
 	private NvmeServerEndpoint serverEndpoint;
 	
 	public NvmefEndpointServer(String address, String port, String subsystem, String pci) throws Exception {
-		this.group = new NvmeEndpointGroup();
+		this.group = new NvmeEndpointGroup(new NvmeTransportType[]{NvmeTransportType.PCIE, NvmeTransportType.RDMA}, "/dev/hugepages", 512);
 		this.serverEndpoint = group.createServerEndpoint();
 		URI url = new URI("nvmef://" + address + ":" + port + "/0/1?subsystem=" + subsystem + "&pci=" + pci);
 		serverEndpoint.bind(url);

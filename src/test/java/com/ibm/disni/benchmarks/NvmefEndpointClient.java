@@ -31,6 +31,9 @@ import com.ibm.disni.benchmarks.NvmefClient.AccessPattern;
 import com.ibm.disni.nvmef.NvmeEndpoint;
 import com.ibm.disni.nvmef.NvmeEndpointGroup;
 import com.ibm.disni.nvmef.spdk.IOCompletion;
+import com.ibm.disni.nvmef.spdk.NvmeTransportId;
+import com.ibm.disni.nvmef.spdk.NvmeTransportType;
+import com.ibm.disni.nvmef.spdk.NvmfAddressFamily;
 
 public class NvmefEndpointClient {
 	private final ThreadLocalRandom random;
@@ -39,7 +42,8 @@ public class NvmefEndpointClient {
 	
 	public NvmefEndpointClient(String address, String port, String subsystem) throws Exception {
 		this.random = ThreadLocalRandom.current();
-		this.group = new NvmeEndpointGroup();
+		NvmeTransportId tid = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, address, port, subsystem);
+		this.group = new NvmeEndpointGroup(new NvmeTransportType[]{tid.getType()}, "/dev/hugepages", 512);
 		this.endpoint = group.createEndpoint();
 		URI url = new URI("nvmef://" + address + ":" + port + "/0/1?subsystem=" + subsystem);
 		endpoint.connect(url);

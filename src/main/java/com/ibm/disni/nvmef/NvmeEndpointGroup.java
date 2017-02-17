@@ -28,14 +28,15 @@ import java.util.ArrayList;
 import com.ibm.disni.nvmef.spdk.Nvme;
 import com.ibm.disni.nvmef.spdk.NvmeController;
 import com.ibm.disni.nvmef.spdk.NvmeTransportId;
+import com.ibm.disni.nvmef.spdk.NvmeTransportType;
 import com.ibm.disni.nvmef.spdk.NvmfConnection;
 import com.ibm.disni.nvmef.spdk.NvmfTarget;
 
 public class NvmeEndpointGroup {
 	private Nvme nvme;
 	
-	public NvmeEndpointGroup(){
-		this.nvme = new Nvme();
+	public NvmeEndpointGroup(NvmeTransportType[] transportTypes, String hugePath, long memoryPoolSize){
+		this.nvme = new Nvme(transportTypes, hugePath, memoryPoolSize);
 	}
 	
 	//most likely not used
@@ -59,7 +60,7 @@ public class NvmeEndpointGroup {
 		return nvme.createNvmfTarget((short)128, (short)4, 4096, 128*1024 /* 128 KB */);
 	}
 
-	public NvmeEndpoint createEndpoint(NvmfConnection newConnection) {
+	NvmeEndpoint createEndpoint(NvmfConnection newConnection) {
 		return new NvmeEndpoint(this, newConnection);
 	}	
 }
