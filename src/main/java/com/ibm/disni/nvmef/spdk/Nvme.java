@@ -53,8 +53,12 @@ public class Nvme {
 			args.add("--no-pci");
 		}
 
-		args.add("--huge-dir");
-		args.add(hugePath);
+		if (hugePath == null) {
+			args.add("--no-huge");
+		} else {
+			args.add("--huge-dir");
+			args.add(hugePath);
+		}
 
 		args.add("--socket-mem");
 		if (socketMemoryMB == null || socketMemoryMB.length == 0) {
