@@ -55,10 +55,17 @@ public class Nvme {
 
 		if (hugePath == null) {
 			args.add("--no-huge");
+			long totalMemory = 0;
+			for (long memory : socketMemoryMB) {
+				totalMemory += memory;
+			}
+			
+			args.add("-m");
+			args.add(Long.toString(totalMemory));
 		} else {
 			args.add("--huge-dir");
 			args.add(hugePath);
-			
+
 			args.add("--socket-mem");
 			if (socketMemoryMB == null || socketMemoryMB.length == 0) {
 				throw new IllegalArgumentException("socketMemoryMB null or zero length");
