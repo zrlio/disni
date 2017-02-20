@@ -35,7 +35,8 @@ public class NvmefEndpointServer {
 	private NvmeServerEndpoint serverEndpoint;
 	
 	public NvmefEndpointServer(String address, String port, String subsystem, String pci) throws Exception {
-		this.group = new NvmeEndpointGroup(new NvmeTransportType[]{NvmeTransportType.PCIE, NvmeTransportType.RDMA}, "/dev/hugepages", 512);
+		this.group = new NvmeEndpointGroup(new NvmeTransportType[]{NvmeTransportType.PCIE, NvmeTransportType.RDMA},
+				"/dev/hugepages", new long[]{256,256});
 		this.serverEndpoint = group.createServerEndpoint();
 		URI url = new URI("nvmef://" + address + ":" + port + "/0/1?subsystem=" + subsystem + "&pci=" + pci);
 		serverEndpoint.bind(url);

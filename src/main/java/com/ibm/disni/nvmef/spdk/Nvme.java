@@ -34,7 +34,7 @@ public class Nvme {
 
 	private NvmfTarget nvmfTarget;
 
-	public Nvme(NvmeTransportType[] transportTypes, String hugePath, long memoryPoolSize) throws IllegalArgumentException {
+	public Nvme(NvmeTransportType[] transportTypes, String hugePath, long[] socketMemoryMB) throws IllegalArgumentException {
 		nativeDispatcher = new NativeDispatcher();
 		memoryAllocation = MemoryAllocation.getInstance();
 
@@ -57,7 +57,17 @@ public class Nvme {
 		args.add(hugePath);
 
 		args.add("-m");
-		args.add(Long.toString(memoryPoolSize));
+		if (socketMemoryMB == null || socketMemoryMB.length == 0) {
+			throw new IllegalArgumentException("socketMemoryMB null or zero length");
+		}
+		StringBuilder sb = new StringBuilder();
+		for (long memory : socketMemoryMB) {
+			if (sb.length() > 0) {
+				sb.append(',');
+			}
+			sb.append(Long.toString(memory));
+		}
+		args.add(sb.toString());
 
 		args.add("--proc-type");
 		args.add("primary");

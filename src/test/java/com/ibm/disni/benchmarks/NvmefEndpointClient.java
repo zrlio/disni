@@ -43,7 +43,8 @@ public class NvmefEndpointClient {
 	public NvmefEndpointClient(String address, String port, String subsystem) throws Exception {
 		this.random = ThreadLocalRandom.current();
 		NvmeTransportId tid = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, address, port, subsystem);
-		this.group = new NvmeEndpointGroup(new NvmeTransportType[]{tid.getType()}, "/dev/hugepages", 512);
+		this.group = new NvmeEndpointGroup(new NvmeTransportType[]{tid.getType()}, "/dev/hugepages",
+				new long[]{256,256});
 		this.endpoint = group.createEndpoint();
 		URI url = new URI("nvmef://" + address + ":" + port + "/0/1?subsystem=" + subsystem);
 		endpoint.connect(url);

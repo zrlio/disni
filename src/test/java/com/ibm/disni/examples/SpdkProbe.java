@@ -41,7 +41,7 @@ public class SpdkProbe {
             transportId = NvmeTransportId.pcie(args[0]);
 
         }
-        Nvme nvme = new Nvme(new NvmeTransportType[]{transportId.getType()}, "/dev/hugepages", 512);
+        Nvme nvme = new Nvme(new NvmeTransportType[]{transportId.getType()}, "/dev/hugepages", new long[]{256,256});
         ArrayList<NvmeController> controllers = new ArrayList<NvmeController>();
         nvme.probe(transportId, controllers);
         for (NvmeController controller : controllers) {
