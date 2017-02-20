@@ -56,7 +56,7 @@ public class Nvme {
 		args.add("--huge-dir");
 		args.add(hugePath);
 
-		args.add("-m");
+		args.add("--socket-mem");
 		if (socketMemoryMB == null || socketMemoryMB.length == 0) {
 			throw new IllegalArgumentException("socketMemoryMB null or zero length");
 		}
