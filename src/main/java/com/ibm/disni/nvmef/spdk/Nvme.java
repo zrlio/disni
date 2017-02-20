@@ -58,20 +58,20 @@ public class Nvme {
 		} else {
 			args.add("--huge-dir");
 			args.add(hugePath);
-		}
-
-		args.add("--socket-mem");
-		if (socketMemoryMB == null || socketMemoryMB.length == 0) {
-			throw new IllegalArgumentException("socketMemoryMB null or zero length");
-		}
-		StringBuilder sb = new StringBuilder();
-		for (long memory : socketMemoryMB) {
-			if (sb.length() > 0) {
-				sb.append(',');
+			
+			args.add("--socket-mem");
+			if (socketMemoryMB == null || socketMemoryMB.length == 0) {
+				throw new IllegalArgumentException("socketMemoryMB null or zero length");
 			}
-			sb.append(Long.toString(memory));
+			StringBuilder sb = new StringBuilder();
+			for (long memory : socketMemoryMB) {
+				if (sb.length() > 0) {
+					sb.append(',');
+				}
+				sb.append(Long.toString(memory));
+			}
+			args.add(sb.toString());
 		}
-		args.add(sb.toString());
 
 		args.add("--proc-type");
 		args.add("primary");
