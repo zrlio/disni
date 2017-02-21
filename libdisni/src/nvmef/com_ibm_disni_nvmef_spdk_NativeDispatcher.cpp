@@ -101,6 +101,12 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1rte_1eal
     ss << sched_getcpu();
     cargs[length + 1] = ss.str().c_str();
 
+    std::cerr << "rte_eal_init ";
+    for (size_t i = 0; i < argc; i++) {
+        std::cerr << cargs[i] << " ";
+    }
+    std::cerr << std::endl;
+
     int ret = rte_eal_init(argc, const_cast<char**>(cargs));
     for (jsize i = 0; i < length; i++) {
         delete jnistrs[i];

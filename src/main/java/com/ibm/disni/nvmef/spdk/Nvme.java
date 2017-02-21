@@ -54,12 +54,13 @@ public class Nvme {
 		}
 
 		if (hugePath == null) {
+			//FIXME: this does not seem to work with the current SPDK build
 			args.add("--no-huge");
 			long totalMemory = 0;
 			for (long memory : socketMemoryMB) {
 				totalMemory += memory;
 			}
-			
+
 			args.add("-m");
 			args.add(Long.toString(totalMemory));
 		} else {
