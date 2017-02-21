@@ -65,7 +65,7 @@ public class NvmeEndpoint {
 		this.isOpen.set(true);
 	}	
 	
-	public IOCompletion write(ByteBuffer buffer, long linearBlockAddress) throws IOException{
+	public synchronized IOCompletion write(ByteBuffer buffer, long linearBlockAddress) throws IOException{
 		if (!isOpen.get()){
 			throw new IOException("endpoint is closed");
 		}
@@ -78,7 +78,7 @@ public class NvmeEndpoint {
 		return completion;
 	}
 	
-	public IOCompletion read(ByteBuffer buffer, long linearBlockAddress) throws IOException{
+	public synchronized IOCompletion read(ByteBuffer buffer, long linearBlockAddress) throws IOException{
 		if (!isOpen.get()){
 			throw new IOException("endpoint is closed");
 		}		
