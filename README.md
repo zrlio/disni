@@ -10,7 +10,7 @@ To build DiSNI and its example programs, obtain a copy of DiSNI from [Github](ht
 ### To compile with RDMA support only
 1) Build libdisni using: ./autoprepare.sh; ./configure --with-jdk=path-to-jdk; make install
 ### To compile with RDMA and NVMf support
-1.1) Obtain spdk from [Github](https://github.com/spdk/spdk) and follow build instructions
+1.1) Obtain spdk from [Github](https://github.com/spdk/spdk) and follow build instructions<br/>
 1.2) Compile dpdk with `CONFIG_RTE_BUILD_SHARED_LIB=y`<br/>
 1.3) Build libdisni using: ./autoprepare.sh; ./configure --with-jdk=path-to-jdk --with-spdk=path-to-spdk --with-dpdk=path-to-dpdk; make install<br/>
 
