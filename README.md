@@ -7,17 +7,33 @@ DiSNI is a Java library for direct storage and networking access from userpace. 
 Building the source requires [Apache Maven](http://maven.apache.org/) and [GNU/autotools](http://www.gnu.org/software/autoconf/autoconf.html) and Java version 8 or higher.
 To build DiSNI and its example programs, execute the following steps:
 
-1. Obtain a copy of DiSNI from [Github](https://github.com/zrlio/disni)
-2. Build libdisni using: ./autoprepare.sh; ./configure --with-jdk=path-to-jdk; make install
-3. Run: mvn -DskipTests install
+1) Obtain a copy of DiSNI from [Github](https://github.com/zrlio/disni)<br/>
+
+**To compile with RDMA support only**<br/>
+2) Build libdisni using: ./autoprepare.sh; ./configure --with-jdk=path-to-jdk; make install<br/>
+**Or to compile with RDMA and NVMf support**<br/>
+2.1) Obtain spdk from [Github](https://github.com/spdk/spdk) and follow build instructions<br/>
+2.2) Compile dpdk with `CONFIG_RTE_BUILD_SHARED_LIB=y`<br/>
+2.3) Build libdisni using: ./autoprepare.sh; ./configure --with-jdk=path-to-jdk --with-spdk=path-to-spdk --with-dpdk=path-to-dpdk; make install<br/>
+
+3) Run: mvn -DskipTests install
 
 ## How to Run the Examples
 
-1. After building DiSNI, make sure DiSNI and its dependencies are in the classpath (e.g., disni-1.0-jar-with-dependencies.jar). Also add the DiSNI test jar (disni-1.0-tests.jar) which includes the examples.
+Common steps:
+
+1. After building DiSNI, make sure DiSNI and its dependencies are in the classpath (e.g., disni-1.0-jar-with-dependencies.jar). Also add the DiSNI test jar (disni-1.0-tests.jar) which includes the examples.<br/>
 2. Make sure libdisni is part of the LD_LIBRARY_PATH
-3. Make sure the RDMA network interface is configured and up on the test machines (run ibv\_devices to see the list of RDMA NICs). If your machine does not have RDMA hardware, you can also use SoftiWARP from [Github](https://github.com/zrlio/softiwarp). 
-4. Run the server\: java com.ibm.disni.examples.ReadServer -a \<server IP\>
-5. Run the client\: java com.ibm.disni.examples.ReadClient -a \<server IP\>
+
+### RDMA example
+1. Make sure the RDMA network interface is configured and up on the test machines (run ibv\_devices to see the list of RDMA NICs). If your machine does not have RDMA hardware, you can also use SoftiWARP from [Github](https://github.com/zrlio/softiwarp). 
+2. Run the server\: java com.ibm.disni.examples.ReadServer -a \<server IP\>
+3. Run the client\: java com.ibm.disni.examples.ReadClient -a \<server IP\>
+
+### NVMf example
+1. Include DPDK library dependencies in LD_LIBRARY_PATH (\*.so files are required)
+2. Run the server\: java com.ibm.disni.benchmarks.NvmfEndpointServer \<local NVMe PCI address\> \<NVMe qualified name\> \<server ip\> \<port\>
+3. Run the client\: java.com.ibm.disni.benchmarks.NvmfEndpointClient \<server ip\> \<port\> \<NVMe qualified name\>
 
 ## Programming with DiSNI
 
