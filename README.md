@@ -111,20 +111,20 @@ Stateful verb calls are objects representing RDMA operations. SVCs encapsulate t
 
 A good example showcasing the use of SVCs can be found in JVerbsReadClient.java\:
 ```
-		SVCPostSend postSend = endpoint.postSend(endpoint.getWrList_send());
-		for (int i = 10; i <= 100; ){
-			postSend.getWrMod(0).getSgeMod(0).setLength(i);
-			postSend.execute();
-			//wait until the operation has completed
-			endpoint.getWcEvents().take();
-			
-			//we should have the content of the remote buffer in our own local buffer now
-			ByteBuffer dataBuf = endpoint.getDataBuf();
-			dataBuf.clear();
-			System.out.println("ReadClient::read memory from server: " + dataBuf.asCharBuffer().toString());		
-			i += 10;
-		}
-		postSend.free();
+	SVCPostSend postSend = endpoint.postSend(endpoint.getWrList_send());
+	for (int i = 10; i <= 100; ){
+		postSend.getWrMod(0).getSgeMod(0).setLength(i);
+		postSend.execute();
+		//wait until the operation has completed
+		endpoint.getWcEvents().take();
+		
+		//we should have the content of the remote buffer in our own local buffer now
+		ByteBuffer dataBuf = endpoint.getDataBuf();
+		dataBuf.clear();
+		System.out.println("ReadClient::read memory from server: " + dataBuf.asCharBuffer().toString());		
+		i += 10;
+	}
+	postSend.free();
 ```
 ### Choosing the EndpointGroup 
 
