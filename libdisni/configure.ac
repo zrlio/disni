@@ -20,13 +20,22 @@ AC_CHECK_LIB([ibverbs], [main])
 # FIXME: Replace `main' with a function in `-lrdmacm':
 AC_CHECK_LIB([rdmacm], [main])
 
-AC_ARG_WITH([jdk], [AS_HELP_STRING([--with-jdk],[jdk base directory])], [jdk=$withval], [AC_ERROR([jdk directory not specified])])
+AC_ARG_WITH([jdk],
+            [AS_HELP_STRING([--with-jdk],[jdk base directory])],
+            [jdk=$withval],
+            [AC_ERROR([jdk directory not specified])])
 AC_SUBST([jdk])
 
-AC_ARG_WITH([spdk], [AS_HELP_STRING([--with-spdk],[spdk base directory])], [spdk=$withval], [AC_ERROR([spdk directory not specified])])
+AC_ARG_WITH([spdk],
+            [AS_HELP_STRING([--with-spdk],[spdk base directory])],
+            [spdk=$withval])
 AC_SUBST([spdk])
+AM_CONDITIONAL([SPDK], [test "x$with_spdk" != "x"])
 
-AC_ARG_WITH([dpdk], [AS_HELP_STRING([--with-dpdk],[dpdk base directory])], [dpdk=$withval], [AC_ERROR([dpdk directory not specified])])
+AC_ARG_WITH([dpdk],
+            [AS_HELP_STRING([--with-dpdk],[dpdk base directory])],
+            [dpdk=$withval],
+            AS_IF([test "x$with_spdk" != "x"],[AC_ERROR([dpdk directory not specified])]))
 AC_SUBST([dpdk])
 
 AC_ARG_ENABLE(logging, [  --enable-logging],
