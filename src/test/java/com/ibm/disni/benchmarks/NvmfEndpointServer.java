@@ -30,11 +30,11 @@ import com.ibm.disni.nvmef.NvmeEndpointGroup;
 import com.ibm.disni.nvmef.NvmeServerEndpoint;
 import com.ibm.disni.nvmef.spdk.NvmeTransportType;
 
-public class NvmefEndpointServer {
+public class NvmfEndpointServer {
 	private NvmeEndpointGroup group;
 	private NvmeServerEndpoint serverEndpoint;
 	
-	public NvmefEndpointServer(String address, String port, String subsystem, String pci) throws Exception {
+	public NvmfEndpointServer(String address, String port, String subsystem, String pci) throws Exception {
 		this.group = new NvmeEndpointGroup(new NvmeTransportType[]{NvmeTransportType.PCIE, NvmeTransportType.RDMA},
 				"/dev/hugepages", new long[]{256,256});
 		this.serverEndpoint = group.createServerEndpoint();
@@ -59,7 +59,7 @@ public class NvmefEndpointServer {
 		String address = args[2];
 		String port = args[3];
 		
-		NvmefEndpointServer server = new NvmefEndpointServer(address, port, subsystem, pci);
+		NvmfEndpointServer server = new NvmfEndpointServer(address, port, subsystem, pci);
 		server.run();
 	}
 }

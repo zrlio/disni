@@ -27,7 +27,7 @@ import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ThreadLocalRandom;
 
-import com.ibm.disni.benchmarks.NvmefClient.AccessPattern;
+import com.ibm.disni.benchmarks.NvmfClient.AccessPattern;
 import com.ibm.disni.nvmef.NvmeEndpoint;
 import com.ibm.disni.nvmef.NvmeEndpointGroup;
 import com.ibm.disni.nvmef.spdk.IOCompletion;
@@ -35,12 +35,12 @@ import com.ibm.disni.nvmef.spdk.NvmeTransportId;
 import com.ibm.disni.nvmef.spdk.NvmeTransportType;
 import com.ibm.disni.nvmef.spdk.NvmfAddressFamily;
 
-public class NvmefEndpointClient {
+public class NvmfEndpointClient {
 	private final ThreadLocalRandom random;
 	private NvmeEndpointGroup group;
 	private NvmeEndpoint endpoint;
 	
-	public NvmefEndpointClient(String address, String port, String subsystem) throws Exception {
+	public NvmfEndpointClient(String address, String port, String subsystem) throws Exception {
 		this.random = ThreadLocalRandom.current();
 		NvmeTransportId tid = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, address, port, subsystem);
 		this.group = new NvmeEndpointGroup(new NvmeTransportType[]{tid.getType()}, "/dev/hugepages",
@@ -108,8 +108,8 @@ public class NvmefEndpointClient {
 			System.out.println("<address> <port> <subsystemNQN>");
 			System.exit(-1);
 		}
-		System.out.println("Starting NvmefEndpointClient, address " + args[0] + ", port " + args[1]);
-		NvmefEndpointClient client = new NvmefEndpointClient(args[0], args[1], args[2]);
+		System.out.println("Starting NvmfEndpointClient, address " + args[0] + ", port " + args[1]);
+		NvmfEndpointClient client = new NvmfEndpointClient(args[0], args[1], args[2]);
 		
 		final int maxTransferSize = client.getMaxIOTransferSize();
 		

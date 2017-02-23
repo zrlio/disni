@@ -27,7 +27,7 @@ import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 
-public class NvmefServer {
+public class NvmfServer {
 	public static void main(String[] args) throws Exception {
 		if (args.length < 4) {
 			System.out.println("<pci-address> <subsystemNQN> <address> <port>");

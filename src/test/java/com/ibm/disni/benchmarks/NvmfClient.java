@@ -27,17 +27,16 @@ import sun.nio.ch.DirectBuffer;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Random;
 import java.util.concurrent.ThreadLocalRandom;
 
-public class NvmefClient {
+public class NvmfClient {
 	private final ArrayList<NvmeController> controllers;
 	private final NvmeNamespace namespace;
 	private final NvmeQueuePair queuePair;
 
 	private final ThreadLocalRandom random;
 
-	NvmefClient(String address, String port, String subsystemNQN) throws IOException {
+	NvmfClient(String address, String port, String subsystemNQN) throws IOException {
 		NvmeTransportId tid = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, address, port, subsystemNQN);
 		Nvme nvme = new Nvme(new NvmeTransportType[]{tid.getType()}, "/dev/hugepages", new long[]{256,256});
 		controllers = new ArrayList<NvmeController>();
@@ -117,7 +116,7 @@ public class NvmefClient {
 			System.out.println("<address> <port> <subsystemNQN>");
 			System.exit(-1);
 		}
-		NvmefClient nvmef = new NvmefClient(args[0], args[1], args[2]);
+		NvmfClient nvmef = new NvmfClient(args[0], args[1], args[2]);
 
 		final int maxTransferSize = nvmef.namespace.getMaxIOTransferSize();
 		//Write whole device once
