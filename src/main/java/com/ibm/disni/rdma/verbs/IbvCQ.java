@@ -1,5 +1,5 @@
 /*
- * jVerbs: RDMA verbs support for the Java Virtual Machine
+ * DiSNI: Direct Storage and Networking Interface
  *
  * Author: Patrick Stuedi <stu@zurich.ibm.com>
  *
@@ -40,7 +40,7 @@ import java.io.IOException;
 /**
  * Represents a completion queue. 
  * 
- * Completion queues hold events indicated the completion of data transfer operations.
+ * IOCompletion queues hold events indicated the completion of data transfer operations.
  * 
  * Several queue pairs (QPs) can share the same completion queue.
  */

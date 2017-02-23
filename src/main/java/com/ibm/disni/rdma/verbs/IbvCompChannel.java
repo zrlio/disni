@@ -1,5 +1,5 @@
 /*
- * jVerbs: RDMA verbs support for the Java Virtual Machine
+ * DiSNI: Direct Storage and Networking Interface
  *
  * Author: Patrick Stuedi <stu@zurich.ibm.com>
  *
@@ -30,7 +30,7 @@ import java.io.IOException;
 //};
 
 /**
- * Represents a completion channel. Completion channels are used to query completion queues (CQs) for new events.
+ * Represents a completion channel. IOCompletion channels are used to query completion queues (CQs) for new events.
  */
 public class IbvCompChannel {
 	private RdmaVerbs verbs;
