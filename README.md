@@ -7,9 +7,13 @@ DiSNI is a Java library for direct storage and networking access from userpace. 
 Building the source requires [Apache Maven](http://maven.apache.org/) and [GNU/autotools](http://www.gnu.org/software/autoconf/autoconf.html) and Java version 8 or higher.
 To build DiSNI and its example programs, execute the following steps:
 
-1. Obtain a copy of DiSNI from [Github](https://github.com/zrlio/disni)
-2. Build libdisni using: ./autoprepare.sh; ./configure --with-jdk=path-to-jdk; make install
-3. Run: mvn -DskipTests install
+1) Obtain a copy of DiSNI from [Github](https://github.com/zrlio/disni)<br/>
+
+2) Build libdisni using: ./autoprepare.sh; ./configure --with-jdk=path-to-jdk --with-spdk=path-to-spdk --with-dpdk=path-to-dpdk; make install<br/>
+**Or to compile with RDMA support only (without NVMf):**<br/>
+2) Build libdisni using: ./autoprepare.sh; ./configure --with-jdk=path-to-jdk; make install<br/>
+
+3) Run: mvn -DskipTests install
 
 ## How to Run the Examples
 
