@@ -64,6 +64,19 @@ public class NatRegMrCall extends SVCRegMr {
 		this.valid = true;
 	}
 
+	public void set(IbvPd pd, long address, int length, int access) {
+		this.pd = (NatIbvPd) pd;
+		this.bufferCapacity = length;
+		this.userAddress = address;
+		
+		if (cmd != null){
+			cmd.free();
+			cmd = null;
+		}
+		this.cmd = memAlloc.allocate(3*4, MemoryAllocation.MemType.DIRECT, this.getClass().getCanonicalName());
+		this.valid = true;
+	}
+
 	public SVCRegMr execute() throws IOException {
 		cmd.getBuffer().clear();
 		long objId = nativeDispatcher._regMr(pd.getObjId(), userAddress, bufferCapacity, cmd.address(), cmd.address() + 4, cmd.address() + 8);
