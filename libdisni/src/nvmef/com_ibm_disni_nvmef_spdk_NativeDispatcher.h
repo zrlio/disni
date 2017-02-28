@@ -73,6 +73,14 @@ JNIEXPORT void JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ct
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvme_ctrlr_get_opts
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1get_1opts
+  (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _nvme_ctrlr_alloc_io_qpair
  * Signature: (JI)J
  */

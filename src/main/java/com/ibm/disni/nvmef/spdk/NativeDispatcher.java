@@ -52,6 +52,8 @@ public class NativeDispatcher {
 
 	public native void _nvme_ctrlr_get_data(long controller, long buffer);
 
+	public native void _nvme_ctrlr_get_opts(long controller, long buffer);
+
 	public native long _nvme_ctrlr_alloc_io_qpair(long controller, int priority);
 
 	public native int _nvme_ctrlr_free_io_qpair(long queuePair);

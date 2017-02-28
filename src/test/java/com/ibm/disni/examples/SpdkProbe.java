@@ -138,6 +138,16 @@ public class SpdkProbe {
                     System.out.println("\tSector Size (bytes) = " + namespace.getSectorSize());
                 }
             }
+
+            System.out.println();
+            System.out.println("Options:");
+            NvmeControllerOptions options = controller.getOptions();
+            System.out.println("Number of I/O queues = " + options.getNumberIOQueues());
+            System.out.println("Enable submissioni queue in controller memory buffer = " + options.usesControllerMemoryBufferSubmissionQueues());
+            System.out.println("Arbitration mechanism = " + options.getControllerArbitrationMechanism().name());
+            System.out.println("Transport retry count = " + options.getTransportRetryCount());
+            System.out.println("I/O queue size = " + options.getIoQueueSize());
+            System.out.println("Host NVMe qualified name = " + options.getHostNvmeQualifiedName());
         }
         // alloc qpair
         NvmeController controller = controllers.get(0);

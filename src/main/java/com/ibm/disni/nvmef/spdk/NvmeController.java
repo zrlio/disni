@@ -35,6 +35,7 @@ public class NvmeController extends NatObject {
 	private final MemoryAllocation memoryAllocation;
 
 	private NvmeControllerData data;
+	private NvmeControllerOptions options;
 
 	NvmeController(long objId, NativeDispatcher nativeDispatcher, MemoryAllocation memoryAllocation) throws IOException {
 		super(objId);
@@ -80,6 +81,16 @@ public class NvmeController extends NatObject {
 			data.update(buffer);
 		}
 		return data;
+	}
+
+	public NvmeControllerOptions getOptions() {
+		if (options == null) {
+			ByteBuffer buffer = ByteBuffer.allocateDirect(NvmeControllerOptions.CSIZE);
+			nativeDispatcher._nvme_ctrlr_get_opts(getObjId(), ((DirectBuffer) buffer).address());
+			options = new NvmeControllerOptions();
+			options.update(buffer);
+		}
+		return options;
 	}
 
 	public void detach() throws IOException {

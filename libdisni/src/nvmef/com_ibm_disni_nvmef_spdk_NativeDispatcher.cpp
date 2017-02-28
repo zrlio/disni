@@ -27,6 +27,9 @@
 #include <spdk/nvmf_spec.h>
 #include <spdk/pci_ids.h>
 
+//XXX
+#include <nvme_internal.h>
+
 //FIXME: spdk is missing extern C in some headers
 extern "C" {
 #include <spdk/log.h>
@@ -257,6 +260,18 @@ JNIEXPORT void JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ct
     const spdk_nvme_ctrlr_data* ctrlr_data = spdk_nvme_ctrlr_get_data(ctrlr);
     //FIXME: complete data
     memcpy(reinterpret_cast<void*>(address), ctrlr_data, 1024);
+}
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvme_ctrlr_get_opts
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1get_1opts
+  (JNIEnv* env, jobject thiz, jlong controller_id, jlong address) {
+    spdk_nvme_ctrlr* ctrlr = reinterpret_cast<spdk_nvme_ctrlr*>(controller_id);
+    const spdk_nvme_ctrlr_opts* ctrlr_opts = &ctrlr->opts;
+    memcpy(reinterpret_cast<void*>(address), ctrlr_opts, sizeof(*ctrlr_opts));
 }
 
 /*
