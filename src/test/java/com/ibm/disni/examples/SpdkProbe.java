@@ -77,7 +77,7 @@ public class SpdkProbe {
 			System.out.println("RTD3 resume latency = " + data.getRTD3ResumeLatency());
 			System.out.println("RTD3 entry latency = " + data.getRTD3EntryLatency());
 
-			System.out.println("Optional asychronous events supported:");
+			System.out.println("Optional asynchronous events supported:");
 			NvmeControllerData.OptionalAsynchronousEventSupport optionalAsynchronousEventSupport = data.getOptionalAsynchronousEventSupport();
 			System.out.println(" Supports sending Namespace Attribute Notices = " + optionalAsynchronousEventSupport.hasNamespaceAttributeNotices());
 			System.out.println(" Supports sending Firmware Activation Notices = " + optionalAsynchronousEventSupport.hasFirmwareActivationNotices());
@@ -94,7 +94,7 @@ public class SpdkProbe {
 			System.out.println(" Namespace Manage = " + adminCommandSupport.hasNamespaceManage());
 
 			System.out.println("Abort command limit = " + data.getAbortCommandLimit());
-			System.out.println("Asychronous event request limit = " + data.getAsynchronousEventRequestLimit());
+			System.out.println("Asynchronous event request limit = " + data.getAsynchronousEventRequestLimit());
 
 			System.out.println("Firmware updates: ");
 			NvmeControllerData.FirmwareUpdates firmwareUpdates = data.getFirmwareUpdates();
@@ -121,7 +121,7 @@ public class SpdkProbe {
 
 			System.out.println("Warning composite temperature threshold = " + data.getWarningCompositeTemperatureThreshold());
 			System.out.println("Critical composite temperature threshold = " + data.getCriticalCompositeTemperatureThreshold());
-			System.out.println("Maximum time for formware activation = " + data.getMaximumTimeForFirmwareActivation());
+			System.out.println("Maximum time for firmware activation = " + data.getMaximumTimeForFirmwareActivation());
 			System.out.println("Host memory buffer preferred size = " + data.getHostMemoryBufferPreferredSize());
 			System.out.println("Host memory buffer minimum size = " + data.getHostMemoryBufferMinimumSize());
 			System.out.println("total NVM capacity = " + Long.toHexString(data.getTotalNVMcapacity()[0]) + Long.toHexString(data.getTotalNVMcapacity()[1]));
@@ -130,7 +130,7 @@ public class SpdkProbe {
 			System.out.println("Options:");
 			NvmeControllerOptions options = controller.getOptions();
 			System.out.println("Number of I/O queues = " + options.getNumberIOQueues());
-			System.out.println("Enable submissioni queue in controller memory buffer = " + options.usesControllerMemoryBufferSubmissionQueues());
+			System.out.println("Enable submission queue in controller memory buffer = " + options.usesControllerMemoryBufferSubmissionQueues());
 			System.out.println("Arbitration mechanism = " + options.getControllerArbitrationMechanism().name());
 			System.out.println("Transport retry count = " + options.getTransportRetryCount());
 			System.out.println("I/O queue size = " + options.getIoQueueSize());
