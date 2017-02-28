@@ -103,14 +103,16 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1rte_1eal
     cargs[length] = "-l";
     std::stringstream cpu;
     cpu << sched_getcpu();
-    cargs[length + 1] = cpu.str().c_str();
+    std::string cpu_str = cpu.str();
+    cargs[length + 1] = cpu_str.c_str();
 
     // unique prefix to be able to start multiple SPDK processes
     cargs[length + 2] = "--file-prefix";
     pid_t pid = getpid();
     std::stringstream prefix;
     prefix << "rte_" << pid;
-    cargs[length + 3] = prefix.str().c_str();
+    std::string prefix_str = prefix.str();
+    cargs[length + 3] = prefix_str.c_str();
 
     std::cerr << "rte_eal_init ";
     for (size_t i = 0; i < argc; i++) {
