@@ -37,6 +37,7 @@ extern "C" {
 #include <rte_lcore.h>
 
 #include <sched.h>
+#include <unistd.h>
 
 #include <iostream>
 #include <sstream>
@@ -88,7 +89,7 @@ class JNIString {
 JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1rte_1eal_1init
   (JNIEnv* env, jobject thiz, jobjectArray args) {
     jsize length = env->GetArrayLength(args);
-    int argc = length + 2;
+    int argc = length + 4;
     const char** cargs = new const char*[argc];
     JNIString** jnistrs = new JNIString*[length];
     for (jsize i = 0; i < length; i++) {
@@ -96,10 +97,20 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1rte_1eal
         jnistrs[i] = new JNIString(env, string);
         cargs[i] = jnistrs[i]->c_str();
     }
+
+    // set core for DPDK thread - we do not use this thread, unfortunately
+    // it cannot be turned of
     cargs[length] = "-l";
-    std::stringstream ss;
-    ss << sched_getcpu();
-    cargs[length + 1] = ss.str().c_str();
+    std::stringstream cpu;
+    cpu << sched_getcpu();
+    cargs[length + 1] = cpu.str().c_str();
+
+    // unique prefix to be able to start multiple SPDK processes
+    cargs[length + 2] = "--file-prefix";
+    pid_t pid = getpid();
+    std::stringstream prefix;
+    prefix << "rte_" << pid;
+    cargs[length + 3] = prefix.str().c_str();
 
     std::cerr << "rte_eal_init ";
     for (size_t i = 0; i < argc; i++) {
