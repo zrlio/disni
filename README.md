@@ -5,18 +5,21 @@ DiSNI is a Java library for direct storage and networking access from userpace. 
 ## Building DiSNI
 
 Building the source requires [Apache Maven](http://maven.apache.org/) and [GNU/autotools](http://www.gnu.org/software/autoconf/autoconf.html) and Java version 8 or higher.
-To build DiSNI and its example programs, execute the following steps:
+To build DiSNI and its example programs, obtain a copy of DiSNI from [Github](https://github.com/zrlio/disni) and execute the following steps:
 
-1) Obtain a copy of DiSNI from [Github](https://github.com/zrlio/disni)<br/>
+To compile with RDMA support only:
 
-**To compile with RDMA support only**<br/>
-2) Build libdisni using: ./autoprepare.sh; ./configure --with-jdk=path-to-jdk; make install<br/>
-**Or to compile with RDMA and NVMf support**<br/>
-2.1) Obtain spdk from [Github](https://github.com/spdk/spdk) and follow build instructions<br/>
-2.2) Compile dpdk with `CONFIG_RTE_BUILD_SHARED_LIB=y`<br/>
-2.3) Build libdisni using: ./autoprepare.sh; ./configure --with-jdk=path-to-jdk --with-spdk=path-to-spdk --with-dpdk=path-to-dpdk; make install<br/>
+* Build libdisni using: ./autoprepare.sh; ./configure --with-jdk=path-to-jdk; make install
 
-3) Run: mvn -DskipTests install
+To compile with RDMA and NVMf support:
+
+* Obtain spdk from [Github](https://github.com/spdk/spdk) and follow build instructions<br/>
+* Compile dpdk with `CONFIG_RTE_BUILD_SHARED_LIB=y`<br/>
+* Build libdisni using: ./autoprepare.sh; ./configure --with-jdk=path-to-jdk --with-spdk=path-to-spdk --with-dpdk=path-to-dpdk; make install<br/>
+
+Common step:
+
+* Run: mvn -DskipTests install
 
 ## How to Run the Examples
 
@@ -108,20 +111,20 @@ Stateful verb calls are objects representing RDMA operations. SVCs encapsulate t
 
 A good example showcasing the use of SVCs can be found in JVerbsReadClient.java\:
 ```
-		SVCPostSend postSend = endpoint.postSend(endpoint.getWrList_send());
-		for (int i = 10; i <= 100; ){
-			postSend.getWrMod(0).getSgeMod(0).setLength(i);
-			postSend.execute();
-			//wait until the operation has completed
-			endpoint.getWcEvents().take();
-			
-			//we should have the content of the remote buffer in our own local buffer now
-			ByteBuffer dataBuf = endpoint.getDataBuf();
-			dataBuf.clear();
-			System.out.println("ReadClient::read memory from server: " + dataBuf.asCharBuffer().toString());		
-			i += 10;
-		}
-		postSend.free();
+	SVCPostSend postSend = endpoint.postSend(endpoint.getWrList_send());
+	for (int i = 10; i <= 100; ){
+		postSend.getWrMod(0).getSgeMod(0).setLength(i);
+		postSend.execute();
+		//wait until the operation has completed
+		endpoint.getWcEvents().take();
+		
+		//we should have the content of the remote buffer in our own local buffer now
+		ByteBuffer dataBuf = endpoint.getDataBuf();
+		dataBuf.clear();
+		System.out.println("ReadClient::read memory from server: " + dataBuf.asCharBuffer().toString());		
+		i += 10;
+	}
+	postSend.free();
 ```
 ### Choosing the EndpointGroup 
 
