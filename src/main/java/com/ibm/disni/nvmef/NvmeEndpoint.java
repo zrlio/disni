@@ -63,32 +63,43 @@ public class NvmeEndpoint {
 		this.namespace = nvmecontroller.getNamespace(nvmeResource.getNamespace());
 		this.queuePair = nvmecontroller.allocQueuePair();	
 		this.isOpen.set(true);
-	}	
-	
-	public synchronized IOCompletion write(ByteBuffer buffer, long linearBlockAddress) throws IOException{
+	}
+
+	private enum Operation {
+		READ,
+		WRITE
+	}
+
+	private IOCompletion doIO(Operation op, ByteBuffer buffer, long linearBlockAddress) throws IOException {
 		if (!isOpen.get()){
 			throw new IOException("endpoint is closed");
 		}
 		if (buffer.remaining() % namespace.getSectorSize() != 0){
-			throw new IOException("buffer must a multiple of sector size");
+			throw new IOException("Remaining buffer a multiple of sector size");
 		}
-		
 		int sectorCount = buffer.remaining() / namespace.getSectorSize();
-		IOCompletion completion = namespace.write(queuePair, ((DirectBuffer) buffer).address(), linearBlockAddress, sectorCount);
+		long bufferAddress = ((DirectBuffer) buffer).address() + buffer.position();
+
+		IOCompletion completion = null;
+		switch(op) {
+			case READ:
+				completion = namespace.read(queuePair, bufferAddress, linearBlockAddress, sectorCount);
+				break;
+			case WRITE:
+				completion = namespace.write(queuePair, bufferAddress, linearBlockAddress, sectorCount);
+				break;
+		}
+		buffer.position(buffer.limit());
+
 		return completion;
 	}
 	
-	public synchronized IOCompletion read(ByteBuffer buffer, long linearBlockAddress) throws IOException{
-		if (!isOpen.get()){
-			throw new IOException("endpoint is closed");
-		}		
-		if (buffer.remaining() % namespace.getSectorSize() != 0){
-			throw new IOException("buffer must a multiple of sector size");
-		}		
-		
-		int sectorCount = buffer.remaining() / namespace.getSectorSize();
-		IOCompletion completion = namespace.read(queuePair, ((DirectBuffer) buffer).address(), linearBlockAddress, sectorCount);
-		return completion;
+	public synchronized IOCompletion write(ByteBuffer buffer, long linearBlockAddress) throws IOException{
+		return doIO(Operation.WRITE, buffer, linearBlockAddress);
+	}
+	
+	public synchronized IOCompletion read(ByteBuffer buffer, long linearBlockAddress) throws IOException {
+		return doIO(Operation.READ, buffer, linearBlockAddress);
 	}
 	
 	public synchronized void close() throws IOException, InterruptedException {
