@@ -107,7 +107,7 @@ public class NvmeEndpoint {
 		isOpen.set(false);
 	}
 	
-	public int processCompletions(int length) throws IOException {
+	public synchronized int processCompletions(int length) throws IOException {
 		return queuePair.processCompletions(length);
 	}
 	
