@@ -28,21 +28,15 @@ import java.nio.ByteBuffer;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.ibm.disni.nvmef.spdk.*;
 import sun.nio.ch.DirectBuffer;
 
-import com.ibm.disni.nvmef.spdk.IOCompletion;
-import com.ibm.disni.nvmef.spdk.NvmeController;
-import com.ibm.disni.nvmef.spdk.NvmeNamespace;
-import com.ibm.disni.nvmef.spdk.NvmeQueuePair;
-import com.ibm.disni.nvmef.spdk.NvmeTransportId;
-import com.ibm.disni.nvmef.spdk.NvmfAddressFamily;
-import com.ibm.disni.nvmef.spdk.NvmfConnection;
-
 public class NvmeEndpoint {
-	private NvmeEndpointGroup group;
+	private final NvmeEndpointGroup group;
     private NvmeQueuePair queuePair;
     private NvmeNamespace namespace;
-    private AtomicBoolean isOpen;
+    private final AtomicBoolean isOpen;
+	private NvmeControllerOptions controllerOptions;
 	
 	public NvmeEndpoint(NvmeEndpointGroup group, NvmfConnection newConnection) {
 		this.group = group;
@@ -63,6 +57,7 @@ public class NvmeEndpoint {
 		this.namespace = nvmecontroller.getNamespace(nvmeResource.getNamespace());
 		this.queuePair = nvmecontroller.allocQueuePair();	
 		this.isOpen.set(true);
+		this.controllerOptions = nvmecontroller.getOptions();
 	}
 
 	private enum Operation {
@@ -121,5 +116,9 @@ public class NvmeEndpoint {
 	
 	public int getMaxTransferSize() {
 		return namespace.getMaxIOTransferSize();
-	}	
+	}
+
+	public int getIOQueueSize() {
+		return controllerOptions.getIOQueueSize();
+	}
 }

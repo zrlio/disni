@@ -56,7 +56,7 @@ public class NvmeControllerOptions {
 		return transportRetryCount;
 	}
 
-	public int getIoQueueSize() {
+	public int getIOQueueSize() {
 		return ioQueueSize;
 	}
 

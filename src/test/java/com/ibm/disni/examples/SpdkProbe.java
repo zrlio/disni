@@ -133,7 +133,7 @@ public class SpdkProbe {
 			System.out.println("Enable submission queue in controller memory buffer = " + options.usesControllerMemoryBufferSubmissionQueues());
 			System.out.println("Arbitration mechanism = " + options.getControllerArbitrationMechanism().name());
 			System.out.println("Transport retry count = " + options.getTransportRetryCount());
-			System.out.println("I/O queue size = " + options.getIoQueueSize());
+			System.out.println("I/O queue size = " + options.getIOQueueSize());
 			System.out.println("Host NVMe qualified name = " + options.getHostNvmeQualifiedName());
 
 			int numberOfNamespaces = controller.getNumberOfNamespaces();
