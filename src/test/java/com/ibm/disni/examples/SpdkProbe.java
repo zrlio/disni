@@ -39,7 +39,6 @@ public class SpdkProbe {
 			transportId = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, args[0], args[1], args[2]);
 		} else {
 			transportId = NvmeTransportId.pcie(args[0]);
-
 		}
 		Nvme nvme = new Nvme(new NvmeTransportType[]{transportId.getType()}, "/dev/hugepages", new long[]{256, 256});
 		ArrayList<NvmeController> controllers = new ArrayList<NvmeController>();

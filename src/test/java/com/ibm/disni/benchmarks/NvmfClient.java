@@ -36,8 +36,7 @@ public class NvmfClient {
 
 	private final ThreadLocalRandom random;
 
-	NvmfClient(String address, String port, String subsystemNQN) throws IOException {
-		NvmeTransportId tid = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, address, port, subsystemNQN);
+	NvmfClient(NvmeTransportId tid) throws IOException {
 		Nvme nvme = new Nvme(new NvmeTransportType[]{tid.getType()}, "/dev/hugepages", new long[]{256,256});
 		controllers = new ArrayList<NvmeController>();
 		nvme.probe(tid, controllers);
@@ -69,7 +68,8 @@ public class NvmfClient {
 		random.nextBytes(bytes);
 		buffer.put(bytes);
 
-		int sectorCount = transferSize / namespace.getSectorSize();
+		final int sectorCount = transferSize / namespace.getSectorSize();
+		final long totalSizeSector = namespace.getSize() / namespace.getSectorSize();
 
 		long start = System.nanoTime();
 		long posted = 0;
@@ -91,7 +91,7 @@ public class NvmfClient {
 							lba = posted * sectorCount;
 							break;
 						case RANDOM:
-							lba = random.nextLong(namespace.getSize() / namespace.getSectorSize());
+							lba = random.nextLong(totalSizeSector - sectorCount);
 							break;
 						case SAME:
 							lba = 1024;
@@ -112,11 +112,19 @@ public class NvmfClient {
 	}
 
 	public static void main(String[] args) throws Exception {
-		if (args.length < 3) {
-			System.out.println("<address> <port> <subsystemNQN>");
+		if (args.length != 3 && args.length != 1) {
+			System.out.println("<address> [<port> <subsystemNQN>]");
 			System.exit(-1);
 		}
-		NvmfClient nvmef = new NvmfClient(args[0], args[1], args[2]);
+
+		NvmeTransportId transportId;
+		if (args.length == 3) {
+			transportId = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, args[0], args[1], args[2]);
+		} else {
+			transportId = NvmeTransportId.pcie(args[0]);
+		}
+
+		NvmfClient nvmef = new NvmfClient(transportId);
 
 		final int maxTransferSize = nvmef.namespace.getMaxIOTransferSize();
 		//Write whole device once
