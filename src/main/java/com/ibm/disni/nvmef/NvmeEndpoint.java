@@ -28,10 +28,11 @@ import java.nio.ByteBuffer;
 import java.util.StringTokenizer;
 import java.util.concurrent.atomic.AtomicBoolean;
 
+import com.ibm.disni.DiSNIEndpoint;
 import com.ibm.disni.nvmef.spdk.*;
 import sun.nio.ch.DirectBuffer;
 
-public class NvmeEndpoint {
+public class NvmeEndpoint implements DiSNIEndpoint {
 	private final NvmeEndpointGroup group;
     private NvmeQueuePair queuePair;
     private NvmeNamespace namespace;
