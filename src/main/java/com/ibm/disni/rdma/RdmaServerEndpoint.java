@@ -78,12 +78,16 @@ public class RdmaServerEndpoint<C extends RdmaEndpoint> implements DiSNIServerEn
 	 */	
 	@Override
 	public synchronized RdmaServerEndpoint<C> bind(URI uri) throws Exception {
+		if (uri == null){
+			throw new IOException("uri not defined");
+		}
+		if (uri.getHost() == null){
+			throw new IOException("host not defined");
+		}
+		
 		SocketAddress src = new InetSocketAddress(uri.getHost(), uri.getPort());
 		int backlog = 1000;
 		
-		if (src == null){
-			throw new IOException("address not defined");
-		}
 		if (connState != CONN_STATE_INITIALIZED) {
 			throw new IOException("endpoint has to be disconnected for bind");
 		}
