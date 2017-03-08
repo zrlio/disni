@@ -21,7 +21,6 @@
 
 package com.ibm.disni;
 
-import java.io.IOException;
 import java.net.URI;
 
 public interface DiSNIServerEndpoint<T extends DiSNIEndpoint> {

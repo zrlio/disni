@@ -26,9 +26,6 @@ import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import com.ibm.disni.examples.ReadServer;
 import com.ibm.disni.rdma.RdmaEndpoint;
 import com.ibm.disni.rdma.RdmaEndpointFactory;
@@ -183,7 +180,6 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.ReadClientEndp
 		
 		private IbvWC[] wcList;
 		private SVCPollCq poll;	
-		private Semaphore sendQueueAvailable;		
 		
 		protected ReadClientEndpoint(RdmaEndpointGroup<? extends RdmaEndpoint> group, RdmaCmId idPriv, boolean serverSide, int size) throws IOException {
 			super(group, idPriv, serverSide);
@@ -205,8 +201,6 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.ReadClientEndp
 			this.sgeRecv = new IbvSge();
 			this.sgeListRecv = new LinkedList<IbvSge>();
 			this.recvWR = new IbvRecvWR();	
-			
-			this.sendQueueAvailable = new Semaphore(16);
 		}
 		
 		public ByteBuffer getDataBuf() {
