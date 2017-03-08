@@ -70,7 +70,7 @@ public class RdmaServerEndpoint<C extends RdmaEndpoint> implements DiSNIServerEn
 	}
 	
 	@Override
-	public RdmaServerEndpoint<C> bind(URI uri) throws Exception {
+	public synchronized RdmaServerEndpoint<C> bind(URI uri) throws Exception {
 		SocketAddress src = InetSocketAddress.createUnresolved(uri.getHost(), uri.getPort());
 		int backlog = 1000;
 		

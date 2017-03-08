@@ -24,6 +24,7 @@ package com.ibm.disni.examples;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -59,7 +60,7 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.CustomClientEn
 		InetSocketAddress address = new InetSocketAddress(localHost, 1919);
 		
 		//connect to the server
-		endpoint.connect(address, 1000);
+		endpoint.connect(URI.create("rdma://" + address.getAddress().getHostAddress() + ":" + address.getPort()));
 		InetSocketAddress _addr = (InetSocketAddress) endpoint.getDstAddr();
 		System.out.println("ReadClient::client connected, address " + _addr.toString());
 		

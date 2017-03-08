@@ -59,7 +59,7 @@ public class ReadServer implements RdmaEndpointFactory<ReadServer.CustomServerEn
 		
 		//we can call bind on a server endpoint, just like we do with sockets
 		serverEndpoint.bind(address, 10);
-		System.out.println("ReadServer::server bound to address");
+		System.out.println("ReadServer::server bound to address" + address.toString());
 		
 		//we can accept new connections
 		ReadServer.CustomServerEndpoint endpoint = serverEndpoint.accept();

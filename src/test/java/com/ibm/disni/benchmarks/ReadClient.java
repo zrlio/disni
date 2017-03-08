@@ -24,6 +24,7 @@ package com.ibm.disni.benchmarks;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import com.ibm.disni.examples.ReadServer;
@@ -61,13 +62,13 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.ReadClientEndp
 		return new ReadClientEndpoint(group, id, serverSide, size);
 	}
 	
-	private void run() throws IOException, InterruptedException {
+	private void run() throws Exception {
 		System.out.println("ReadClient, size " + size + ", loop " + loop);
 		
 		ReadClient.ReadClientEndpoint endpoint = group.createEndpoint();
 		InetAddress ipAddress = InetAddress.getByName(host);
 		InetSocketAddress address = new InetSocketAddress(ipAddress, 1919);
-		endpoint.connect(address, 1000);
+		endpoint.connect(URI.create("rdma://" + address.getAddress().getHostAddress() + ":" + address.getPort()));
 		InetSocketAddress _addr = (InetSocketAddress) endpoint.getDstAddr();
 		System.out.println("ReadClient, client connected, address " + _addr.toString());	
 		
@@ -125,7 +126,7 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.ReadClientEndp
 		System.out.println("ReadClient, latency " + latency);
 	}	
 	
-	public static void main(String[] args) throws IOException, InterruptedException{
+	public static void main(String[] args) throws Exception {
 		String[] _args = args;
 		if (args.length < 1) {
 			System.exit(0);

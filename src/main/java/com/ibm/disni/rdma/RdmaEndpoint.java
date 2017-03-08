@@ -88,9 +88,14 @@ public class RdmaEndpoint implements DiSNIEndpoint {
 		logger.info("new client endpoint, id " + endpointId + ", idPriv " + idPriv.getPs());
 	}
 	
+	/**
+	 * Connect this endpoint to a remote server endpoint.
+	 *
+	 * @param uri (rdma://host:port)
+	 */	
 	@Override
-	public void connect(URI uri) throws Exception {
-		SocketAddress dst = InetSocketAddress.createUnresolved(uri.getHost(), uri.getPort());
+	public synchronized void connect(URI uri) throws Exception {
+		InetSocketAddress dst = new InetSocketAddress(uri.getHost(), uri.getPort());
 		int timeout = 1000;
 		
 		if (connState != CONN_STATE_INITIALIZED) {
@@ -129,55 +134,6 @@ public class RdmaEndpoint implements DiSNIEndpoint {
 		}			
 	}		
 	
-	/**
-	 * Connect this endpoint to a remote server endpoint.
-	 *
-	 * @param dst the IP address of the remote server endpoint.
-	 * @param timeout not supported.
-	 * @param dispatcher the callback used signal connection completion.
-	 * @throws Exception on failure.
-	 */
-	public synchronized void connect(SocketAddress dst, int timeout) throws IOException, InterruptedException {
-		try {
-			if (connState != CONN_STATE_INITIALIZED) {
-				throw new IOException("endpoint already connected");
-			}
-			
-			idPriv.resolveAddr(null, dst, timeout);
-			while(connState < CONN_STATE_ADDR_RESOLVED){
-				wait();
-			}
-			if (connState != CONN_STATE_ADDR_RESOLVED){
-				throw new IOException("resolve address failed");
-			}
-			
-			idPriv.resolveRoute(timeout);
-			while(connState < CONN_STATE_ROUTE_RESOLVED){
-				wait();
-			}
-			if (connState != CONN_STATE_ROUTE_RESOLVED){
-				throw new IOException("resolve route failed");
-			}			
-			
-			group.allocateResourcesRaw(this);
-			while(connState < CONN_STATE_RESOURCES_ALLOCATED){
-				wait();
-			}	
-			if (connState != CONN_STATE_RESOURCES_ALLOCATED){
-				throw new IOException("resolve route failed");
-			}	
-			
-			RdmaConnParam connParam = group.getConnParam();
-			idPriv.connect(connParam);
-			
-			while(connState < CONN_STATE_CONNECTED){
-				wait();
-			}		
-		} catch(Exception e){
-			throw new IOException(e);
-		}
-	}
-
 	/* (non-Javadoc)
 	 * @see com.ibm.jverbs.endpoints.ICmConsumer#dispatchCmEvent(com.ibm.jverbs.cm.RdmaCmEvent)
 	 */
