@@ -24,6 +24,7 @@ package com.ibm.disni.benchmarks;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -68,16 +69,14 @@ public class SendRecvServer implements RdmaEndpointFactory<SendRecvServer.SendRe
 	}
 	
 	
-	private void run() throws IOException, InterruptedException {
+	private void run() throws Exception {
 		System.out.println("SendRecvServer, size " + size + ", loop " + loop + ", recvQueueSize " + recvQueueSize + ", port " + port);
 		
 		RdmaServerEndpoint<SendRecvServer.SendRecvEndpoint> serverEndpoint = group.createServerEndpoint();
-		InetAddress ipAddress = InetAddress.getByName(host);
-		InetSocketAddress address = new InetSocketAddress(ipAddress, port);
-		serverEndpoint.bind(address, 10);
+		URI uri = URI.create("rdma://" + host + ":" + 1919);
+		serverEndpoint.bind(uri);
 		SendRecvServer.SendRecvEndpoint endpoint = serverEndpoint.accept();
-		InetSocketAddress _addr = (InetSocketAddress) endpoint.getDstAddr();
-		System.out.println("SendRecvServer, client connected, address " + _addr.toString());	
+		System.out.println("SendRecvServer, client connected, address " + uri.toString());	
 		
 		int opCount = 0;
 		while (opCount < loop){
@@ -101,7 +100,7 @@ public class SendRecvServer implements RdmaEndpointFactory<SendRecvServer.SendRe
 	}
 	
 	
-	public static void main(String[] args) throws IOException, InterruptedException{
+	public static void main(String[] args) throws Exception {
 		String[] _args = args;
 		if (args.length < 1) {
 			System.exit(0);

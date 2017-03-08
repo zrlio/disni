@@ -24,6 +24,7 @@ package com.ibm.disni.examples;
 import java.io.IOException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -54,12 +55,11 @@ public class SendRecvServer implements RdmaEndpointFactory<SendRecvServer.Custom
 		endpointGroup.init(this);
 		//create a server endpoint
 		RdmaServerEndpoint<SendRecvServer.CustomServerEndpoint> serverEndpoint = endpointGroup.createServerEndpoint();		
-		InetAddress localHost = InetAddress.getByName(ipAddress);
-		InetSocketAddress address = new InetSocketAddress(localHost, 1919);
 
 		//we can call bind on a server endpoint, just like we do with sockets
-		serverEndpoint.bind(address, 10);
-		System.out.println("SimpleServer::servers bound to address " + localHost);
+		URI uri = URI.create("rdma://" + ipAddress + ":" + 1919);
+		serverEndpoint.bind(uri);
+		System.out.println("SimpleServer::servers bound to address " + uri.toString());
 		
 		//we can accept new connections
 		SendRecvServer.CustomServerEndpoint clientEndpoint = serverEndpoint.accept();

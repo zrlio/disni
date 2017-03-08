@@ -69,9 +69,16 @@ public class RdmaServerEndpoint<C extends RdmaEndpoint> implements DiSNIServerEn
 		logger.info("new server endpoint, id " + endpointId);
 	}
 	
+	/**
+	 * Bind this server endpoint to a specific IP address / port. 
+	 *
+	 * @param src (rdma://host:port)
+	 * @return the rdma server endpoint
+	 * @throws Exception the exception
+	 */	
 	@Override
 	public synchronized RdmaServerEndpoint<C> bind(URI uri) throws Exception {
-		SocketAddress src = InetSocketAddress.createUnresolved(uri.getHost(), uri.getPort());
+		SocketAddress src = new InetSocketAddress(uri.getHost(), uri.getPort());
 		int backlog = 1000;
 		
 		if (src == null){
@@ -93,33 +100,33 @@ public class RdmaServerEndpoint<C extends RdmaEndpoint> implements DiSNIServerEn
 		return this;
 	}	
 	
-	/**
-	 * Bind this server endpoint to a specific IP address / port. 
-	 *
-	 * @param src the src
-	 * @param backlog the backlog
-	 * @return the rdma server endpoint
-	 * @throws Exception the exception
-	 */
-	public synchronized RdmaServerEndpoint<C> bind(SocketAddress src, int backlog) throws IOException {
-		if (src == null){
-			throw new IOException("address not defined");
-		}
-		if (connState != CONN_STATE_INITIALIZED) {
-			throw new IOException("endpoint has to be disconnected for bind");
-		}
-		connState = CONN_STATE_READY_FOR_ACCEPT;
-		
-		if (idPriv.bindAddr(src) != 0){
-			throw new IOException("binding server address " + src.toString() + ", failed");
-		}
-		if (idPriv.listen(backlog) != 0){
-			throw new IOException("listen to server address " + src.toString() + ", failed");
-		}
-		this.pd = group.createProtectionDomainRaw(this);
-		logger.info("PD value " + pd.getHandle());
-		return this;
-	}
+//	/**
+//	 * Bind this server endpoint to a specific IP address / port. 
+//	 *
+//	 * @param src the src
+//	 * @param backlog the backlog
+//	 * @return the rdma server endpoint
+//	 * @throws Exception the exception
+//	 */
+//	public synchronized RdmaServerEndpoint<C> bind(SocketAddress src, int backlog) throws IOException {
+//		if (src == null){
+//			throw new IOException("address not defined");
+//		}
+//		if (connState != CONN_STATE_INITIALIZED) {
+//			throw new IOException("endpoint has to be disconnected for bind");
+//		}
+//		connState = CONN_STATE_READY_FOR_ACCEPT;
+//		
+//		if (idPriv.bindAddr(src) != 0){
+//			throw new IOException("binding server address " + src.toString() + ", failed");
+//		}
+//		if (idPriv.listen(backlog) != 0){
+//			throw new IOException("listen to server address " + src.toString() + ", failed");
+//		}
+//		this.pd = group.createProtectionDomainRaw(this);
+//		logger.info("PD value " + pd.getHandle());
+//		return this;
+//	}
 
 	/**
 	 * Extract the first connection request on the queue of pending connections. 

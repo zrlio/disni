@@ -66,11 +66,8 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.ReadClientEndp
 		System.out.println("ReadClient, size " + size + ", loop " + loop);
 		
 		ReadClient.ReadClientEndpoint endpoint = group.createEndpoint();
-		InetAddress ipAddress = InetAddress.getByName(host);
-		InetSocketAddress address = new InetSocketAddress(ipAddress, 1919);
-		endpoint.connect(URI.create("rdma://" + address.getAddress().getHostAddress() + ":" + address.getPort()));
-		InetSocketAddress _addr = (InetSocketAddress) endpoint.getDstAddr();
-		System.out.println("ReadClient, client connected, address " + _addr.toString());	
+		endpoint.connect(URI.create("rdma://" + host + ":" + 1919));
+		System.out.println("ReadClient, client connected, address " + host + ", port " + 1919);	
 		
 		//in our custom endpoints we make sure CQ events get stored in a queue, we now query that queue for new CQ events.
 		//in this case a new CQ event means we have received some data, i.e., a message from the server

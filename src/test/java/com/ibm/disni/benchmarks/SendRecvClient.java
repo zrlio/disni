@@ -72,11 +72,8 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.SendRe
 		System.out.println("SendRecvClient, size " + size + ", loop " + loop + ", recvQueueSize " + recvQueueSize + ", port " + port);
 		
 		SendRecvClient.SendRecvEndpoint endpoint = group.createEndpoint();
-		InetAddress ipAddress = InetAddress.getByName(host);
-		InetSocketAddress address = new InetSocketAddress(ipAddress, port);
-		endpoint.connect(URI.create("rdma://" + address.getAddress().getHostAddress() + ":" + address.getPort()));
-		InetSocketAddress _addr = (InetSocketAddress) endpoint.getDstAddr();
-		System.out.println("SendRecvClient, client connected, address " + _addr.toString());	
+		endpoint.connect(URI.create("rdma://" + host + ":" + 1919));
+		System.out.println("SendRecvClient, client connected, address " + host + ", port " + 1919);	
 		
 		int opCount = 0;
 		long start = System.nanoTime();

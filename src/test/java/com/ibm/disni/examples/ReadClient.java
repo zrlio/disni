@@ -56,11 +56,9 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.CustomClientEn
 		//we have passed our own endpoint factory to the group, therefore new endpoints will be of type CustomClientEndpoint
 		//let's create a new client endpoint		
 		ReadClient.CustomClientEndpoint endpoint = endpointGroup.createEndpoint();
-		InetAddress localHost = InetAddress.getByName(ipAddress);
-		InetSocketAddress address = new InetSocketAddress(localHost, 1919);
 		
 		//connect to the server
-		endpoint.connect(URI.create("rdma://" + address.getAddress().getHostAddress() + ":" + address.getPort()));
+		endpoint.connect(URI.create("rdma://" + ipAddress + ":" + 1919));
 		InetSocketAddress _addr = (InetSocketAddress) endpoint.getDstAddr();
 		System.out.println("ReadClient::client connected, address " + _addr.toString());
 		
