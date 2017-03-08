@@ -95,13 +95,18 @@ public class RdmaEndpoint implements DiSNIEndpoint {
 	 */	
 	@Override
 	public synchronized void connect(URI uri) throws Exception {
-		InetSocketAddress dst = new InetSocketAddress(uri.getHost(), uri.getPort());
-		int timeout = 1000;
-		
 		if (connState != CONN_STATE_INITIALIZED) {
 			throw new IOException("endpoint already connected");
 		}
+		if (uri == null){
+			throw new IOException("uri not defined");
+		}
+		if (uri.getHost() == null){
+			throw new IOException("host not defined");
+		}
 		
+		InetSocketAddress dst = new InetSocketAddress(uri.getHost(), uri.getPort());
+		int timeout = 1000;
 		idPriv.resolveAddr(null, dst, timeout);
 		while(connState < CONN_STATE_ADDR_RESOLVED){
 			wait();
