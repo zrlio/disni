@@ -22,12 +22,15 @@
 package com.ibm.disni.rdma;
 
 import java.io.IOException;
+import java.net.InetSocketAddress;
 import java.net.SocketAddress;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.List;
 
 import org.slf4j.Logger;
 
+import com.ibm.disni.DiSNIEndpoint;
 import com.ibm.disni.rdma.verbs.IbvMr;
 import com.ibm.disni.rdma.verbs.IbvPd;
 import com.ibm.disni.rdma.verbs.IbvQP;
@@ -47,7 +50,7 @@ import com.ibm.disni.util.DiSNILogger;
  * 
  * Conceptually, endpoints behave like sockets for control operations (e.g., connect(), disconnect()), but behave like RdmaCmId's once connected (offering postSend((), postRecv(), registerMemory()). 
  */
-public class RdmaEndpoint{
+public class RdmaEndpoint implements DiSNIEndpoint {
 	private static final Logger logger = DiSNILogger.getLogger();
 	
 	private static int CONN_STATE_INITIALIZED = 0;
@@ -84,6 +87,47 @@ public class RdmaEndpoint{
 		this.serverSide = serverSide;
 		logger.info("new client endpoint, id " + endpointId + ", idPriv " + idPriv.getPs());
 	}
+	
+	@Override
+	public void connect(URI uri) throws Exception {
+		SocketAddress dst = InetSocketAddress.createUnresolved(uri.getHost(), uri.getPort());
+		int timeout = 1000;
+		
+		if (connState != CONN_STATE_INITIALIZED) {
+			throw new IOException("endpoint already connected");
+		}
+		
+		idPriv.resolveAddr(null, dst, timeout);
+		while(connState < CONN_STATE_ADDR_RESOLVED){
+			wait();
+		}
+		if (connState != CONN_STATE_ADDR_RESOLVED){
+			throw new IOException("resolve address failed");
+		}
+		
+		idPriv.resolveRoute(timeout);
+		while(connState < CONN_STATE_ROUTE_RESOLVED){
+			wait();
+		}
+		if (connState != CONN_STATE_ROUTE_RESOLVED){
+			throw new IOException("resolve route failed");
+		}			
+		
+		group.allocateResourcesRaw(this);
+		while(connState < CONN_STATE_RESOURCES_ALLOCATED){
+			wait();
+		}	
+		if (connState != CONN_STATE_RESOURCES_ALLOCATED){
+			throw new IOException("resolve route failed");
+		}	
+		
+		RdmaConnParam connParam = group.getConnParam();
+		idPriv.connect(connParam);
+		
+		while(connState < CONN_STATE_CONNECTED){
+			wait();
+		}			
+	}		
 	
 	/**
 	 * Connect this endpoint to a remote server endpoint.
@@ -354,5 +398,5 @@ public class RdmaEndpoint{
 
 	public int getConnState() {
 		return connState;
-	}	
+	}
 }
