@@ -130,7 +130,7 @@ public class Nvme {
 		return nvmfTarget;
 	}
 
-	public ByteBuffer allocateBuffer(long size, long alignment) {
+	public ByteBuffer allocateBuffer(int size, int alignment) {
 		if (size < 0) {
 			throw new IllegalArgumentException("negative size");
 		}
@@ -141,25 +141,32 @@ public class Nvme {
 		if (address == 0) {
 			throw new OutOfMemoryError("No more space in SPDK mempool");
 		}
-		Constructor<DirectBuffer> constructor = null;
+
+		Class directByteBufferClass = null;
 		try {
-			constructor = DirectBuffer.class.getDeclaredConstructor(Long.TYPE, Integer.TYPE);
+			directByteBufferClass = Class.forName("java.nio.DirectByteBuffer");
+		} catch (ClassNotFoundException e) {
+			throw new RuntimeException("No class java.nio.DirectByteBuffer");
+		}
+		Constructor<Object> constructor = null;
+		try {
+			constructor = directByteBufferClass.getDeclaredConstructor(Long.TYPE, Integer.TYPE);
 		} catch (NoSuchMethodException e) {
-			e.printStackTrace();
+			throw new RuntimeException("No constructor (long, int) in java.nio.DirectByteBuffer");
 		}
 		constructor.setAccessible(true);
-		DirectBuffer buffer = null;
+		ByteBuffer buffer;
 		try {
-			buffer = constructor.newInstance(address, (int)size);
+			buffer = (ByteBuffer)constructor.newInstance(address, size);
 		} catch (InstantiationException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		} catch (IllegalAccessException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		} catch (InvocationTargetException e) {
-			e.printStackTrace();
+			throw new RuntimeException(e);
 		}
 
-		return (ByteBuffer)buffer;
+		return buffer;
 	}
 
 	public void freeBuffer(ByteBuffer buffer) {
