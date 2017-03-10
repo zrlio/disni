@@ -178,7 +178,7 @@ public class NvmfClient {
 				", iterations = " + iterationsValue + ", pattern = " + accessPatternValue.name());
 		double timeUs = time / 1000.0;
 		System.out.println("Latency = " + timeUs / iterationsValue + "us");
-		double iops = iterationsValue * 1000 * 1000 * 1000 / time;
+		double iops = (double)iterationsValue * 1000 * 1000 * 1000 / time;
 		System.out.println("IOPS = " + iops);
 		System.out.println("MB/s = " + iops * sizeValue / 1024.0 / 1024.0);
 
