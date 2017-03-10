@@ -22,6 +22,7 @@
 package com.ibm.disni.benchmarks;
 
 import com.ibm.disni.nvmef.spdk.*;
+import org.apache.commons.cli.*;
 import sun.nio.ch.DirectBuffer;
 
 import java.io.IOException;
@@ -116,43 +117,65 @@ public class NvmfClient {
 		return end - start;
 	}
 
-	public static void main(String[] args) throws Exception {
-		if (args.length != 3 && args.length != 1) {
-			System.out.println("<address> [<port> <subsystemNQN>]");
+	public static void main(String[] args) throws IOException {
+
+		Options options = new Options();
+		Option address = Option.builder("a").required().desc("ip address or PCIe address").hasArg().build();
+		Option port = Option.builder("p").desc("port").hasArg().build();
+		Option subsystemNQN = Option.builder("nqn").desc("subsystem NVMe qualified name").hasArg().build();
+		Option iterations = Option.builder("i").required().desc("iterations").hasArg().build();
+		Option queueDepth = Option.builder("qd").required().desc("queue depth").hasArg().build();
+		Option size = Option.builder("s").required().desc("size (bytes)").hasArg().build();
+		Option accessPattern = Option.builder("m").required().desc("access pattern: rand/seq/same").hasArg().build();
+		Option readWrite = Option.builder("rw").required().desc("read/write").hasArg().build();
+
+		options.addOption(address);
+		options.addOption(port);
+		options.addOption(subsystemNQN);
+		options.addOption(iterations);
+		options.addOption(queueDepth);
+		options.addOption(size);
+		options.addOption(accessPattern);
+		options.addOption(readWrite);
+
+		CommandLineParser parser = new DefaultParser();
+		CommandLine line = null;
+		try {
+			line = parser.parse(options, args);
+		} catch (ParseException e) {
+			System.err.println("Parsing command line failed with " + e.getMessage());
 			System.exit(-1);
 		}
 
+		boolean isRDMA = line.hasOption("p") && line.hasOption("nqn");
 		NvmeTransportId transportId;
-		if (args.length == 3) {
-			transportId = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, args[0], args[1], args[2]);
+		if (isRDMA) {
+			transportId = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, line.getOptionValue("a"),
+					line.getOptionValue("p"), line.getOptionValue("nqn"));
 		} else {
-			transportId = NvmeTransportId.pcie(args[0]);
+			transportId = NvmeTransportId.pcie(line.getOptionValue("a"));
+		}
+		int iterationsValue = Integer.getInteger(line.getOptionValue("i"));
+		int queueDepthValue = Integer.getInteger(line.getOptionValue("qd"));
+		int sizeValue = Integer.getInteger(line.getOptionValue("s"));
+		AccessPattern accessPatternValue = AccessPattern.valueOf(line.getOptionValue("m"));
+		String str = line.getOptionValue("rw");
+		boolean write = false;
+		if (str.compareTo("write") == 0) {
+			write = true;
 		}
 
 		NvmfClient nvmef = new NvmfClient(transportId);
 
-		final int maxTransferSize = nvmef.namespace.getMaxIOTransferSize();
-		//Write whole device once
-		//nvmef.run(nvmef.namespace.getSize()/maxTransferSize, 64, maxTransferSize, AccessPattern.SEQUENTIAL, true);
+		long time = nvmef.run(iterationsValue, queueDepthValue, sizeValue, accessPatternValue, write);
 
-		//Warmup
-		nvmef.run(1000, 1, 512, AccessPattern.RANDOM, false);
-		nvmef.run(1000, 1, 512, AccessPattern.RANDOM, true);
-
-		System.out.println("Latency - QD = 1, Size = 512byte");
-		int iterations = 10000;
-		System.out.println("Read latency (random) = " +
-				nvmef.run(iterations, 1, 512, AccessPattern.RANDOM, false) + "ns");
-		System.out.println("Write latency (random) = " +
-				nvmef.run(iterations, 1, 512, AccessPattern.RANDOM, true) + "ns");
-
-		final int queueDepth = 64;
-		iterations = 100000;
-
-		System.out.println("Throughput - QD = " + queueDepth + ", Size = 128KiB");
-		System.out.println("Read throughput (sequential) = " +
-				maxTransferSize * 1000 / nvmef.run(iterations, queueDepth, maxTransferSize, AccessPattern.SEQUENTIAL, false) +
-				"MB/s");
+		System.out.println(write ? "wrote" : "read" + " " + sizeValue + "bytes with QD = " + queueDepthValue +
+				", iterations = " + iterationsValue + ", pattern = " + accessPatternValue.name());
+		double timeUs = time / 1000.0;
+		System.out.println("Latency = " + timeUs / iterationsValue + "us");
+		double iops = iterationsValue * 1000 * 1000 * 1000 / time;
+		System.out.println("IOPS = " + iops);
+		System.out.println("MB/s = " + iops * sizeValue / 1024.0 / 1024.0);
 
 		nvmef.close();
 	}
