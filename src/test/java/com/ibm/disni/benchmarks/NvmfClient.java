@@ -143,7 +143,8 @@ public class NvmfClient {
 		try {
 			line = parser.parse(options, args);
 		} catch (ParseException e) {
-			System.err.println("Parsing command line failed with " + e.getMessage());
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("nvmef", options);
 			System.exit(-1);
 		}
 
