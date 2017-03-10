@@ -22,8 +22,12 @@
 package com.ibm.disni.nvmef.spdk;
 
 import com.ibm.disni.util.MemoryAllocation;
+import sun.nio.ch.DirectBuffer;
 
 import java.io.IOException;
+import java.lang.reflect.Constructor;
+import java.lang.reflect.InvocationTargetException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -124,5 +128,41 @@ public class Nvme {
 			throw new Exception("Target not initialized");
 		}
 		return nvmfTarget;
+	}
+
+	public ByteBuffer allocateBuffer(long size, long alignment) {
+		if (size < 0) {
+			throw new IllegalArgumentException("negative size");
+		}
+		if (alignment < 0) {
+			throw new IllegalArgumentException("negative alignment");
+		}
+		long address = nativeDispatcher._malloc(size, alignment);
+		if (address == 0) {
+			throw new OutOfMemoryError("No more space in SPDK mempool");
+		}
+		Constructor<DirectBuffer> constructor = null;
+		try {
+			constructor = DirectBuffer.class.getDeclaredConstructor(Long.TYPE, Integer.TYPE);
+		} catch (NoSuchMethodException e) {
+			e.printStackTrace();
+		}
+		constructor.setAccessible(true);
+		DirectBuffer buffer = null;
+		try {
+			buffer = constructor.newInstance(address, (int)size);
+		} catch (InstantiationException e) {
+			e.printStackTrace();
+		} catch (IllegalAccessException e) {
+			e.printStackTrace();
+		} catch (InvocationTargetException e) {
+			e.printStackTrace();
+		}
+
+		return (ByteBuffer)buffer;
+	}
+
+	public void freeBuffer(ByteBuffer buffer) {
+		nativeDispatcher._free(((DirectBuffer)buffer).address());
 	}
 }

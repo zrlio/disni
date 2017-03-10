@@ -17,6 +17,22 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1rte_1eal
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _malloc
+ * Signature: (JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1malloc
+  (JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _free
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1free
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _log_set_trace_flag
  * Signature: (Ljava/lang/String;)I
  */
