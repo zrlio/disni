@@ -33,11 +33,12 @@ public class NvmfClient {
 	private final ArrayList<NvmeController> controllers;
 	private final NvmeNamespace namespace;
 	private final NvmeQueuePair queuePair;
+	private final Nvme nvme;
 
 	private final ThreadLocalRandom random;
 
 	NvmfClient(NvmeTransportId tid) throws IOException {
-		Nvme nvme = new Nvme(new NvmeTransportType[]{tid.getType()}, "/dev/hugepages", new long[]{256,256});
+		nvme = new Nvme(new NvmeTransportType[]{tid.getType()}, "/dev/hugepages", new long[]{256,256});
 		controllers = new ArrayList<NvmeController>();
 		nvme.probe(tid, controllers);
 		NvmeController controller = controllers.get(0);
@@ -63,16 +64,22 @@ public class NvmfClient {
 
 	long run(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws IOException {
 		IOCompletion completions[] = new IOCompletion[queueDepth];
-		ByteBuffer buffer = ByteBuffer.allocateDirect(transferSize);
+		ByteBuffer buffer = nvme.allocateBuffer(transferSize, 4096);
 		byte bytes[] = new byte[buffer.capacity()];
 		random.nextBytes(bytes);
 		buffer.put(bytes);
+		final long bufferAddress = ((DirectBuffer)buffer).address();
 
-		final int sectorCount = transferSize / namespace.getSectorSize();
-		final long totalSizeSector = namespace.getSize() / namespace.getSectorSize();
+		final int sectorSize = namespace.getSectorSize();
+		final int sectorCount = transferSize / sectorSize;
+		final long totalSizeSector = namespace.getSize() / sectorSize;
 
 		long start = System.nanoTime();
 		long posted = 0;
+		// start at random offset
+		long lba = random.nextLong(totalSizeSector - sectorCount);
+		// align to transfer size sector count
+		lba -= lba % sectorCount;
 		for (long completed = 0; completed < iterations; ) {
 			for (int i = 0; i < completions.length; i++) {
 				boolean post = false;
@@ -85,22 +92,19 @@ public class NvmfClient {
 				}
 
 				if (post && posted < iterations) {
-					long lba = 0;
+					if (write) {
+						completions[i] = namespace.write(queuePair, bufferAddress, lba, sectorCount);
+					} else {
+						completions[i] = namespace.read(queuePair, bufferAddress, lba, sectorCount);
+					}
 					switch (accessPattern) {
 						case SEQUENTIAL:
-							lba = posted * sectorCount;
+							lba += sectorCount;
+							lba = lba % (totalSizeSector - sectorCount);
 							break;
 						case RANDOM:
 							lba = random.nextLong(totalSizeSector - sectorCount);
 							break;
-						case SAME:
-							lba = 1024;
-							break;
-					}
-					if (write) {
-						completions[i] = namespace.write(queuePair, ((DirectBuffer)buffer).address(), lba, sectorCount);
-					} else {
-						completions[i] = namespace.read(queuePair, ((DirectBuffer)buffer).address(), lba, sectorCount);
 					}
 					posted++;
 				}
@@ -108,7 +112,8 @@ public class NvmfClient {
 			while(completed < iterations && queuePair.processCompletions(completions.length) == 0);
 		}
 		long end = System.nanoTime();
-		return (end - start)/iterations;
+		nvme.freeBuffer(buffer);
+		return end - start;
 	}
 
 	public static void main(String[] args) throws Exception {
