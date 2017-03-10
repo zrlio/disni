@@ -142,7 +142,7 @@ public class Nvme {
 			throw new OutOfMemoryError("No more space in SPDK mempool");
 		}
 
-		Class directByteBufferClass = null;
+		Class directByteBufferClass;
 		try {
 			directByteBufferClass = Class.forName("java.nio.DirectByteBuffer");
 		} catch (ClassNotFoundException e) {
