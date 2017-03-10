@@ -123,9 +123,9 @@ public class NvmfClient {
 		Option address = Option.builder("a").required().desc("ip address or PCIe address").hasArg().build();
 		Option port = Option.builder("p").desc("port").hasArg().build();
 		Option subsystemNQN = Option.builder("nqn").desc("subsystem NVMe qualified name").hasArg().build();
-		Option iterations = Option.builder("i").required().desc("iterations").hasArg().build();
-		Option queueDepth = Option.builder("qd").required().desc("queue depth").hasArg().build();
-		Option size = Option.builder("s").required().desc("size (bytes)").hasArg().build();
+		Option iterations = Option.builder("i").required().desc("iterations").hasArg().type(Number.class).build();
+		Option queueDepth = Option.builder("qd").required().desc("queue depth").hasArg().type(Number.class).build();
+		Option size = Option.builder("s").required().desc("size (bytes)").hasArg().type(Number.class).build();
 		Option accessPattern = Option.builder("m").required().desc("access pattern: rand/seq/same").hasArg().build();
 		Option readWrite = Option.builder("rw").required().desc("read/write").hasArg().build();
 
@@ -140,10 +140,16 @@ public class NvmfClient {
 
 		CommandLineParser parser = new DefaultParser();
 		CommandLine line = null;
+		HelpFormatter formatter = new HelpFormatter();
+		int iterationsValue = 0;
+		int queueDepthValue = 0;
+		int sizeValue = 0;
 		try {
 			line = parser.parse(options, args);
+			iterationsValue = ((Number)line.getParsedOptionValue("i")).intValue();
+			queueDepthValue = ((Number)line.getParsedOptionValue("qd")).intValue();
+			sizeValue = ((Number)line.getParsedOptionValue("s")).intValue();
 		} catch (ParseException e) {
-			HelpFormatter formatter = new HelpFormatter();
 			formatter.printHelp("nvmef", options);
 			System.exit(-1);
 		}
@@ -156,9 +162,7 @@ public class NvmfClient {
 		} else {
 			transportId = NvmeTransportId.pcie(line.getOptionValue("a"));
 		}
-		int iterationsValue = Integer.getInteger(line.getOptionValue("i"));
-		int queueDepthValue = Integer.getInteger(line.getOptionValue("qd"));
-		int sizeValue = Integer.getInteger(line.getOptionValue("s"));
+
 		AccessPattern accessPatternValue = AccessPattern.valueOf(line.getOptionValue("m"));
 		String str = line.getOptionValue("rw");
 		boolean write = false;
