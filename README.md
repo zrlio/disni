@@ -14,7 +14,7 @@ To compile with RDMA support only:
 To compile with RDMA and NVMf support:
 
 * Obtain spdk from [Github](https://github.com/spdk/spdk) and follow build instructions<br/>
-* Compile dpdk with `CONFIG_RTE_BUILD_SHARED_LIB=y`<br/>
+* Compile dpdk with `EXTRA_CFLAGS="-fPIC"`<br/>
 * Build libdisni using: ./autoprepare.sh; ./configure --with-jdk=path-to-jdk --with-spdk=path-to-spdk --with-dpdk=path-to-dpdk; make install<br/>
 
 Common step:
