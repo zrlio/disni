@@ -27,14 +27,15 @@
 #include <spdk/nvmf_spec.h>
 #include <spdk/pci_ids.h>
 
-//XXX
-#include <nvme_internal.h>
 
 //FIXME: spdk is missing extern C in some headers
 extern "C" {
 #include <spdk/log.h>
 #include <spdk/nvmf.h>
+//XXX
+#include <nvme_internal.h>
 }
+
 
 #include <rte_config.h>
 #include <rte_lcore.h>
