@@ -75,7 +75,7 @@ public class IOCompletion {
 	}
 	
 	public void execute(long lbAddress) throws Exception {
-		int ret = nativeDispatcher._nvme_ns_io_cmd(objId, this.queueObjId, lbAddress, lba, count, completionAddress, false);
+		int ret = nativeDispatcher._nvme_ns_io_cmd(objId, this.queueObjId, address, lbAddress, count, completionAddress, false);
 		if (ret < 0) {
 			throw new IOException("nvme_ns_cmd_read failed with " + ret);
 		}		

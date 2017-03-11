@@ -105,14 +105,10 @@ public class NvmfEndpointClient {
 	
 	public long run2(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws Exception{
 		ByteBuffer buffer = ByteBuffer.allocateDirect(transferSize);
-		byte bytes[] = new byte[buffer.capacity()];
-		random.nextBytes(bytes);
-		buffer.put(bytes);
-
+		buffer.clear();
 		int sectorCount = transferSize / endpoint.getSectorSize();
-
-		long start = System.nanoTime();
 		
+		long start = System.nanoTime();
 		long lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
 		IOCompletion completion = endpoint.read(buffer, lba);
 		for (long i = 0; i < iterations; i++) {
