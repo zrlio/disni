@@ -27,14 +27,15 @@
 #include <spdk/nvmf_spec.h>
 #include <spdk/pci_ids.h>
 
-//XXX
-#include <nvme_internal.h>
 
 //FIXME: spdk is missing extern C in some headers
 extern "C" {
 #include <spdk/log.h>
 #include <spdk/nvmf.h>
+//XXX
+#include <nvme_internal.h>
 }
+
 
 #include <rte_config.h>
 #include <rte_lcore.h>
@@ -129,6 +130,26 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1rte_1eal
     }
     delete[] cargs;
     delete[] jnistrs;
+}
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _malloc
+ * Signature: (JJ)J
+ */
+JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1malloc
+  (JNIEnv* env, jobject thiz, jlong size, jlong alignment) {
+    return reinterpret_cast<jlong>(spdk_malloc(size, alignment, NULL));
+}
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _free
+ * Signature: (J)V
+ */
+JNIEXPORT void JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1free
+  (JNIEnv* env, jobject thiz, jlong address) {
+    spdk_free(reinterpret_cast<void*>(address));
 }
 
 /*
