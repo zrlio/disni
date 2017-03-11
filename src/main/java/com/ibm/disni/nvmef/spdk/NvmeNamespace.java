@@ -58,7 +58,7 @@ public class NvmeNamespace extends NatObject {
 		long objId = getObjId();
 		long queueObjId = queuePair.getObjId();
 		long complAddress = completion.address();
-		System.out.println("calling native disp with: objId " + objId + ", queueObjId " + queueObjId + ", address " + address + ", linearBlockAddress " + linearBlockAddress + ", count " + count + ", complAddress " + complAddress + ", false " + false);
+//		System.out.println("calling native disp with: objId " + objId + ", queueObjId " + queueObjId + ", address " + address + ", linearBlockAddress " + linearBlockAddress + ", count " + count + ", complAddress " + complAddress + ", false " + false);
 		
 		int ret = nativeDispatcher._nvme_ns_io_cmd(objId, queueObjId, address, linearBlockAddress, count, complAddress, false);
 //		int ret = nativeDispatcher._nvme_ns_io_cmd(getObjId(), queuePair.getObjId(), address, linearBlockAddress, count, completion.address(), false);
