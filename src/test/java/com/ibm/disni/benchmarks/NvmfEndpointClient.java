@@ -64,42 +64,55 @@ public class NvmfEndpointClient {
 		int sectorCount = transferSize / endpoint.getSectorSize();
 
 		long start = System.nanoTime();
-		long posted = 0;
-		for (long completed = 0; completed < iterations; ) {
-			for (int i = 0; i < completions.length; i++) {
-				boolean post = false;
-				if (completions[i] == null) {
-					post = true;
-				} else if (completions[i].done()) {
-					completed++;
-					completions[i] = null;
-					post = true;
-				}
-
-				if (post && posted < iterations) {
-					long lba = 0;
-					switch (accessPattern) {
-						case SEQUENTIAL:
-							lba = posted * sectorCount;
-							break;
-						case RANDOM:
-							lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
-							break;
-						case SAME:
-							lba = 1024;
-							break;
-					}
-					if (write) {
-						completions[i] = endpoint.write(buffer, lba);
-					} else {
-						completions[i] = endpoint.read(buffer, lba);
-					}
-					posted++;
+		
+		for (long i = 0; i < iterations; ) {
+			long lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
+			IOCompletion completion = endpoint.read(buffer, lba);
+			while(!completion.done()){
+				int res = endpoint.processCompletions(1);
+				while (res <= 0){
+					res = endpoint.processCompletions(1);
 				}
 			}
-			while(completed < iterations && endpoint.processCompletions(completions.length) == 0);
 		}
 		long end = System.nanoTime();
+		
+//		long posted = 0;
+//		for (long completed = 0; completed < iterations; ) {
+//			for (int i = 0; i < completions.length; i++) {
+//				boolean post = false;
+//				if (completions[i] == null) {
+//					post = true;
+//				} else if (completions[i].done()) {
+//					completed++;
+//					completions[i] = null;
+//					post = true;
+//				}
+//
+//				if (post && posted < iterations) {
+//					long lba = 0;
+//					switch (accessPattern) {
+//						case SEQUENTIAL:
+//							lba = posted * sectorCount;
+//							break;
+//						case RANDOM:
+//							lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
+//							break;
+//						case SAME:
+//							lba = 1024;
+//							break;
+//					}
+//					if (write) {
+//						completions[i] = endpoint.write(buffer, lba);
+//					} else {
+//						completions[i] = endpoint.read(buffer, lba);
+//					}
+//					posted++;
+//				}
+//			}
+//			while(completed < iterations && endpoint.processCompletions(completions.length) == 0);
+//		}
+//		long end = System.nanoTime();
 		return (end - start)/iterations;
 	}
 
@@ -121,14 +134,14 @@ public class NvmfEndpointClient {
 		int iterations = 10000;
 		System.out.println("Read latency (random) = " +
 				client.run(iterations, 1, 512, AccessPattern.RANDOM, false) + "ns");
-		System.out.println("Write latency (random) = " +
-				client.run(iterations, 1, 512, AccessPattern.RANDOM, true) + "ns");
+//		System.out.println("Write latency (random) = " +
+//				client.run(iterations, 1, 512, AccessPattern.RANDOM, true) + "ns");
 
-		final int queueDepth = 64;
-		iterations = 100000;
-
-		System.out.println("Throughput - QD = " + queueDepth + ", Size = 128KiB");
-		System.out.println("Read throughput (sequential) = " + maxTransferSize * 1000 / client.run(iterations, queueDepth, maxTransferSize, AccessPattern.SEQUENTIAL, false) +
-				"MB/s");		
+//		final int queueDepth = 64;
+//		iterations = 100000;
+//
+//		System.out.println("Throughput - QD = " + queueDepth + ", Size = 128KiB");
+//		System.out.println("Read throughput (sequential) = " + maxTransferSize * 1000 / client.run(iterations, queueDepth, maxTransferSize, AccessPattern.SEQUENTIAL, false) +
+//				"MB/s");		
 	}
 }
