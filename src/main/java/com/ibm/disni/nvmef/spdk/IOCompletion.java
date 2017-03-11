@@ -24,6 +24,7 @@ package com.ibm.disni.nvmef.spdk;
 import com.ibm.disni.util.MemBuf;
 import com.ibm.disni.util.MemoryAllocation;
 
+import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
@@ -35,23 +36,56 @@ public class IOCompletion {
 	private static final int INVALID_STATUS_CODE_TYPE = -1;
 
 	private final MemBuf memBuf;
-	private final int position;
+//	private final int position;
+	private ByteBuffer buffer;
+	
+	private NativeDispatcher nativeDispatcher;
+	private long objId;
+	private long queueObjId;
+	private long address;
+	private long lba;
+	private int count;
+	private long completionAddress;
 
 	IOCompletion(MemoryAllocation memoryAllocation) {
 		this.memBuf = memoryAllocation.allocate(CSIZE,
 				MemoryAllocation.MemType.DIRECT, this.getClass().getCanonicalName());
 		ByteBuffer buffer = memBuf.getBuffer();
 		buffer.order(ByteOrder.nativeOrder());
-		position =  buffer.position();
-		buffer.putInt(INVALID_STATUS_CODE_TYPE);
+//		position =  buffer.position();
+		buffer.putInt(0, INVALID_STATUS_CODE_TYPE);
 		update();
 	}
 
+	public IOCompletion(MemoryAllocation memoryAllocation, NativeDispatcher nativeDispatcher, long objId, long queueObjId, long address, long lba, int count) {
+		this.memBuf = memoryAllocation.allocate(CSIZE,
+				MemoryAllocation.MemType.DIRECT, this.getClass().getCanonicalName());
+		this.buffer = memBuf.getBuffer();
+		buffer.order(ByteOrder.nativeOrder());
+//		this.position =  buffer.position();
+		buffer.putInt(0, INVALID_STATUS_CODE_TYPE);
+		
+		this.nativeDispatcher = nativeDispatcher;
+		this.objId = objId;
+		this.queueObjId = queueObjId;
+		this.address = address;
+		this.lba = lba;
+		this.count = count;
+		this.completionAddress = this.address();
+	}
+	
+	public void execute(long lbAddress) throws Exception {
+		int ret = nativeDispatcher._nvme_ns_io_cmd(objId, this.queueObjId, lbAddress, lba, count, completionAddress, false);
+		if (ret < 0) {
+			throw new IOException("nvme_ns_cmd_read failed with " + ret);
+		}		
+	}
+
 	private void update() {
-		ByteBuffer buffer = memBuf.getBuffer();
-		buffer.position(position);
-		statusCodeType = buffer.getInt();
-		statusCode = buffer.getInt();
+//		ByteBuffer buffer = memBuf.getBuffer();
+//		buffer.position(position);
+		statusCodeType = buffer.getInt(0);
+		statusCode = buffer.getInt(4);
 	}
 
 	private void free() {
