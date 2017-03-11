@@ -52,10 +52,10 @@ public class NvmeNamespace extends NatObject {
 
 	public IOCompletion read(NvmeQueuePair queuePair, long address, long linearBlockAddress, int count) throws IOException {
 		IOCompletion completion = new IOCompletion(memoryAllocation, nativeDispatcher, getObjId(), queuePair.getObjId(), address, linearBlockAddress, count);;
-//		int ret = nativeDispatcher._nvme_ns_io_cmd(getObjId(), queuePair.getObjId(), address, linearBlockAddress, count, completion.address(), false);
-//		if (ret < 0) {
-//			throw new IOException("nvme_ns_cmd_read failed with " + ret);
-//		}
+		int ret = nativeDispatcher._nvme_ns_io_cmd(getObjId(), queuePair.getObjId(), address, linearBlockAddress, count, completion.address(), false);
+		if (ret < 0) {
+			throw new IOException("nvme_ns_cmd_read failed with " + ret);
+		}
 		return completion;
 	}
 
