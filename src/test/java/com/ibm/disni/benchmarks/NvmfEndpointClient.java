@@ -65,7 +65,7 @@ public class NvmfEndpointClient {
 
 		long start = System.nanoTime();
 		
-		for (long i = 0; i < iterations; ) {
+		for (long i = 0; i < iterations; iterations++) {
 			long lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
 			IOCompletion completion = endpoint.read(buffer, lba);
 			while(!completion.done()){
@@ -113,7 +113,7 @@ public class NvmfEndpointClient {
 //			while(completed < iterations && endpoint.processCompletions(completions.length) == 0);
 //		}
 //		long end = System.nanoTime();
-		return (end - start)/iterations;
+		return (end - start)/iterations/1000;
 	}
 
 	public static void main(String[] args) throws Exception{
@@ -133,7 +133,7 @@ public class NvmfEndpointClient {
 		System.out.println("Latency - QD = 1, Size = 512byte");
 		int iterations = 10000;
 		System.out.println("Read latency (random) = " +
-				client.run(iterations, 1, 512, AccessPattern.RANDOM, false) + "ns");
+				client.run(iterations, 1, 512, AccessPattern.RANDOM, false) + "us");
 //		System.out.println("Write latency (random) = " +
 //				client.run(iterations, 1, 512, AccessPattern.RANDOM, true) + "ns");
 
