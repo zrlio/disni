@@ -75,6 +75,7 @@ public class IOCompletion {
 	}
 	
 	public void execute(long lbAddress) throws Exception {
+		buffer.putInt(0, INVALID_STATUS_CODE_TYPE);
 		System.out.println("calling native disp with: objId " + objId + ", queueObjId " + queueObjId + ", address " + address + ", linearBlockAddress " + lbAddress + ", count " + count + ", complAddress " + completionAddress + ", false " + false);
 		int ret = nativeDispatcher._nvme_ns_io_cmd(objId, this.queueObjId, address, lbAddress, count, completionAddress, false);
 		if (ret < 0) {
