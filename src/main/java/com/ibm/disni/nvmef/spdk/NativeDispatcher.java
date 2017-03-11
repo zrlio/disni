@@ -24,6 +24,8 @@ package com.ibm.disni.nvmef.spdk;
 import com.ibm.disni.util.DiSNILogger;
 import org.slf4j.Logger;
 
+import java.util.ArrayList;
+
 public class NativeDispatcher {
 	private static final Logger logger = DiSNILogger.getLogger();
 
@@ -33,6 +35,13 @@ public class NativeDispatcher {
 
 	/* DPDK eal initialization is necessary to setup hugepages, VFIO etc. */
 	public native int _rte_eal_init(String[] args);
+
+	/* SPDK util */
+
+	/* buffers returned are locked and have vtophys translation -> required for local NVMe access */
+	public native long _malloc(long size, long alignment);
+
+	public native void _free(long address);
 
 	/* SPDK NVMe common functions */
 
