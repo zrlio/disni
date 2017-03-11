@@ -111,12 +111,12 @@ public class NvmfEndpointClient {
 		long start = System.nanoTime();
 		long lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
 		IOCompletion completion = endpoint.read(buffer, lba);
-		while(!completion.done()){
-			int res = endpoint.processCompletions(queueDepth);
-			while (res == 0){
-				res = endpoint.processCompletions(1);
-			}
-		}		
+//		while(!completion.done()){
+//			int res = endpoint.processCompletions(queueDepth);
+//			while (res == 0){
+//				res = endpoint.processCompletions(1);
+//			}
+//		}		
 		for (long i = 0; i < iterations; i++) {
 			lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
 			completion.execute(lba);
