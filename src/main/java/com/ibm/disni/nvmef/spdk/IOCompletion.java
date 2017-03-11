@@ -77,7 +77,7 @@ public class IOCompletion {
 	public void execute(long lbAddress) throws Exception {
 		buffer.putInt(0, INVALID_STATUS_CODE_TYPE);
 		statusCodeType = INVALID_STATUS_CODE_TYPE;
-		System.out.println("calling native disp with: objId " + objId + ", queueObjId " + queueObjId + ", address " + address + ", linearBlockAddress " + lbAddress + ", count " + count + ", complAddress " + completionAddress + ", false " + false);
+//		System.out.println("calling native disp with: objId " + objId + ", queueObjId " + queueObjId + ", address " + address + ", linearBlockAddress " + lbAddress + ", count " + count + ", complAddress " + completionAddress + ", false " + false);
 		int ret = nativeDispatcher._nvme_ns_io_cmd(objId, this.queueObjId, address, lbAddress, count, completionAddress, false);
 		if (ret < 0) {
 			throw new IOException("nvme_ns_cmd_read failed with " + ret);
@@ -89,7 +89,7 @@ public class IOCompletion {
 //		buffer.position(position);
 		statusCodeType = buffer.getInt(0);
 		statusCode = buffer.getInt(4);
-		System.out.println("updating status " + statusCodeType);
+		System.out.println("updating status " + statusCodeType + ", status " + statusCode);
 	}
 
 	private void free() {
