@@ -50,7 +50,7 @@ public class IOCompletion {
 	IOCompletion(MemoryAllocation memoryAllocation) {
 		this.memBuf = memoryAllocation.allocate(CSIZE,
 				MemoryAllocation.MemType.DIRECT, this.getClass().getCanonicalName());
-		ByteBuffer buffer = memBuf.getBuffer();
+		this.buffer = memBuf.getBuffer();
 		buffer.order(ByteOrder.nativeOrder());
 //		position =  buffer.position();
 		buffer.putInt(0, INVALID_STATUS_CODE_TYPE);
