@@ -111,9 +111,9 @@ public class IOCompletion {
 	public boolean done() {
 		if (statusCodeType == INVALID_STATUS_CODE_TYPE) {
 			update();
-			if (statusCodeType != INVALID_STATUS_CODE_TYPE) {
-				free();
-			}
+//			if (statusCodeType != INVALID_STATUS_CODE_TYPE) {
+//				free();
+//			}
 		}
 		return statusCodeType != INVALID_STATUS_CODE_TYPE;
 	}
