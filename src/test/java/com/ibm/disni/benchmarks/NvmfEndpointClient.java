@@ -112,7 +112,7 @@ public class NvmfEndpointClient {
 		long lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
 		IOCompletion completion = endpoint.read(buffer, lba);
 		for (long i = 0; i < iterations; i++) {
-			lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
+//			lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
 			completion.execute(lba);
 			while(!completion.done()){
 				int res = endpoint.processCompletions(queueDepth);
