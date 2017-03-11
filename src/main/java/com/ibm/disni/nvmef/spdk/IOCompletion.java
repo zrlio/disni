@@ -90,7 +90,7 @@ public class IOCompletion {
 //		buffer.position(position);
 		statusCodeType = buffer.getInt(0);
 		statusCode = buffer.getInt(4);
-		System.out.println("updating status " + statusCodeType + ", status " + statusCode);
+//		System.out.println("updating status " + statusCodeType + ", status " + statusCode);
 	}
 
 	private void free() {
