@@ -113,17 +113,15 @@ public class NvmfEndpointClient {
 
 		long start = System.nanoTime();
 		
-		for (long i = 0; i < iterations; iterations++) {
+		for (long i = 0; i < iterations; i++) {
 			long lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
 			IOCompletion completion = endpoint.read(buffer, lba);
 			while(!completion.done()){
 				int res = endpoint.processCompletions(queueDepth);
-				System.out.println("still waiting..");
-//				while (res == 0){
-//					res = endpoint.processCompletions(1);
-//				}
+				while (res == 0){
+					res = endpoint.processCompletions(1);
+				}
 			}
-			System.out.println("completing operation.." + i);
 		}
 		long end = System.nanoTime();
 		return (end - start)/iterations;
