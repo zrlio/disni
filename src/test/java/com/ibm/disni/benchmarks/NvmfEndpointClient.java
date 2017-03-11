@@ -104,7 +104,6 @@ public class NvmfEndpointClient {
 	}
 	
 	public long run2(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws IOException{
-		IOCompletion completions[] = new IOCompletion[queueDepth];
 		ByteBuffer buffer = ByteBuffer.allocateDirect(transferSize);
 		byte bytes[] = new byte[buffer.capacity()];
 		random.nextBytes(bytes);
@@ -119,9 +118,9 @@ public class NvmfEndpointClient {
 			IOCompletion completion = endpoint.read(buffer, lba);
 			while(!completion.done()){
 				int res = endpoint.processCompletions(1);
-				while (res == 0){
-					res = endpoint.processCompletions(1);
-				}
+//				while (res == 0){
+//					res = endpoint.processCompletions(1);
+//				}
 			}
 		}
 		long end = System.nanoTime();
