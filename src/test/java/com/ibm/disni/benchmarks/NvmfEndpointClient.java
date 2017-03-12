@@ -111,17 +111,11 @@ public class NvmfEndpointClient {
 		long start = System.nanoTime();
 		long lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
 		IOCompletion completion = endpoint.read(buffer, lba);
-//		while(!completion.done()){
-//			int res = endpoint.processCompletions(queueDepth);
-//			while (res == 0){
-//				res = endpoint.processCompletions(1);
-//			}
-//		}		
 		for (long i = 0; i < iterations; i++) {
 			lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
 			completion.execute(lba);
 			while(!completion.done()){
-				int res = endpoint.processCompletions(queueDepth);
+				int res = endpoint.processCompletions(1);
 				while (res == 0){
 					res = endpoint.processCompletions(1);
 				}
@@ -130,6 +124,53 @@ public class NvmfEndpointClient {
 		long end = System.nanoTime();
 		return (end - start)/iterations/1000;
 	}
+	
+	public long run3(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws Exception{
+		ByteBuffer buffer = ByteBuffer.allocateDirect(transferSize);
+		buffer.clear();
+		int sectorCount = transferSize / endpoint.getSectorSize();
+		
+		long start = System.nanoTime();
+		long lbas[] = new long[(int) iterations];
+		int front[] = new int[lbas.length];
+		int back[] = new int[lbas.length];
+		for (int i = 0; i < lbas.length; i++){
+			lbas[i] = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
+			front[i] = random.nextInt(Integer.MAX_VALUE);
+			back[i] = random.nextInt(Integer.MAX_VALUE);
+		}
+		
+		IOCompletion writeCompletion = endpoint.write(buffer, 0);
+		for (int i = 0; i < iterations; i++) {
+			long lba = lbas[i];
+			buffer.putInt(0, front[i]);
+			buffer.putInt(transferSize - 4, back[i]);
+			writeCompletion.execute(lba);
+			while(!writeCompletion.done()){
+				int res = endpoint.processCompletions(1);
+				while (res == 0){
+					res = endpoint.processCompletions(1);
+				}
+			}
+		}
+		
+		IOCompletion readCompletion = endpoint.read(buffer, 0);
+		for (int i = 0; i < iterations; i++) {
+			long lba = lbas[i];
+			readCompletion.execute(lba);
+			while(!readCompletion.done()){
+				int res = endpoint.processCompletions(1);
+				while (res == 0){
+					res = endpoint.processCompletions(1);
+				}
+			}
+			int _front = buffer.getInt(0);
+			int _back = buffer.getInt(transferSize -4);
+			System.out.println("i " + i + ", front " + front[i] + ", _front " + _front + ", back " + back[i] + ", _back " + _back);
+		}
+		long end = System.nanoTime();
+		return (end - start)/iterations/1000;
+	}	
 
 	public static void main(String[] args) throws Exception{
 		if (args.length < 3) {
@@ -146,9 +187,9 @@ public class NvmfEndpointClient {
 //		client.run(1000, 1, 512, AccessPattern.RANDOM, true);
 
 		System.out.println("Latency - QD = 1, Size = 512byte");
-		int iterations = 10000;
-		System.out.println("Read latency (random) = " +
-				client.run2(iterations, 1, 512, AccessPattern.RANDOM, false) + "us");
+		int iterations = 100;
+		client.run3(iterations, 1, 512, AccessPattern.RANDOM, false);
+		System.out.println("Read latency (random) = " + client.run2(iterations, 1, 512, AccessPattern.RANDOM, false) + "us");
 //		System.out.println("Write latency (random) = " +
 //				client.run(iterations, 1, 512, AccessPattern.RANDOM, true) + "ns");
 
