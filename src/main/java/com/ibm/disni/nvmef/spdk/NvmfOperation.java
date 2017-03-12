@@ -63,16 +63,20 @@ public class NvmfOperation {
 		this.writeOp = writeOp;
 	}
 	
-	public void execute(long lbAddress) throws Exception {
+	public void execute() throws Exception {
 		buffer.putInt(0, INVALID_STATUS_CODE_TYPE);
 		buffer.putInt(4, 7);
 		statusCodeType = INVALID_STATUS_CODE_TYPE;
-		int ret = nativeDispatcher._nvme_ns_io_cmd(objId, this.queueObjId, address, lbAddress, count, completionAddress, writeOp);
+		int ret = nativeDispatcher._nvme_ns_io_cmd(objId, this.queueObjId, address, lba, count, completionAddress, writeOp);
 		if (ret < 0) {
 			throw new IOException("nvme_ns_cmd_read failed with " + ret);
 		}		
 	}
 	
+	public void setLba(long lba) {
+		this.lba = lba;
+	}
+
 	public boolean isWrite(){
 		return writeOp;
 	}

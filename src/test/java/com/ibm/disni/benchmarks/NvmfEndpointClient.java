@@ -113,7 +113,8 @@ public class NvmfEndpointClient {
 		NvmfOperation completion = endpoint.read(buffer, lba);
 		for (long i = 0; i < iterations; i++) {
 			lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
-			completion.execute(lba);
+			completion.setLba(lba);
+			completion.execute();
 			while(!completion.done()){
 				int res = endpoint.processCompletions(1);
 				while (res == 0){
@@ -145,7 +146,8 @@ public class NvmfEndpointClient {
 			long lba = lbas[i];
 			buffer.putInt(0, front[i]);
 			buffer.putInt(transferSize - 4, back[i]);
-			writeCompletion.execute(lba);
+			writeCompletion.setLba(lba);
+			writeCompletion.execute();
 			while(!writeCompletion.done()){
 				int res = endpoint.processCompletions(1);
 				while (res == 0){
@@ -157,7 +159,8 @@ public class NvmfEndpointClient {
 		NvmfOperation readCompletion = endpoint.read(buffer, 0);
 		for (int i = 0; i < iterations; i++) {
 			long lba = lbas[i];
-			readCompletion.execute(lba);
+			readCompletion.setLba(lba);
+			readCompletion.execute();
 			while(!readCompletion.done()){
 				int res = endpoint.processCompletions(1);
 				while (res == 0){
@@ -177,15 +180,9 @@ public class NvmfEndpointClient {
 			System.out.println("<address> <port> <subsystemNQN>");
 			System.exit(-1);
 		}
-		System.out.println("Starting NvmfEndpointClient, address " + args[0] + ", port " + args[1]);
+		System.out.println("Starting NvmfEndpointClient, v2, address " + args[0] + ", port " + args[1]);
 		NvmfEndpointClient client = new NvmfEndpointClient(args[0], args[1], args[2]);
 		
-		final int maxTransferSize = client.getMaxIOTransferSize();
-		
-		//Warmup
-//		client.run(1000, 1, 512, AccessPattern.RANDOM, false);
-//		client.run(1000, 1, 512, AccessPattern.RANDOM, true);
-
 		int iterations = 100;
 		client.verify(iterations, 1, 512, AccessPattern.RANDOM, false);
 		iterations = 100000;
@@ -193,14 +190,5 @@ public class NvmfEndpointClient {
 		System.out.println("Read latency (random) = " + client.latency(iterations, 1, 512, AccessPattern.RANDOM, false) + "us");
 		System.out.println("Latency - QD = 1, Size = 4KB");
 		System.out.println("Read latency (random) = " + client.latency(iterations, 1, 4096, AccessPattern.RANDOM, false) + "us");
-//		System.out.println("Write latency (random) = " +
-//				client.run(iterations, 1, 512, AccessPattern.RANDOM, true) + "ns");
-
-//		final int queueDepth = 64;
-//		iterations = 100000;
-//
-//		System.out.println("Throughput - QD = " + queueDepth + ", Size = 128KiB");
-//		System.out.println("Read throughput (sequential) = " + maxTransferSize * 1000 / client.run(iterations, queueDepth, maxTransferSize, AccessPattern.SEQUENTIAL, false) +
-//				"MB/s");		
 	}
 }
