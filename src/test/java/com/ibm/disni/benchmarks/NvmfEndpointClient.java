@@ -181,15 +181,15 @@ public class NvmfEndpointClient {
 			System.out.println("<address> <port> <subsystemNQN>");
 			System.exit(-1);
 		}
-		System.out.println("Starting NvmfEndpointClient, v2, address " + args[0] + ", port " + args[1]);
+		System.out.println("Starting NvmfEndpointClient, v3, address " + args[0] + ", port " + args[1]);
 		NvmfEndpointClient client = new NvmfEndpointClient(args[0], args[1], args[2]);
 		
 		int iterations = 100;
 		client.verify(iterations, 1, 512, AccessPattern.RANDOM, false);
 		iterations = 100000;
-		System.out.println("Latency - QD = 1, Size = 512byte");
-		System.out.println("Read latency (random) = " + client.latency(iterations, 1, 512, AccessPattern.RANDOM, false) + "us");
-		System.out.println("Latency - QD = 1, Size = 4KB");
-		System.out.println("Read latency (random) = " + client.latency(iterations, 1, 4096, AccessPattern.RANDOM, false) + "us");
+		System.out.println("Read latency 512 " + client.latency(iterations, 1, 512, AccessPattern.RANDOM, false) + "us");
+		System.out.println("Read latency 512 " + client.latency(iterations, 1, 512, AccessPattern.RANDOM, false) + "us");
+		System.out.println("Read latency 4K  " + client.latency(iterations, 1, 4096, AccessPattern.RANDOM, false) + "us");
+		System.out.println("Read latency 4K  " + client.latency(iterations, 1, 4096, AccessPattern.RANDOM, false) + "us");
 	}
 }
