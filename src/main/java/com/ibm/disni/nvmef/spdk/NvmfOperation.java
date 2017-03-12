@@ -28,7 +28,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
-public class IOCompletion {
+public class NvmfOperation {
 	public static int CSIZE = 8;
 	private int statusCodeType;
 	private int statusCode;
@@ -36,7 +36,6 @@ public class IOCompletion {
 	private static final int INVALID_STATUS_CODE_TYPE = -1;
 
 	private final MemBuf memBuf;
-//	private final int position;
 	private ByteBuffer buffer;
 	
 	private NativeDispatcher nativeDispatcher;
@@ -48,30 +47,19 @@ public class IOCompletion {
 	private long completionAddress;
 	private boolean writeOp;
 
-//	IOCompletion(MemoryAllocation memoryAllocation) {
-//		this.memBuf = memoryAllocation.allocate(CSIZE,
-//				MemoryAllocation.MemType.DIRECT, this.getClass().getCanonicalName());
-//		this.buffer = memBuf.getBuffer();
-//		buffer.order(ByteOrder.nativeOrder());
-//		buffer.putInt(0, INVALID_STATUS_CODE_TYPE);
-//		update();
-//	}
-
-	public IOCompletion(MemoryAllocation memoryAllocation, NativeDispatcher nativeDispatcher, long objId, long queueObjId, long address, long lba, int count, boolean writeOp) {
+	public NvmfOperation(MemoryAllocation memoryAllocation, NativeDispatcher nativeDispatcher, long objId, long queueObjId, long address, long lba, int count, boolean writeOp) {
 		this.memBuf = memoryAllocation.allocate(CSIZE,
 				MemoryAllocation.MemType.DIRECT, this.getClass().getCanonicalName());
 		this.buffer = memBuf.getBuffer();
 		buffer.order(ByteOrder.nativeOrder());
-//		this.position =  buffer.position();
 		buffer.putInt(0, INVALID_STATUS_CODE_TYPE);
-		
 		this.nativeDispatcher = nativeDispatcher;
 		this.objId = objId;
 		this.queueObjId = queueObjId;
 		this.address = address;
 		this.lba = lba;
 		this.count = count;
-		this.completionAddress = this.address();
+		this.completionAddress = memBuf.address();
 		this.writeOp = writeOp;
 	}
 	
@@ -79,7 +67,6 @@ public class IOCompletion {
 		buffer.putInt(0, INVALID_STATUS_CODE_TYPE);
 		buffer.putInt(4, 7);
 		statusCodeType = INVALID_STATUS_CODE_TYPE;
-//		System.out.println("calling native disp with: objId " + objId + ", queueObjId " + queueObjId + ", address " + address + ", linearBlockAddress " + lbAddress + ", count " + count + ", complAddress " + completionAddress + ", false " + false);
 		int ret = nativeDispatcher._nvme_ns_io_cmd(objId, this.queueObjId, address, lbAddress, count, completionAddress, writeOp);
 		if (ret < 0) {
 			throw new IOException("nvme_ns_cmd_read failed with " + ret);
@@ -87,19 +74,12 @@ public class IOCompletion {
 	}
 
 	private void update() {
-//		ByteBuffer buffer = memBuf.getBuffer();
-//		buffer.position(position);
 		statusCodeType = buffer.getInt(0);
 		statusCode = buffer.getInt(4);
-//		System.out.println("updating status " + statusCodeType + ", status " + statusCode);
 	}
 
 	private void free() {
 		memBuf.free();
-	}
-
-	long address() {
-		return memBuf.address();
 	}
 
 	public NvmeStatusCodeType getStatusCodeType() {
@@ -113,9 +93,6 @@ public class IOCompletion {
 	public boolean done() {
 		if (statusCodeType == INVALID_STATUS_CODE_TYPE) {
 			update();
-//			if (statusCodeType != INVALID_STATUS_CODE_TYPE) {
-//				free();
-//			}
 		}
 		return statusCodeType != INVALID_STATUS_CODE_TYPE;
 	}

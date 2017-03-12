@@ -30,7 +30,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import com.ibm.disni.benchmarks.NvmfClient.AccessPattern;
 import com.ibm.disni.nvmef.NvmeEndpoint;
 import com.ibm.disni.nvmef.NvmeEndpointGroup;
-import com.ibm.disni.nvmef.spdk.IOCompletion;
+import com.ibm.disni.nvmef.spdk.NvmfOperation;
 import com.ibm.disni.nvmef.spdk.NvmeTransportId;
 import com.ibm.disni.nvmef.spdk.NvmeTransportType;
 import com.ibm.disni.nvmef.spdk.NvmfAddressFamily;
@@ -55,7 +55,7 @@ public class NvmfEndpointClient {
 	}
 
 	public long run(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws IOException{
-		IOCompletion completions[] = new IOCompletion[queueDepth];
+		NvmfOperation completions[] = new NvmfOperation[queueDepth];
 		ByteBuffer buffer = ByteBuffer.allocateDirect(transferSize);
 		byte bytes[] = new byte[buffer.capacity()];
 		random.nextBytes(bytes);
@@ -110,7 +110,7 @@ public class NvmfEndpointClient {
 		
 		long start = System.nanoTime();
 		long lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
-		IOCompletion completion = endpoint.read(buffer, lba);
+		NvmfOperation completion = endpoint.read(buffer, lba);
 		for (long i = 0; i < iterations; i++) {
 			lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
 			completion.execute(lba);
@@ -140,7 +140,7 @@ public class NvmfEndpointClient {
 			back[i] = random.nextInt(Integer.MAX_VALUE);
 		}
 		
-		IOCompletion writeCompletion = endpoint.write(buffer, 0);
+		NvmfOperation writeCompletion = endpoint.write(buffer, 0);
 		for (int i = 0; i < iterations; i++) {
 			long lba = lbas[i];
 			buffer.putInt(0, front[i]);
@@ -154,7 +154,7 @@ public class NvmfEndpointClient {
 			}
 		}
 		
-		IOCompletion readCompletion = endpoint.read(buffer, 0);
+		NvmfOperation readCompletion = endpoint.read(buffer, 0);
 		for (int i = 0; i < iterations; i++) {
 			long lba = lbas[i];
 			readCompletion.execute(lba);

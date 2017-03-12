@@ -65,7 +65,7 @@ public class NvmeEndpoint implements DiSNIEndpoint {
 		WRITE
 	}
 
-	private IOCompletion doIO(Operation op, ByteBuffer buffer, long linearBlockAddress) throws IOException {
+	private NvmfOperation doIO(Operation op, ByteBuffer buffer, long linearBlockAddress) throws IOException {
 		if (!isOpen.get()){
 			throw new IOException("endpoint is closed");
 		}
@@ -75,7 +75,7 @@ public class NvmeEndpoint implements DiSNIEndpoint {
 		int sectorCount = buffer.remaining() / namespace.getSectorSize();
 		long bufferAddress = ((DirectBuffer) buffer).address() + buffer.position();
 
-		IOCompletion completion = null;
+		NvmfOperation completion = null;
 		switch(op) {
 			case READ:
 				completion = namespace.read(queuePair, bufferAddress, linearBlockAddress, sectorCount);
@@ -89,11 +89,11 @@ public class NvmeEndpoint implements DiSNIEndpoint {
 		return completion;
 	}
 	
-	public synchronized IOCompletion write(ByteBuffer buffer, long linearBlockAddress) throws IOException{
+	public synchronized NvmfOperation write(ByteBuffer buffer, long linearBlockAddress) throws IOException{
 		return doIO(Operation.WRITE, buffer, linearBlockAddress);
 	}
 	
-	public synchronized IOCompletion read(ByteBuffer buffer, long linearBlockAddress) throws IOException {
+	public synchronized NvmfOperation read(ByteBuffer buffer, long linearBlockAddress) throws IOException {
 		return doIO(Operation.READ, buffer, linearBlockAddress);
 	}
 	

@@ -155,7 +155,7 @@ public class SpdkProbe {
 
 		ByteBuffer writeBuf = ByteBuffer.allocateDirect(4096);
 		writeBuf.put(new byte[]{'H', 'e', 'l', 'l', 'o'});
-		IOCompletion completion = namespace.write(queuePair, ((DirectBuffer) writeBuf).address(), 0, 1);
+		NvmfOperation completion = namespace.write(queuePair, ((DirectBuffer) writeBuf).address(), 0, 1);
 
 		do {
 			queuePair.processCompletions(10);

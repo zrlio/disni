@@ -62,7 +62,7 @@ public class NvmfClient {
 	}
 
 	long run(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws IOException {
-		IOCompletion completions[] = new IOCompletion[queueDepth];
+		NvmfOperation completions[] = new NvmfOperation[queueDepth];
 		ByteBuffer buffer = ByteBuffer.allocateDirect(transferSize);
 		byte bytes[] = new byte[buffer.capacity()];
 		random.nextBytes(bytes);
