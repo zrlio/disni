@@ -51,11 +51,11 @@ public class NvmeNamespace extends NatObject {
 	public int getMaxIOTransferSize() { return nativeDispatcher._nvme_ns_get_max_io_xfer_size(getObjId()); }
 
 	public IOCompletion read(NvmeQueuePair queuePair, long address, long linearBlockAddress, int count) throws IOException {
-		IOCompletion completion = new IOCompletion(memoryAllocation, nativeDispatcher, getObjId(), queuePair.getObjId(), address, linearBlockAddress, count);;
+		IOCompletion completion = new IOCompletion(memoryAllocation, nativeDispatcher, getObjId(), queuePair.getObjId(), address, linearBlockAddress, count, false);;
 		
-		long objId = getObjId();
-		long queueObjId = queuePair.getObjId();
-		long complAddress = completion.address();
+//		long objId = getObjId();
+//		long queueObjId = queuePair.getObjId();
+//		long complAddress = completion.address();
 //		System.out.println("calling native disp with: objId " + objId + ", queueObjId " + queueObjId + ", address " + address + ", linearBlockAddress " + linearBlockAddress + ", count " + count + ", complAddress " + complAddress + ", false " + false);
 		
 //		int ret = nativeDispatcher._nvme_ns_io_cmd(objId, queueObjId, address, linearBlockAddress, count, complAddress, false);
@@ -67,12 +67,13 @@ public class NvmeNamespace extends NatObject {
 	}
 
 	public IOCompletion write(NvmeQueuePair queuePair, long address, long linearBlockAddress, int count) throws IOException {
-		IOCompletion completion = new IOCompletion(memoryAllocation);
-		int ret = nativeDispatcher._nvme_ns_io_cmd(getObjId(), queuePair.getObjId(), address,
-				linearBlockAddress, count, completion.address(), true);
-		if (ret < 0) {
-			throw new IOException("nvme_ns_cmd_write failed with " + ret);
-		}
+//		IOCompletion completion = new IOCompletion(memoryAllocation);
+//		int ret = nativeDispatcher._nvme_ns_io_cmd(getObjId(), queuePair.getObjId(), address,
+//				linearBlockAddress, count, completion.address(), true);
+//		if (ret < 0) {
+//			throw new IOException("nvme_ns_cmd_write failed with " + ret);
+//		}
+		IOCompletion completion = new IOCompletion(memoryAllocation, nativeDispatcher, getObjId(), queuePair.getObjId(), address, linearBlockAddress, count, true);;
 		return completion;
 	}
 }

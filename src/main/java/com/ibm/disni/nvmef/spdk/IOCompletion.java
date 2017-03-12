@@ -46,18 +46,18 @@ public class IOCompletion {
 	private long lba;
 	private int count;
 	private long completionAddress;
+	private boolean writeOp;
 
-	IOCompletion(MemoryAllocation memoryAllocation) {
-		this.memBuf = memoryAllocation.allocate(CSIZE,
-				MemoryAllocation.MemType.DIRECT, this.getClass().getCanonicalName());
-		this.buffer = memBuf.getBuffer();
-		buffer.order(ByteOrder.nativeOrder());
-//		position =  buffer.position();
-		buffer.putInt(0, INVALID_STATUS_CODE_TYPE);
-		update();
-	}
+//	IOCompletion(MemoryAllocation memoryAllocation) {
+//		this.memBuf = memoryAllocation.allocate(CSIZE,
+//				MemoryAllocation.MemType.DIRECT, this.getClass().getCanonicalName());
+//		this.buffer = memBuf.getBuffer();
+//		buffer.order(ByteOrder.nativeOrder());
+//		buffer.putInt(0, INVALID_STATUS_CODE_TYPE);
+//		update();
+//	}
 
-	public IOCompletion(MemoryAllocation memoryAllocation, NativeDispatcher nativeDispatcher, long objId, long queueObjId, long address, long lba, int count) {
+	public IOCompletion(MemoryAllocation memoryAllocation, NativeDispatcher nativeDispatcher, long objId, long queueObjId, long address, long lba, int count, boolean writeOp) {
 		this.memBuf = memoryAllocation.allocate(CSIZE,
 				MemoryAllocation.MemType.DIRECT, this.getClass().getCanonicalName());
 		this.buffer = memBuf.getBuffer();
@@ -72,6 +72,7 @@ public class IOCompletion {
 		this.lba = lba;
 		this.count = count;
 		this.completionAddress = this.address();
+		this.writeOp = writeOp;
 	}
 	
 	public void execute(long lbAddress) throws Exception {
@@ -79,7 +80,7 @@ public class IOCompletion {
 		buffer.putInt(4, 7);
 		statusCodeType = INVALID_STATUS_CODE_TYPE;
 //		System.out.println("calling native disp with: objId " + objId + ", queueObjId " + queueObjId + ", address " + address + ", linearBlockAddress " + lbAddress + ", count " + count + ", complAddress " + completionAddress + ", false " + false);
-		int ret = nativeDispatcher._nvme_ns_io_cmd(objId, this.queueObjId, address, lbAddress, count, completionAddress, false);
+		int ret = nativeDispatcher._nvme_ns_io_cmd(objId, this.queueObjId, address, lbAddress, count, completionAddress, writeOp);
 		if (ret < 0) {
 			throw new IOException("nvme_ns_cmd_read failed with " + ret);
 		}		
