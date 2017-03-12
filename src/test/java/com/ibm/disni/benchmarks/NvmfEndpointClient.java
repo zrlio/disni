@@ -106,7 +106,6 @@ public class NvmfEndpointClient {
 	public long latency(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws Exception{
 		ByteBuffer buffer = ByteBuffer.allocateDirect(transferSize);
 		buffer.clear();
-		int sectorCount = transferSize / endpoint.getSectorSize();
 		
 		NvmfOperation completion = endpoint.read(buffer, 0);
 		long start = System.nanoTime();
