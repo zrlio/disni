@@ -140,7 +140,9 @@ public class NvmfClient {
 				nvmef.run(iterations, 1, 512, AccessPattern.RANDOM, false) + "ns");
 		System.out.println("Write latency (random) = " +
 				nvmef.run(iterations, 1, 512, AccessPattern.RANDOM, true) + "ns");
-
+		System.out.println("Read latency (random) = " +
+				nvmef.run(iterations, 1, 4096, AccessPattern.RANDOM, false) + "ns");
+		
 		final int queueDepth = 64;
 		iterations = 100000;
 
