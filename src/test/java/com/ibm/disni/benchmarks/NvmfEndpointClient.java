@@ -108,17 +108,16 @@ public class NvmfEndpointClient {
 		buffer.clear();
 		int sectorCount = transferSize / endpoint.getSectorSize();
 		
+		NvmfOperation completion = endpoint.read(buffer, 0);
 		long start = System.nanoTime();
-		long lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
-		NvmfOperation completion = endpoint.read(buffer, lba);
 		for (long i = 0; i < iterations; i++) {
-			lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
+			long lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
 			completion.setLba(lba);
 			completion.execute();
 			while(!completion.done()){
-				int res = endpoint.processCompletions(1);
+				int res = endpoint.processCompletions(queueDepth);
 				while (res == 0){
-					res = endpoint.processCompletions(1);
+					res = endpoint.processCompletions(queueDepth);
 				}
 			}
 		}
