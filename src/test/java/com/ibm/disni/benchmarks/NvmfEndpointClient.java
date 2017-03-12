@@ -191,6 +191,8 @@ public class NvmfEndpointClient {
 		iterations = 100000;
 		System.out.println("Latency - QD = 1, Size = 512byte");
 		System.out.println("Read latency (random) = " + client.latency(iterations, 1, 512, AccessPattern.RANDOM, false) + "us");
+		System.out.println("Latency - QD = 1, Size = 4KB");
+		System.out.println("Read latency (random) = " + client.latency(iterations, 1, 4096, AccessPattern.RANDOM, false) + "us");
 //		System.out.println("Write latency (random) = " +
 //				client.run(iterations, 1, 512, AccessPattern.RANDOM, true) + "ns");
 
