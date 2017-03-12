@@ -40,14 +40,11 @@ public class NvmfEndpointClient {
 	private NvmeEndpointGroup group;
 	private NvmeEndpoint endpoint;
 	
-	public NvmfEndpointClient(String address, String port, String subsystem) throws Exception {
+	public NvmfEndpointClient(NvmeTransportId tid) throws Exception {
 		this.random = ThreadLocalRandom.current();
-		NvmeTransportId tid = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, address, port, subsystem);
-		this.group = new NvmeEndpointGroup(new NvmeTransportType[]{tid.getType()}, "/dev/hugepages",
-				new long[]{256,256});
+		this.group = new NvmeEndpointGroup(new NvmeTransportType[]{tid.getType()}, "/dev/hugepages", new long[]{256,256});
 		this.endpoint = group.createEndpoint();
-		URI url = new URI("nvmef://" + address + ":" + port + "/0/1?subsystem=" + subsystem);
-		endpoint.connect(url);
+		endpoint.connect(tid.toURI());
 	}
 	
 	public int getMaxIOTransferSize() {
@@ -177,12 +174,14 @@ public class NvmfEndpointClient {
 	}	
 
 	public static void main(String[] args) throws Exception{
-		if (args.length < 3) {
-			System.out.println("<address> <port> <subsystemNQN>");
-			System.exit(-1);
-		}
-		System.out.println("Starting NvmfEndpointClient, v3, address " + args[0] + ", port " + args[1]);
-		NvmfEndpointClient client = new NvmfEndpointClient(args[0], args[1], args[2]);
+		NvmeTransportId transportId;
+		if (args.length == 3) {
+			transportId = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, args[0], args[1], args[2]);
+		} else {
+			transportId = NvmeTransportId.pcie(args[0]);
+		}		
+		System.out.println("Starting NvmfEndpointClient, v3, transport " + transportId.toString());
+		NvmfEndpointClient client = new NvmfEndpointClient(transportId);
 		
 		int iterations = 100;
 		client.verify(iterations, 1, 512, AccessPattern.RANDOM, false);
