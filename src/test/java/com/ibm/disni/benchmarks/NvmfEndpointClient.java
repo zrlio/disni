@@ -123,6 +123,7 @@ public class NvmfEndpointClient {
 			}
 		}
 		long end = System.nanoTime();
+		completion.free();
 		return (end - start)/iterations/1000;
 	}
 	
@@ -155,6 +156,7 @@ public class NvmfEndpointClient {
 				}
 			}
 		}
+		writeCompletion.free();
 		
 		NvmfOperation readCompletion = endpoint.read(buffer, 0);
 		for (int i = 0; i < iterations; i++) {
@@ -171,6 +173,7 @@ public class NvmfEndpointClient {
 			int _back = buffer.getInt(transferSize -4);
 			System.out.println("i " + i + ", front " + front[i] + ", _front " + _front + ", back " + back[i] + ", _back " + _back);
 		}
+		readCompletion.free();
 		long end = System.nanoTime();
 		return (end - start)/iterations/1000;
 	}	

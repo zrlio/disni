@@ -77,6 +77,10 @@ public class NvmfOperation {
 		this.lba = lba;
 	}
 
+	public void free() {
+		memBuf.free();
+	}
+
 	public boolean isWrite(){
 		return writeOp;
 	}
@@ -99,9 +103,5 @@ public class NvmfOperation {
 	private void update() {
 		statusCodeType = buffer.getInt(0);
 		statusCode = buffer.getInt(4);
-	}
-
-	private void free() {
-		memBuf.free();
 	}
 }
