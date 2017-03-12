@@ -84,7 +84,6 @@ public class NvmeEndpoint implements DiSNIEndpoint {
 				completion = namespace.write(queuePair, bufferAddress, linearBlockAddress, sectorCount);
 				break;
 		}
-//		buffer.position(buffer.limit());
 
 		return completion;
 	}

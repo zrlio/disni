@@ -72,16 +72,11 @@ public class NvmfOperation {
 			throw new IOException("nvme_ns_cmd_read failed with " + ret);
 		}		
 	}
-
-	private void update() {
-		statusCodeType = buffer.getInt(0);
-		statusCode = buffer.getInt(4);
+	
+	public boolean isWrite(){
+		return writeOp;
 	}
-
-	private void free() {
-		memBuf.free();
-	}
-
+	
 	public NvmeStatusCodeType getStatusCodeType() {
 		return NvmeStatusCodeType.valueOf(statusCodeType);
 	}
@@ -95,5 +90,14 @@ public class NvmfOperation {
 			update();
 		}
 		return statusCodeType != INVALID_STATUS_CODE_TYPE;
+	}
+	
+	private void update() {
+		statusCodeType = buffer.getInt(0);
+		statusCode = buffer.getInt(4);
+	}
+
+	private void free() {
+		memBuf.free();
 	}
 }

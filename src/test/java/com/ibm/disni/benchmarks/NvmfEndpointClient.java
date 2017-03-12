@@ -54,7 +54,7 @@ public class NvmfEndpointClient {
 		return endpoint.getMaxTransferSize();
 	}
 
-	public long run(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws IOException{
+	public long benchmark(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws IOException{
 		NvmfOperation completions[] = new NvmfOperation[queueDepth];
 		ByteBuffer buffer = ByteBuffer.allocateDirect(transferSize);
 		byte bytes[] = new byte[buffer.capacity()];
@@ -103,7 +103,7 @@ public class NvmfEndpointClient {
 		return (end - start)/iterations;
 	}
 	
-	public long run2(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws Exception{
+	public long latency(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws Exception{
 		ByteBuffer buffer = ByteBuffer.allocateDirect(transferSize);
 		buffer.clear();
 		int sectorCount = transferSize / endpoint.getSectorSize();
@@ -125,7 +125,7 @@ public class NvmfEndpointClient {
 		return (end - start)/iterations/1000;
 	}
 	
-	public long run3(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws Exception{
+	public long verify(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws Exception{
 		ByteBuffer buffer = ByteBuffer.allocateDirect(transferSize);
 		buffer.clear();
 		int sectorCount = transferSize / endpoint.getSectorSize();
@@ -188,8 +188,8 @@ public class NvmfEndpointClient {
 
 		System.out.println("Latency - QD = 1, Size = 512byte");
 		int iterations = 100;
-		client.run3(iterations, 1, 512, AccessPattern.RANDOM, false);
-		System.out.println("Read latency (random) = " + client.run2(iterations, 1, 512, AccessPattern.RANDOM, false) + "us");
+		client.verify(iterations, 1, 512, AccessPattern.RANDOM, false);
+		System.out.println("Read latency (random) = " + client.latency(iterations, 1, 512, AccessPattern.RANDOM, false) + "us");
 //		System.out.println("Write latency (random) = " +
 //				client.run(iterations, 1, 512, AccessPattern.RANDOM, true) + "ns");
 
