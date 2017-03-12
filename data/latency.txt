@@ -1,0 +1,11 @@
+
+Remote:
+	perf	disni	disni/stv
+512	65	80	60
+4K	90	188	84
+
+
+Local:
+	perf	disni	disni/stv
+512	58		53	
+4K	75		70
