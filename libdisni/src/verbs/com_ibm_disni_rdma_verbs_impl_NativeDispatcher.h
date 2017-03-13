@@ -186,10 +186,10 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1mod
 /*
  * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
  * Method:    _regMr
- * Signature: (JJIJJJ)J
+ * Signature: (JJIIJJJ)J
  */
 JNIEXPORT jlong JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1regMr
-  (JNIEnv *, jobject, jlong, jlong, jint, jlong, jlong, jlong);
+  (JNIEnv *, jobject, jlong, jlong, jint, jint, jlong, jlong, jlong);
 
 /*
  * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
