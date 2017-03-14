@@ -129,6 +129,6 @@ public class NvmfEndpointClient {
 
 		System.out.println("Throughput - QD = " + queueDepth + ", Size = 128KiB");
 		System.out.println("Read throughput (sequential) = " + maxTransferSize * 1000 / client.run(iterations, queueDepth, maxTransferSize, AccessPattern.SEQUENTIAL, false) +
-				"MB/s");		
+				"MB/s");
 	}
 }
