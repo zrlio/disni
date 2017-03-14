@@ -21,6 +21,8 @@
 
 package com.ibm.disni.nvmef.spdk;
 
+import com.ibm.disni.util.MemBuf;
+import com.ibm.disni.util.MemoryAllocation;
 import sun.nio.ch.DirectBuffer;
 
 import java.nio.ByteBuffer;
@@ -36,12 +38,16 @@ public class IOCompletion {
 
 
 	private int statusCodeType;
+	private final MemBuf memBuf;
 	private final ByteBuffer buffer;
 	private final long address;
 	private boolean pending;
 
 	public IOCompletion() {
-		buffer = ByteBuffer.allocateDirect(CSIZE);
+		MemoryAllocation memoryAllocation = MemoryAllocation.getInstance();
+		memBuf = memoryAllocation.allocate(CSIZE, MemoryAllocation.MemType.DIRECT,
+				IOCompletion.class.getCanonicalName());
+		buffer = memBuf.getBuffer();
 		buffer.order(ByteOrder.nativeOrder());
 		address = ((DirectBuffer)buffer).address();
 		pending = false;
@@ -54,6 +60,10 @@ public class IOCompletion {
 		this.statusCodeType = INVALID_STATUS_CODE_TYPE;
 		buffer.putInt(STATUS_CODE_INDEX, INVALID_STATUS_CODE_TYPE);
 		pending = true;
+	}
+
+	void free() {
+		memBuf.free();
 	}
 
 	long address() {
