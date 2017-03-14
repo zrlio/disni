@@ -65,7 +65,7 @@ public class NvmeEndpoint {
 		WRITE
 	}
 
-	private IOCompletion doIO(Operation op, ByteBuffer buffer, long linearBlockAddress) throws IOException {
+	public synchronized NvmeOperation write(ByteBuffer buffer, long linearBlockAddress) throws IOException{
 		if (!isOpen.get()){
 			throw new IOException("endpoint is closed");
 		}
@@ -74,27 +74,23 @@ public class NvmeEndpoint {
 		}
 		int sectorCount = buffer.remaining() / namespace.getSectorSize();
 		long bufferAddress = ((DirectBuffer) buffer).address() + buffer.position();
-
 		IOCompletion completion = new IOCompletion();
-		switch(op) {
-			case READ:
-				namespace.read(queuePair, bufferAddress, linearBlockAddress, sectorCount, completion);
-				break;
-			case WRITE:
-				namespace.write(queuePair, bufferAddress, linearBlockAddress, sectorCount, completion);
-				break;
+		
+		return new NvmeOperation(namespace, queuePair, bufferAddress, linearBlockAddress, sectorCount, completion, true);		
+	}
+	
+	public synchronized NvmeOperation read(ByteBuffer buffer, long linearBlockAddress) throws IOException {
+		if (!isOpen.get()){
+			throw new IOException("endpoint is closed");
 		}
-		buffer.position(buffer.limit());
-
-		return completion;
-	}
-	
-	public synchronized IOCompletion write(ByteBuffer buffer, long linearBlockAddress) throws IOException{
-		return doIO(Operation.WRITE, buffer, linearBlockAddress);
-	}
-	
-	public synchronized IOCompletion read(ByteBuffer buffer, long linearBlockAddress) throws IOException {
-		return doIO(Operation.READ, buffer, linearBlockAddress);
+		if (buffer.remaining() % namespace.getSectorSize() != 0){
+			throw new IOException("Remaining buffer a multiple of sector size");
+		}
+		int sectorCount = buffer.remaining() / namespace.getSectorSize();
+		long bufferAddress = ((DirectBuffer) buffer).address() + buffer.position();
+		IOCompletion completion = new IOCompletion();
+		
+		return new NvmeOperation(namespace, queuePair, bufferAddress, linearBlockAddress, sectorCount, completion, false);
 	}
 	
 	public synchronized void close() throws IOException, InterruptedException {
