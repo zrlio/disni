@@ -162,7 +162,8 @@ public class SpdkProbe {
 			writeBuf = ByteBuffer.allocateDirect(bufferSize);
 		}
 		writeBuf.put(new byte[]{'H', 'e', 'l', 'l', 'o'});
-		IOCompletion completion = namespace.write(queuePair, ((DirectBuffer) writeBuf).address(), 0, 1);
+		IOCompletion completion = new IOCompletion();
+		namespace.write(queuePair, ((DirectBuffer) writeBuf).address(), 0, 1, completion);
 
 		do {
 			queuePair.processCompletions(10);
@@ -172,7 +173,9 @@ public class SpdkProbe {
 			System.out.println("Status code = " +
 					NvmeGenericCommandStatusCode.valueOf(completion.getStatusCode()).name());
 		}
-		nvme.freeBuffer(writeBuf);
+		if (!isRDMA) {
+			nvme.freeBuffer(writeBuf);
+		}
 
 		ByteBuffer buffer;
 		if (!isRDMA) {
@@ -180,7 +183,7 @@ public class SpdkProbe {
 		} else {
 			buffer = ByteBuffer.allocateDirect(bufferSize);
 		}
-		completion = namespace.read(queuePair, ((DirectBuffer) buffer).address(), 0, 1);
+		namespace.read(queuePair, ((DirectBuffer) buffer).address(), 0, 1, completion);
 		do {
 			queuePair.processCompletions(10);
 		} while (!completion.done());
@@ -193,6 +196,8 @@ public class SpdkProbe {
 		byte cString[] = new byte[5];
 		buffer.get(cString);
 		System.out.println("Read " + new String(cString));
-		nvme.freeBuffer(buffer);
+		if (!isRDMA) {
+			nvme.freeBuffer(buffer);
+		}
 	}
 }

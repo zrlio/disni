@@ -21,45 +21,47 @@
 
 package com.ibm.disni.nvmef.spdk;
 
-import com.ibm.disni.util.MemBuf;
-import com.ibm.disni.util.MemoryAllocation;
+import sun.nio.ch.DirectBuffer;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class IOCompletion {
-	public static int CSIZE = 8;
-	private int statusCodeType;
-	private int statusCode;
+	public final static int CSIZE = 8;
+
+	private final static int STATUS_CODE_TYPE_INDEX = 0;
+	private final static int STATUS_CODE_INDEX = 4;
 
 	private static final int INVALID_STATUS_CODE_TYPE = -1;
 
-	private final MemBuf memBuf;
-	private final int position;
 
-	IOCompletion(MemoryAllocation memoryAllocation) {
-		this.memBuf = memoryAllocation.allocate(CSIZE,
-				MemoryAllocation.MemType.DIRECT, this.getClass().getCanonicalName());
-		ByteBuffer buffer = memBuf.getBuffer();
+	private int statusCodeType;
+	private final ByteBuffer buffer;
+	private final long address;
+	private boolean pending;
+
+	public IOCompletion() {
+		buffer = ByteBuffer.allocateDirect(CSIZE);
 		buffer.order(ByteOrder.nativeOrder());
-		position =  buffer.position();
-		buffer.putInt(INVALID_STATUS_CODE_TYPE);
-		update();
+		address = ((DirectBuffer)buffer).address();
+		pending = false;
 	}
 
-	private void update() {
-		ByteBuffer buffer = memBuf.getBuffer();
-		buffer.position(position);
-		statusCodeType = buffer.getInt();
-		statusCode = buffer.getInt();
-	}
-
-	private void free() {
-		memBuf.free();
+	void reset() throws PendingOperationException {
+		if (statusCodeType == INVALID_STATUS_CODE_TYPE) {
+			throw new PendingOperationException();
+		}
+		this.statusCodeType = INVALID_STATUS_CODE_TYPE;
+		buffer.putInt(STATUS_CODE_INDEX, INVALID_STATUS_CODE_TYPE);
+		pending = true;
 	}
 
 	long address() {
-		return memBuf.address();
+		return address;
+	}
+
+	public boolean isPending() {
+		return pending;
 	}
 
 	public NvmeStatusCodeType getStatusCodeType() {
@@ -67,16 +69,15 @@ public class IOCompletion {
 	}
 
 	public int getStatusCode() {
-		return statusCode;
+		return buffer.getInt(STATUS_CODE_INDEX);
 	}
 
 	public boolean done() {
 		if (statusCodeType == INVALID_STATUS_CODE_TYPE) {
-			update();
-			if (statusCodeType != INVALID_STATUS_CODE_TYPE) {
-				free();
-			}
+			/* Update */
+			statusCodeType = buffer.getInt(STATUS_CODE_TYPE_INDEX);
 		}
-		return statusCodeType != INVALID_STATUS_CODE_TYPE;
+		pending = statusCodeType == INVALID_STATUS_CODE_TYPE;
+		return !pending;
 	}
 }

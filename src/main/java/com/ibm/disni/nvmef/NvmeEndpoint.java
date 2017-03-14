@@ -75,13 +75,13 @@ public class NvmeEndpoint {
 		int sectorCount = buffer.remaining() / namespace.getSectorSize();
 		long bufferAddress = ((DirectBuffer) buffer).address() + buffer.position();
 
-		IOCompletion completion = null;
+		IOCompletion completion = new IOCompletion();
 		switch(op) {
 			case READ:
-				completion = namespace.read(queuePair, bufferAddress, linearBlockAddress, sectorCount);
+				namespace.read(queuePair, bufferAddress, linearBlockAddress, sectorCount, completion);
 				break;
 			case WRITE:
-				completion = namespace.write(queuePair, bufferAddress, linearBlockAddress, sectorCount);
+				namespace.write(queuePair, bufferAddress, linearBlockAddress, sectorCount, completion);
 				break;
 		}
 		buffer.position(buffer.limit());

@@ -65,6 +65,9 @@ public class NvmfClient {
 
 	long run(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws IOException {
 		IOCompletion completions[] = new IOCompletion[queueDepth];
+		for (int i = 0; i < completions.length; i++) {
+			completions[i] = new IOCompletion();
+		}
 		ByteBuffer buffer = nvme.allocateBuffer(transferSize, 4096);
 		byte bytes[] = new byte[buffer.capacity()];
 		random.nextBytes(bytes);
@@ -84,7 +87,7 @@ public class NvmfClient {
 		for (long completed = 0; completed < iterations; ) {
 			for (int i = 0; i < completions.length; i++) {
 				boolean post = false;
-				if (completions[i] == null) {
+				if (!completions[i].isPending()) {
 					post = true;
 				} else if (completions[i].done()) {
 					completed++;
@@ -94,9 +97,9 @@ public class NvmfClient {
 
 				if (post && posted < iterations) {
 					if (write) {
-						completions[i] = namespace.write(queuePair, bufferAddress, lba, sectorCount);
+						namespace.write(queuePair, bufferAddress, lba, sectorCount, completions[i]);
 					} else {
-						completions[i] = namespace.read(queuePair, bufferAddress, lba, sectorCount);
+						namespace.read(queuePair, bufferAddress, lba, sectorCount, completions[i]);
 					}
 					switch (accessPattern) {
 						case SEQUENTIAL:
