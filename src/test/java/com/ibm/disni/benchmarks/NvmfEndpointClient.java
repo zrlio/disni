@@ -30,8 +30,7 @@ import java.util.concurrent.ThreadLocalRandom;
 import com.ibm.disni.benchmarks.NvmfClient.AccessPattern;
 import com.ibm.disni.nvmef.NvmeEndpoint;
 import com.ibm.disni.nvmef.NvmeEndpointGroup;
-import com.ibm.disni.nvmef.NvmeOperation;
-import com.ibm.disni.nvmef.spdk.IOCompletion;
+import com.ibm.disni.nvmef.NvmeCommand;
 import com.ibm.disni.nvmef.spdk.NvmeTransportId;
 import com.ibm.disni.nvmef.spdk.NvmeTransportType;
 import com.ibm.disni.nvmef.spdk.NvmfAddressFamily;
@@ -59,11 +58,11 @@ public class NvmfEndpointClient {
         ByteBuffer buffer = ByteBuffer.allocateDirect(transferSize);
         buffer.clear();
 
-        NvmeOperation completion = endpoint.read(buffer, 0);
+        NvmeCommand completion = endpoint.read(buffer, 0);
         long start = System.nanoTime();
         for (long i = 0; i < iterations; i++) {
                 long lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
-                completion.setLba(lba);
+                completion.setLinearBlockAddress(lba);
                 completion.execute();
                 while(!completion.isDone()){
                         int res = endpoint.processCompletions(queueDepth);

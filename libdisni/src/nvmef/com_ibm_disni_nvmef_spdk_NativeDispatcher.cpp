@@ -61,6 +61,7 @@ struct probe_ctx {
 };
 
 struct io_completion {
+    long id;
     int status_code_type;
     int status_code;
 };

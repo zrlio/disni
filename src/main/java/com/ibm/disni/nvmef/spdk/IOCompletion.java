@@ -62,7 +62,7 @@ public class IOCompletion {
 		pending = true;
 	}
 
-	void free() {
+	public void free() {
 		memBuf.free();
 	}
 

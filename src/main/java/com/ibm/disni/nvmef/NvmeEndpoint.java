@@ -25,30 +25,27 @@ package com.ibm.disni.nvmef;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
-import java.util.StringTokenizer;
-import java.util.concurrent.atomic.AtomicBoolean;
 
 import com.ibm.disni.nvmef.spdk.*;
-import sun.nio.ch.DirectBuffer;
 
 public class NvmeEndpoint {
 	private final NvmeEndpointGroup group;
     private NvmeQueuePair queuePair;
-    private NvmeNamespace namespace;
-    private final AtomicBoolean isOpen;
+	private NvmeNamespace namespace;
+	private volatile boolean open;
 	private NvmeControllerOptions controllerOptions;
 	
 	public NvmeEndpoint(NvmeEndpointGroup group, NvmfConnection newConnection) {
 		this.group = group;
 		this.queuePair = null;
 		this.namespace = null;
-		this.isOpen = new AtomicBoolean(newConnection != null);
+		this.open = newConnection != null;
 	}
 
 	//rdma://<host>:<port>
 	//nvmef:://<host>:<port>/controller/namespace"
 	public synchronized void connect(URI uri) throws IOException {
-		if (isOpen.get()){
+		if (open){
 			return;
 		}
 		NvmeResourceIdentifier nvmeResource = NvmeResourceIdentifier.parse(uri);
@@ -56,7 +53,7 @@ public class NvmeEndpoint {
 		NvmeController nvmecontroller = group.probe(transportId, nvmeResource.getController());
 		this.namespace = nvmecontroller.getNamespace(nvmeResource.getNamespace());
 		this.queuePair = nvmecontroller.allocQueuePair();	
-		this.isOpen.set(true);
+		this.open = true;
 		this.controllerOptions = nvmecontroller.getOptions();
 	}
 
@@ -65,41 +62,48 @@ public class NvmeEndpoint {
 		WRITE
 	}
 
-	public synchronized NvmeOperation write(ByteBuffer buffer, long linearBlockAddress) throws IOException{
-		if (!isOpen.get()){
+	public NvmeCommand Op(Operation op, ByteBuffer buffer, long linearBlockAddress) throws IOException {
+		if (open){
 			throw new IOException("endpoint is closed");
 		}
 		if (buffer.remaining() % namespace.getSectorSize() != 0){
 			throw new IOException("Remaining buffer a multiple of sector size");
 		}
-		int sectorCount = buffer.remaining() / namespace.getSectorSize();
-		long bufferAddress = ((DirectBuffer) buffer).address() + buffer.position();
 		IOCompletion completion = new IOCompletion();
-		
-		return new NvmeOperation(namespace, queuePair, bufferAddress, linearBlockAddress, sectorCount, completion, true);		
+		return new NvmeCommand(this, buffer, linearBlockAddress, completion, op == Operation.WRITE);
+	}
+
+	public NvmeCommand write(ByteBuffer buffer, long linearBlockAddress) throws IOException{
+		return Op(Operation.WRITE, buffer, linearBlockAddress);
 	}
 	
-	public synchronized NvmeOperation read(ByteBuffer buffer, long linearBlockAddress) throws IOException {
-		if (!isOpen.get()){
-			throw new IOException("endpoint is closed");
-		}
-		if (buffer.remaining() % namespace.getSectorSize() != 0){
-			throw new IOException("Remaining buffer a multiple of sector size");
-		}
-		int sectorCount = buffer.remaining() / namespace.getSectorSize();
-		long bufferAddress = ((DirectBuffer) buffer).address() + buffer.position();
-		IOCompletion completion = new IOCompletion();
-		
-		return new NvmeOperation(namespace, queuePair, bufferAddress, linearBlockAddress, sectorCount, completion, false);
+	public NvmeCommand read(ByteBuffer buffer, long linearBlockAddress) throws IOException {
+		return Op(Operation.READ, buffer, linearBlockAddress);
+	}
+
+	public NvmeCommand newCommand() {
+		return new NvmeCommand(this, new IOCompletion());
+	}
+
+	NvmeNamespace getNamespace() {
+		return namespace;
+	}
+
+	NvmeQueuePair getQueuePair() {
+		return queuePair;
+	}
+
+	public boolean isOpen() {
+		return open;
 	}
 	
 	public synchronized void close() throws IOException, InterruptedException {
 		queuePair.free();
-		isOpen.set(false);
+		open = false;
 	}
 	
-	public synchronized int processCompletions(int length) throws IOException {
-		return queuePair.processCompletions(length);
+	public synchronized int processCompletions(int maxCompletions) throws IOException {
+		return queuePair.processCompletions(maxCompletions);
 	}
 	
 	public int getSectorSize() { 
