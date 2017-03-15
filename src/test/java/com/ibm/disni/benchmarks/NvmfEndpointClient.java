@@ -49,7 +49,7 @@ public class NvmfEndpointClient extends NvmfClientBenchmark {
 		byte bytes[] = new byte[buffer.capacity()];
 		random.nextBytes(bytes);
 		buffer.put(bytes);
-		final long bufferAddress = ((DirectBuffer)buffer).address();
+		buffer.clear();
 
 		NvmeCommand commands[] = new NvmeCommand[queueDepth];
 		for (int i = 0; i < commands.length; i++) {
@@ -109,7 +109,7 @@ public class NvmfEndpointClient extends NvmfClientBenchmark {
 		this.group = new NvmeEndpointGroup(new NvmeTransportType[]{tid.getType()}, "/dev/hugepages",
 				new long[]{256,256});
 		this.endpoint = group.createEndpoint();
-		
+
 		URI url;
 		try {
 			if (tid.getType() == NvmeTransportType.RDMA){
