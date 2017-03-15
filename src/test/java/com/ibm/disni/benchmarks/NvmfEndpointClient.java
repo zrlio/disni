@@ -74,7 +74,7 @@ public class NvmfEndpointClient extends NvmfClientBenchmark {
 		for (long completed = 0; completed < iterations; ) {
 			for (int i = 0; i < lastNumProcessed && posted < iterations; i++) {
 				NvmeCommand command = commands[(int)processed[i]];
-				if (!command.isDone()) {
+				if (command.isPending() && !command.isDone()) {
 					throw new IOException("Was completed but is not done??");
 				}
 				command.setLinearBlockAddress(lba);
