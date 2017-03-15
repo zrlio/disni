@@ -31,7 +31,6 @@ import java.util.concurrent.ThreadLocalRandom;
 import com.ibm.disni.nvmef.NvmeCommand;
 import com.ibm.disni.nvmef.NvmeEndpoint;
 import com.ibm.disni.nvmef.NvmeEndpointGroup;
-import com.ibm.disni.nvmef.spdk.IOCompletion;
 import com.ibm.disni.nvmef.spdk.NvmeTransportId;
 import com.ibm.disni.nvmef.spdk.NvmeTransportType;
 import sun.nio.ch.DirectBuffer;
@@ -107,6 +106,10 @@ public class NvmfEndpointClient extends NvmfClientBenchmark {
 	}
 
 	void connect(NvmeTransportId tid) throws IOException {
+		this.group = new NvmeEndpointGroup(new NvmeTransportType[]{tid.getType()}, "/dev/hugepages",
+				new long[]{256,256});
+		this.endpoint = group.createEndpoint();
+		
 		URI url;
 		try {
 			if (tid.getType() == NvmeTransportType.RDMA){
@@ -118,9 +121,6 @@ public class NvmfEndpointClient extends NvmfClientBenchmark {
 			throw new IOException(e);
 		}
 		endpoint.connect(url);
-		this.group = new NvmeEndpointGroup(new NvmeTransportType[]{tid.getType()}, "/dev/hugepages",
-				new long[]{256,256});
-		this.endpoint = group.createEndpoint();
 	}
 
 	void close() throws IOException {
