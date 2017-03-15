@@ -91,7 +91,6 @@ public class NvmfClient {
 					post = true;
 				} else if (completions[i].done()) {
 					completed++;
-					completions[i] = null;
 					post = true;
 				}
 
