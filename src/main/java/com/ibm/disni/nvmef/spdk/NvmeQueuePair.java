@@ -34,7 +34,7 @@ public class NvmeQueuePair extends NatObject {
 	private final long completedArrayAddress;
 
 	private static final int COMPLETED_ARRAY_INDEX_OFFSET = 0;
-	private static final int COMPLETED_ARRAY_START_OFFSET = 4;
+	private static final int COMPLETED_ARRAY_START_OFFSET = 8;
 	private static final int COMPLETED_ARRAY_SIZE = 1024;
 
 
