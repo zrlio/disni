@@ -53,23 +53,14 @@ public class NatRegMrCall extends SVCRegMr {
 	}
 
 	public void set(IbvPd pd, ByteBuffer buffer, int access) {
-		this.pd = (NatIbvPd) pd;
-		this.access = access;
-		this.bufferCapacity = buffer.capacity();
-		this.userAddress = ((sun.nio.ch.DirectBuffer) buffer).address();
-		
-		if (cmd != null){
-			cmd.free();
-			cmd = null;
-		}
-		this.cmd = memAlloc.allocate(3*4, MemoryAllocation.MemType.DIRECT, this.getClass().getCanonicalName());
-		this.valid = true;
+		set(pd, ((sun.nio.ch.DirectBuffer) buffer).address(), buffer.capacity(), access);
 	}
 
 	public void set(IbvPd pd, long address, int length, int access) {
 		this.pd = (NatIbvPd) pd;
-		this.bufferCapacity = length;
 		this.userAddress = address;
+		this.bufferCapacity = length;
+		this.access = access;
 		
 		if (cmd != null){
 			cmd.free();
