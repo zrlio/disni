@@ -58,7 +58,7 @@ public class IOCompletion {
 			throw new PendingOperationException();
 		}
 		this.statusCodeType = INVALID_STATUS_CODE_TYPE;
-		buffer.putInt(STATUS_CODE_INDEX, INVALID_STATUS_CODE_TYPE);
+		buffer.putInt(STATUS_CODE_TYPE_INDEX, INVALID_STATUS_CODE_TYPE);
 		pending = true;
 	}
 
