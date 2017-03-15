@@ -52,9 +52,12 @@ public class NvmfEndpointClient extends NvmfClientBenchmark {
 		buffer.clear();
 
 		NvmeCommand commands[] = new NvmeCommand[queueDepth];
+		long[] processed = new long[queueDepth];
 		for (int i = 0; i < commands.length; i++) {
 			commands[i] = endpoint.newCommand();
 			commands[i].setBuffer(buffer);
+			commands[i].setId(i);
+			processed[i] = i;
 		}
 
 		final int sectorSize = endpoint.getSectorSize();
@@ -67,38 +70,31 @@ public class NvmfEndpointClient extends NvmfClientBenchmark {
 		long lba = random.nextLong(totalSizeSector - sectorCount);
 		// align to transfer size sector count
 		lba -= lba % sectorCount;
+		long lastNumProcessed = queueDepth;
 		for (long completed = 0; completed < iterations; ) {
-			for (int i = 0; i < commands.length; i++) {
-				boolean post = false;
-				if (!commands[i].isPending()) {
-					post = true;
-				} else if (commands[i].isDone()) {
-					completed++;
-					post = true;
+			for (int i = 0; i < lastNumProcessed && posted < iterations; i++) {
+				NvmeCommand command = commands[(int)processed[i]];
+				command.setLinearBlockAddress(lba);
+				if (write) {
+					command.write();
+				} else {
+					command.read();
 				}
-
-				if (post && posted < iterations) {
-					NvmeCommand command = commands[i];
-					command.setLinearBlockAddress(lba);
-					if (write) {
-						command.write();
-					} else {
-						command.read();
-					}
-					command.execute();
-					switch (accessPattern) {
-						case SEQUENTIAL:
-							lba += sectorCount;
-							lba = lba % (totalSizeSector - sectorCount);
-							break;
-						case RANDOM:
-							lba = random.nextLong(totalSizeSector - sectorCount);
-							break;
-					}
-					posted++;
+				command.execute();
+				switch (accessPattern) {
+					case SEQUENTIAL:
+						lba += sectorCount;
+						lba = lba % (totalSizeSector - sectorCount);
+						break;
+					case RANDOM:
+						lba = random.nextLong(totalSizeSector - sectorCount);
+						break;
 				}
+				posted++;
 			}
-			while(completed < iterations && endpoint.processCompletions(commands.length) == 0);
+			do {
+				lastNumProcessed = endpoint.processCompletions(processed);
+			} while (completed < iterations && lastNumProcessed == 0);
 		}
 		long end = System.nanoTime();
 		group.freeBuffer(buffer);

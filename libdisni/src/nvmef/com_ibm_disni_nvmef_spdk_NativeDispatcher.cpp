@@ -60,9 +60,16 @@ struct probe_ctx {
     jsize size;
 };
 
+struct completed_array {
+    int index;
+    long ids[0];
+}
+
 struct io_completion {
     int status_code_type;
     int status_code;
+    const long id;
+    const completed_array* completed;
 };
 
 class JNIString {
@@ -366,6 +373,8 @@ static void command_cb(void* cb_data, const struct spdk_nvme_cpl* nvme_completio
     io_completion* completion = reinterpret_cast<io_completion*>(cb_data);
     completion->status_code = nvme_completion->status.sc;
     completion->status_code_type = nvme_completion->status.sct;
+    completed_array ca = completion->completed;
+    ca->id[ca->index++] = completion->id;
 }
 
 /*

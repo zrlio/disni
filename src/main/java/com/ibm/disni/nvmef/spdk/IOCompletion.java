@@ -29,10 +29,12 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class IOCompletion {
-	public final static int CSIZE = 8;
+	public final static int CSIZE = 24;
 
-	private final static int STATUS_CODE_TYPE_INDEX = 0;
-	private final static int STATUS_CODE_INDEX = 4;
+	private final static int STATUS_CODE_TYPE_OFFSET = 0;
+	private final static int STATUS_CODE_OFFSET = 4;
+	private final static int ID_OFFSET = 8;
+	private final static int COMPLETED_ARRAY_OFFSET = 16;
 
 	private static final int INVALID_STATUS_CODE_TYPE = -1;
 
@@ -58,12 +60,20 @@ public class IOCompletion {
 			throw new PendingOperationException();
 		}
 		this.statusCodeType = INVALID_STATUS_CODE_TYPE;
-		buffer.putInt(STATUS_CODE_TYPE_INDEX, INVALID_STATUS_CODE_TYPE);
+		buffer.putInt(STATUS_CODE_TYPE_OFFSET, INVALID_STATUS_CODE_TYPE);
 		pending = true;
 	}
 
 	public void free() {
 		memBuf.free();
+	}
+
+	void setQueuePair(NvmeQueuePair queuePair) {
+		buffer.putLong(COMPLETED_ARRAY_OFFSET, queuePair.getCompletedArrayAddress());
+	}
+
+	public void setId(long id) {
+		buffer.putLong(ID_OFFSET, id);
 	}
 
 	long address() {
@@ -79,13 +89,13 @@ public class IOCompletion {
 	}
 
 	public int getStatusCode() {
-		return buffer.getInt(STATUS_CODE_INDEX);
+		return buffer.getInt(STATUS_CODE_OFFSET);
 	}
 
 	public boolean done() {
 		if (statusCodeType == INVALID_STATUS_CODE_TYPE) {
 			/* Update */
-			statusCodeType = buffer.getInt(STATUS_CODE_TYPE_INDEX);
+			statusCodeType = buffer.getInt(STATUS_CODE_TYPE_OFFSET);
 		}
 		pending = statusCodeType == INVALID_STATUS_CODE_TYPE;
 		return !pending;

@@ -102,8 +102,8 @@ public class NvmeEndpoint {
 		open = false;
 	}
 	
-	public synchronized int processCompletions(int maxCompletions) throws IOException {
-		return queuePair.processCompletions(maxCompletions);
+	public synchronized int processCompletions(long[] completed) throws IOException {
+		return queuePair.processCompletions(completed);
 	}
 	
 	public int getSectorSize() { 

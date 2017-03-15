@@ -50,29 +50,25 @@ public class NvmeNamespace extends NatObject {
 
 	public int getMaxIOTransferSize() { return nativeDispatcher._nvme_ns_get_max_io_xfer_size(getObjId()); }
 
-	public void read(NvmeQueuePair queuePair, long address, long linearBlockAddress, int count, IOCompletion completion) throws IOException {
+	public void Op(NvmeQueuePair queuePair, long address, long linearBlockAddress, int count, IOCompletion completion, boolean write) throws IOException {
 		try {
 			completion.reset();
 		} catch (PendingOperationException e) {
 			throw new IllegalArgumentException("Completion not done", e);
 		}
+		completion.setQueuePair(queuePair);
 		int ret = nativeDispatcher._nvme_ns_io_cmd(getObjId(), queuePair.getObjId(), address,
-				linearBlockAddress, count, completion.address(), false);
+				linearBlockAddress, count, completion.address(), write);
 		if (ret < 0) {
 			throw new IOException("nvme_ns_cmd_read failed with " + ret);
 		}
 	}
 
+	public void read(NvmeQueuePair queuePair, long address, long linearBlockAddress, int count, IOCompletion completion) throws IOException {
+		Op(queuePair, address, linearBlockAddress, count, completion, false);
+	}
+
 	public void write(NvmeQueuePair queuePair, long address, long linearBlockAddress, int count, IOCompletion completion) throws IOException {
-		try {
-			completion.reset();
-		} catch (PendingOperationException e) {
-			throw new IllegalArgumentException("Completion not done", e);
-		}
-		int ret = nativeDispatcher._nvme_ns_io_cmd(getObjId(), queuePair.getObjId(), address,
-				linearBlockAddress, count, completion.address(), true);
-		if (ret < 0) {
-			throw new IOException("nvme_ns_cmd_write failed with " + ret);
-		}
+		Op(queuePair, address, linearBlockAddress, count, completion, true);
 	}
 }
