@@ -54,6 +54,8 @@ public class NvmeCommand {
 	public boolean isDone(){
 		return completion.done();
 	}
+
+	public boolean isPending() {  return completion.isPending(); }
 	
 	public void free() {
 		completion.free();

@@ -23,6 +23,7 @@
 package com.ibm.disni.nvmef;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import com.ibm.disni.nvmef.spdk.Nvme;
@@ -62,5 +63,13 @@ public class NvmeEndpointGroup {
 
 	NvmeEndpoint createEndpoint(NvmfConnection newConnection) {
 		return new NvmeEndpoint(this, newConnection);
-	}	
+	}
+
+	public ByteBuffer allocateBuffer(int size, int alignment) {
+		return nvme.allocateBuffer(size, alignment);
+	}
+
+	public void freeBuffer(ByteBuffer buffer) {
+		nvme.freeBuffer(buffer);
+	}
 }

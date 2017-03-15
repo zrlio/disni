@@ -1,5 +1,8 @@
 package com.ibm.disni.nvmef;
 
+import com.ibm.disni.nvmef.spdk.NvmeTransportId;
+import com.ibm.disni.nvmef.spdk.NvmfAddressFamily;
+
 import java.io.IOException;
 import java.net.URI;
 import java.util.StringTokenizer;
@@ -33,8 +36,8 @@ class NvmeResourceIdentifier {
 		String port = Integer.toString(uri.getPort());
 		int controller = 0;
 		int namespace =  1;
-		String subsystem = "";
-		String pci = "";
+		String subsystem = null;
+		String pci = null;
 		
 		String path = uri.getPath();
 		if (path != null){
@@ -69,6 +72,14 @@ class NvmeResourceIdentifier {
 		}
 		
 		return new NvmeResourceIdentifier(address, port, controller, namespace, subsystem, pci);
+	}
+
+	public NvmeTransportId toTransportId() {
+		if (getSubsystem() == null && getPci() != null) {
+			return NvmeTransportId.pcie(getPci());
+		} else {
+			return NvmeTransportId.rdma(NvmfAddressFamily.IPV4, getAddress(), getPort(), getSubsystem());
+		}
 	}
 
 	public String getAddress() {

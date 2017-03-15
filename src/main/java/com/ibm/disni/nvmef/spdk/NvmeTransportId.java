@@ -21,6 +21,11 @@
 
 package com.ibm.disni.nvmef.spdk;
 
+import java.io.IOException;
+import java.net.URI;
+import java.net.URISyntaxException;
+import java.util.StringTokenizer;
+
 public class NvmeTransportId {
 	private NvmeTransportType type;
 	private NvmfAddressFamily addressFamily;

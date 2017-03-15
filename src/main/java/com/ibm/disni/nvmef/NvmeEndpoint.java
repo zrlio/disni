@@ -49,7 +49,7 @@ public class NvmeEndpoint {
 			return;
 		}
 		NvmeResourceIdentifier nvmeResource = NvmeResourceIdentifier.parse(uri);
-		NvmeTransportId transportId = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, nvmeResource.getAddress(), nvmeResource.getPort(), nvmeResource.getSubsystem());
+		NvmeTransportId transportId = nvmeResource.toTransportId();
 		NvmeController nvmecontroller = group.probe(transportId, nvmeResource.getController());
 		this.namespace = nvmecontroller.getNamespace(nvmeResource.getNamespace());
 		this.queuePair = nvmecontroller.allocQueuePair();	
