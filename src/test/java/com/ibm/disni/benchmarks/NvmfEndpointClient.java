@@ -71,7 +71,7 @@ public class NvmfEndpointClient extends NvmfClientBenchmark {
 		// align to transfer size sector count
 		lba -= lba % sectorCount;
 		long lastNumProcessed = queueDepth;
-		for (long completed = 0; completed < iterations; ) {
+		for (long completed = 0; completed < iterations; completed += lastNumProcessed) {
 			for (int i = 0; i < lastNumProcessed && posted < iterations; i++) {
 				NvmeCommand command = commands[(int)processed[i]];
 				if (command.isPending() && !command.isDone()) {
@@ -97,8 +97,7 @@ public class NvmfEndpointClient extends NvmfClientBenchmark {
 			}
 			do {
 				lastNumProcessed = endpoint.processCompletions(processed);
-				completed += lastNumProcessed;
-			} while (completed < iterations && lastNumProcessed == 0);
+			} while (lastNumProcessed == 0);
 		}
 		long end = System.nanoTime();
 		group.freeBuffer(buffer);
