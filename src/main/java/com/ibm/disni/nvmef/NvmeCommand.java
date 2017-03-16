@@ -88,6 +88,10 @@ public class NvmeCommand {
 		return this;
 	}
 
+	public long getId() {
+		return completion.getId();
+	}
+
 	public IOCompletion getCompletion() {
 		return completion;
 	}

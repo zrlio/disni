@@ -44,6 +44,7 @@ public class IOCompletion {
 	private final ByteBuffer buffer;
 	private final long address;
 	private boolean pending;
+	private long id = 0;
 
 	public IOCompletion() {
 		MemoryAllocation memoryAllocation = MemoryAllocation.getInstance();
@@ -72,7 +73,12 @@ public class IOCompletion {
 		buffer.putLong(COMPLETED_ARRAY_OFFSET, queuePair.getCompletedArrayAddress());
 	}
 
+	public long getId() {
+		return id;
+	}
+
 	public void setId(long id) {
+		this.id = id;
 		buffer.putLong(ID_OFFSET, id);
 	}
 
