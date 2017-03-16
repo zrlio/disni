@@ -97,6 +97,7 @@ public class NvmfEndpointClient extends NvmfClientBenchmark {
 			}
 			do {
 				lastNumProcessed = endpoint.processCompletions(processed);
+				completed += lastNumProcessed;
 			} while (completed < iterations && lastNumProcessed == 0);
 		}
 		long end = System.nanoTime();
