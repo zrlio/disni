@@ -370,11 +370,11 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ns
 }
 
 static void command_cb(void* cb_data, const struct spdk_nvme_cpl* nvme_completion) {
-    io_completion* completion = reinterpret_cast<io_completion*>(cb_data);
+    volatile io_completion* completion = reinterpret_cast<volatile io_completion*>(cb_data);
     completion->status_code = nvme_completion->status.sc;
     completion->status_code_type = nvme_completion->status.sct;
-    completed_array ca = *completion->completed;
-    ca.ids[ca.index++] = completion->id;
+    completed_array* ca = completion->completed;
+    ca->ids[ca->index++] = completion->id;
 }
 
 /*
