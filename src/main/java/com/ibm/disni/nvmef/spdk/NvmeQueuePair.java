@@ -59,11 +59,12 @@ public class NvmeQueuePair extends NatObject {
 	}
 
 	public int processCompletions(long[] completed) throws IOException {
-		int ret = processCompletions(completed.length);
-		for (int i = 0; i < ret; i++) {
+		processCompletions(completed.length);
+		int numCompleted = completedArray.getInt(COMPLETED_ARRAY_INDEX_OFFSET);
+		for (int i = 0; i < numCompleted; i++) {
 			completed[i] = completedArray.getLong(i*8 + COMPLETED_ARRAY_START_OFFSET);
 		}
-		return ret;
+		return numCompleted;
 	}
 
 	public void free() throws IOException {
