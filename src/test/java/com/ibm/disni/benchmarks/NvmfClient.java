@@ -94,9 +94,9 @@ public class NvmfClient extends NvmfClientBenchmark {
 							break;
 						case RANDOM:
 							lba = random.nextLong(totalSizeSector - sectorCount);
-							lba -= lba % sectorCount;
 							break;
 					}
+					lba -= lba % sectorCount;
 					posted++;
 				}
 			}
