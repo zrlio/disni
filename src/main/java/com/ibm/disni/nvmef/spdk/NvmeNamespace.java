@@ -30,10 +30,13 @@ public class NvmeNamespace extends NatObject {
     private final NativeDispatcher nativeDispatcher;
 	private final MemoryAllocation memoryAllocation;
 
+	private final long size;
+
     NvmeNamespace(long objId, NativeDispatcher nativeDispatcher, MemoryAllocation memoryAllocation) {
         super(objId);
         this.nativeDispatcher = nativeDispatcher;
 		this.memoryAllocation = memoryAllocation;
+		size = nativeDispatcher._nvme_ns_get_size(getObjId());
     }
 
     public boolean isActive() {
@@ -41,7 +44,7 @@ public class NvmeNamespace extends NatObject {
     }
 
     public long getSize() {
-        return nativeDispatcher._nvme_ns_get_size(getObjId());
+        return size;
     }
 
 	public int getSectorSize() {
