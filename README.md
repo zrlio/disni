@@ -12,18 +12,12 @@ To build DiSNI and its example programs, obtain a copy of DiSNI from [Github](ht
 
 By default DiSNI will only build with RDMA support. To enable NVMf support execute the following steps when compiling libdisni:
 
-<ol><ol>
-            <li>two.one</li>
-            <li>two.two</li>
-            <li>two.three</li>
-</ol></ol>
-
-1. Obtain dpdk from [dpdk.org](http://dpdk.org/download) (version 17.02)\
-2. Build dpdk using: make install T=x86_64-native-linuxapp-gcc DESTDIR=. EXTRA_CFLAGS="-fPIC" 
-3. Obtain spdk from [Github](https://github.com/spdk/spdk) (commit: 7336c0036e22c42b961a88d751fcf64f9901c030)
-4. Build spdk using: make DPDK_DIR=\<dpdk-path/x86_64-native-linuxapp-gcc\> CONFIG_RDMA=y 
-5. Configure libdisni for NVMf: ./configure --with-jdk=\<path\> --with-spdk=\<path\> --with-dpdk=\<path\>
-6. Build libdisni: make install
+2. Obtain dpdk from [dpdk.org](http://dpdk.org/download) (version 17.02)\
+3. Build dpdk using: make install T=x86_64-native-linuxapp-gcc DESTDIR=. EXTRA_CFLAGS="-fPIC" 
+4. Obtain spdk from [Github](https://github.com/spdk/spdk) (commit: 7336c0036e22c42b961a88d751fcf64f9901c030)
+5. Build spdk using: make DPDK_DIR=\<dpdk-path/x86_64-native-linuxapp-gcc\> CONFIG_RDMA=y 
+6. Configure libdisni for NVMf: ./configure --with-jdk=\<path\> --with-spdk=\<path\> --with-dpdk=\<path\>
+7. Build libdisni: make install
 
 ## How to Run the Examples
 
