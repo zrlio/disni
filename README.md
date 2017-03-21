@@ -63,17 +63,17 @@ Specific implementations of these interface in DiSNI/RDMA and DiSNI/NVMf are off
 
 Let's have a look at a simple client/server application using the DiSNI NVMf API. Here is an example of a simple NVMf server exporting a NVMe device with PCI address 0000:86:00.0. The server is listening on port 5050 and waits for new connections:
 ```
-		NvmeTransportType transports[] = new NvmeTransportType[]{NvmeTransportType.PCIE, NvmeTransportType.RDMA}; 
-		String hugePages = "/dev/hugepages";
-		long perSocketMemory[] = new long[]{256,256};
-		NvmeEndpointGroup group = new NvmeEndpointGroup(transports, hugePages, perSocketMemory);
-		NvmeServerEndpoint serverEndpoint = group.createServerEndpoint();
-		URI url = new URI("nvmef://192.168.0.1:5050/0/1?subsystem=nqn.2016-06.io.spdk:cnode1&pci=0000:86:00.0");
-		serverEndpoint.bind(url);
+NvmeTransportType transports[] = new NvmeTransportType[]{NvmeTransportType.PCIE, NvmeTransportType.RDMA}; 
+String hugePages = "/dev/hugepages";
+long perSocketMemory[] = new long[]{256,256};
+NvmeEndpointGroup group = new NvmeEndpointGroup(transports, hugePages, perSocketMemory);
+NvmeServerEndpoint serverEndpoint = group.createServerEndpoint();
+URI url = new URI("nvmef://192.168.0.1:5050/0/1?subsystem=nqn.2016-06.io.spdk:cnode1&pci=0000:86:00.0");
+serverEndpoint.bind(url);
 		
-		while(true){
-			NvmeEndpoint endpoint = serverEndpoint.accept();
-		}
+while(true){
+	NvmeEndpoint endpoint = serverEndpoint.accept();
+}
 ```
 
 ### Programming RDMA using DiSNI
