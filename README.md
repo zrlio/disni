@@ -48,12 +48,9 @@ To use DiSNI in your maven application use the following snippet in your pom.xml
     
 The RDMA and NVMf APIs in DiSNI are both following the Group/Endpoint model which is based on three key data types:
 
-* DiSNIServerEndpoint: 
-..* offering methods to bind() to a specific port, and to accept() new connections
-* DiSNIEndpoint
-..* represents a connection to a remote (or local) resource (e.g., RDMA or NVMf) and offers non-blocking methods to read() or write() the resource
-* DiSNIGroup
-..* a factory for endpoints (both server and client)
+* DiSNIServerEndpoint: contains methods to bind() to a specific port, and to accept() new connections
+* DiSNIEndpoint: represents a connection to a remote (or local) resource (e.g., RDMA or NVMf) and offers non-blocking methods to read() or write() the resource
+* DiSNIGroup: a factory for endpoints (both server and client)
 
 ### Programming RDMA using DiSNI
     
