@@ -7,17 +7,17 @@ DiSNI is a Java library for direct storage and networking access from userpace. 
 Building the source requires [Apache Maven](http://maven.apache.org/) and [GNU/autotools](http://www.gnu.org/software/autoconf/autoconf.html) and Java version 8 or higher.
 To build DiSNI and its example programs, obtain a copy of DiSNI from [Github](https://github.com/zrlio/disni) and execute the following steps:
 
-* Compile the Java sources using: mvn -DskipTests install
-* Compile libdisni using: cd libdisni; ./autoprepare.sh; ./configure --with-jdk=\<path\>; make install
+1. Compile the Java sources using: mvn -DskipTests install
+2. Compile libdisni using: cd libdisni; ./autoprepare.sh; ./configure --with-jdk=\<path\>; make install
 
 By default DiSNI will only build with RDMA support. To enable NVMf support execute the following steps when compiling libdisni:
 
-* Obtain dpdk from [dpdk.org](http://dpdk.org/download) (version 17.02)
-* Build dpdk using: make install T=x86_64-native-linuxapp-gcc DESTDIR=. EXTRA_CFLAGS="-fPIC" 
-* Obtain spdk from [Github](https://github.com/spdk/spdk) (commit: 7336c0036e22c42b961a88d751fcf64f9901c030)
-* Build spdk using: make DPDK_DIR=\<dpdk-path/x86_64-native-linuxapp-gcc\> CONFIG_RDMA=y 
-* Configure libdisni for NVMf: ./configure --with-jdk=\<path\> --with-spdk=\<path\> --with-dpdk=\<path\>
-* Build libdisni: make install
+2.1 Obtain dpdk from [dpdk.org](http://dpdk.org/download) (version 17.02)
+2.2 Build dpdk using: make install T=x86_64-native-linuxapp-gcc DESTDIR=. EXTRA_CFLAGS="-fPIC" 
+2.3 Obtain spdk from [Github](https://github.com/spdk/spdk) (commit: 7336c0036e22c42b961a88d751fcf64f9901c030)
+2.4 Build spdk using: make DPDK_DIR=\<dpdk-path/x86_64-native-linuxapp-gcc\> CONFIG_RDMA=y 
+2.5 Configure libdisni for NVMf: ./configure --with-jdk=\<path\> --with-spdk=\<path\> --with-dpdk=\<path\>
+2.6 Build libdisni: make install
 
 ## How to Run the Examples
 
