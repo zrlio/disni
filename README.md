@@ -76,6 +76,21 @@ while(true){
 }
 ```
 
+Here is an example of a simple NVMf client. The client issues a 512 byte read operation against the remote flash resource exposed by the server above. 
+```
+NvmeTransportType transports[] = new NvmeTransportType[]{NvmeTransportType.RDMA}; 
+String hugePages = "/dev/hugepages";
+long perSocketMemory[] = new long[]{256,256};	
+NvmeEndpointGroup group = new NvmeEndpointGroup(transports, hugePages, perSocketMemory);
+NvmeEndpoint endpoint = group.createEndpoint();
+		
+URI uri = new URI("nvmef://192.168.0.1:5050/0/1?subsystem=nqn.2016-06.io.spdk:cnode1");
+endpoint.connect(uri);
+ByteBuffer buffer = ByteBuffer.allocateDirect(512);
+NvmeCommand command = endpoint.read(buffer, 0);
+command.execute();
+```
+
 ### Programming RDMA using DiSNI
     
 Here are the basic steps that are necessary to develop an RDMA client/server application using DiSNI. First, define your own custom endpoints by extending either extending RdmaClientEndpoint or RdmaActiveClientEndpoint
