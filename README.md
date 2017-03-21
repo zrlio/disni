@@ -12,6 +12,12 @@ To build DiSNI and its example programs, obtain a copy of DiSNI from [Github](ht
 
 By default DiSNI will only build with RDMA support. To enable NVMf support execute the following steps when compiling libdisni:
 
+<ol><ol>
+            <li>two.one</li>
+            <li>two.two</li>
+            <li>two.three</li>
+</ol></ol>
+
 1. Obtain dpdk from [dpdk.org](http://dpdk.org/download) (version 17.02)\
 2. Build dpdk using: make install T=x86_64-native-linuxapp-gcc DESTDIR=. EXTRA_CFLAGS="-fPIC" 
 3. Obtain spdk from [Github](https://github.com/spdk/spdk) (commit: 7336c0036e22c42b961a88d751fcf64f9901c030)
