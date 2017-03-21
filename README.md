@@ -55,7 +55,7 @@ The RDMA and NVMf APIs in DiSNI are both following the Group/Endpoint model whic
   * represents a connection to a remote (or local) resource (e.g., RDMA or NVMf) 
   * offers non-blocking methods to read() or write() the resource
 * DiSNIGroup: 
-  * a factory for both client and server endpoints 
+  * a container and a factory for both client and server endpoints 
   
 Specific implementations of these interface in DiSNI/RDMA and DiSNI/NVMf are offering extra functionality tailored to their purpose. 
 
@@ -169,7 +169,7 @@ postSend.free();
 ```
 ### Choosing the EndpointGroup 
 
-EndpointGroups are containers and factories for RDMA connections (RdmaEndpoint). There are two types of groups available and which type works best depends on the application. The RdmaActiveEndpointGroup actively processes network events caused by RDMA messages being transmitted or received. Events are signaled by calling dispatchCqEvent() which can be overriden by the custom endpoint of the application. The RdmaPassiveEndpointGroup provides a polling interface that allows the application to directly reap completion events from the network queue (completion queue). As such, the passive mode has typically lower latency but may suffer from contention in case of large numbers of threads operating on the same connection. The active mode, on the other hand, is more robust under large numbers of threads, but has higher latencies. Often it is the best option to use active endpoints at the server, and passive connections at the client. Passive endpoints are typically the right choice if the application knows when messages will be received and, thus, can poll the completion queue accordingly. 
+As mentioned earlier, EndpointGroups are containers and factories for RDMA connections (RdmaEndpoint). There are two types of groups available in the RDMA API, and which type works best depends on the application. The RdmaActiveEndpointGroup actively processes network events caused by RDMA messages being transmitted or received. Events are signaled by calling dispatchCqEvent() which can be overriden by the custom endpoint of the application. The RdmaPassiveEndpointGroup provides a polling interface that allows the application to directly reap completion events from the network queue (completion queue). As such, the passive mode has typically lower latency but may suffer from contention in case of large numbers of threads operating on the same connection. The active mode, on the other hand, is more robust under large numbers of threads, but has higher latencies. Often it is the best option to use active endpoints at the server, and passive connections at the client. Passive endpoints are typically the right choice if the application knows when messages will be received and, thus, can poll the completion queue accordingly. 
 
 ## Contributions
 
