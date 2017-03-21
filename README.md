@@ -10,7 +10,7 @@ To build DiSNI and its example programs, obtain a copy of DiSNI from [Github](ht
 * Compile the Java sources using: mvn -DskipTests install
 * Compile libdisni using: cd libdisni; ./autoprepare.sh; ./configure --with-jdk=\<path\>; make install
 
-By default DiSNI will only build with RDMA support. To enable NVMf support follow the following steps for compiling libdisni:
+By default DiSNI will only build with RDMA support. To enable NVMf support execute the following steps when compiling libdisni:
 
 * Obtain dpdk from [dpdk.org](http://dpdk.org/download) (version 17.02)
 * Build dpdk using: make install T=x86_64-native-linuxapp-gcc DESTDIR=. EXTRA_CFLAGS="-fPIC" 
