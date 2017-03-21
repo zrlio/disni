@@ -59,6 +59,10 @@ The RDMA and NVMf APIs in DiSNI are both following the Group/Endpoint model whic
   
 Specific implementations of these interface in DiSNI/RDMA and DiSNI/NVMf are offering extra functionality tailored to their purpose. 
 
+### Stateful Operations
+
+To avoid any performance impacts that are associated with passing complex parameters and arrays through the JNI interface, the DiSNI library implements stateful method calls (SMC). With this approach, the JNI serialization state for a particular call is cached in the context of an SMC object and can be reused many times. SMC objects can also be modified, for instance when transmitting data at different offsets. Modifications to SMC objects are efficient as they do not require serialization. It is key that SMC objecs are re-used whenever possible to avoid garbage collection overheads. 
+
 ### Programming NVMf using DiSNI
 
 Let's have a look at a simple client/server application using the DiSNI NVMf API. Here is an example of a simple NVMf server exporting a NVMe device with PCI address 0000:86:00.0. The server is listening on port 5050 and waits for new connections:
@@ -146,13 +150,7 @@ postSend.execute();
 ```
 A completion event is created by the network interface after the data buffer has been DMA's to the NIC. Depending on which type of endpoint group that is used, the event is signaled either through a callback, or has to be polled manually by the application. Once the completion event has been consumed, the data buffer can be reused.
 
-### What are Stateful Verb Calls (SVCs)
-
-To avoid any performance impacts that are associated with passing complex RDMA parameters and arrays through the JNI interface, the DiSNI library implements a concept called stateful verbs call (SVC). With this approach, each JNI serialization state for a verb call is cached in the context of an SVM object and can be reused many times.
-
-Stateful verb calls are objects representing RDMA operations. SVCs encapsulate the serialization state of the network operation (just the operation, not the data). If an operation is executed multiple times (typically with the content of the source or sink buffer changing), the serialization overhead can be saved, which in turn will lead to the highest possible performance. SVCs can also be modified, for instance when transmitting data at different offsets. Modifications to SVC objects are efficient as they do not require serialization. It is key that SVCs object are re-used whenver possible to avoid garbage collection overheads. 
-
-A good example showcasing the use of SVCs can be found in JVerbsReadClient.java\:
+A good example showcasing the use of SMC can be found in JVerbsReadClient.java\:
 ```
 SVCPostSend postSend = endpoint.postSend(endpoint.getWrList_send());
 for (int i = 10; i <= 100; ){
