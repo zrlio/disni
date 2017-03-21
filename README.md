@@ -55,7 +55,7 @@ The RDMA and NVMf APIs in DiSNI are both following the Group/Endpoint model whic
   * represents a connection to a remote (or local) resource (e.g., RDMA or NVMf) 
   * offers non-blocking methods to read() or write() the resource
 * DiSNIGroup: 
-  * a factory for both client (DiSNIEndpoint) and server (DiSNIServerEndpoints)
+  * a factory for both client and server endpoints 
   
 Specific implementations of these interface in DiSNI/RDMA and DiSNI/NVMf are offering extra functionality tailored to their purpose. 
 
