@@ -7,19 +7,17 @@ DiSNI is a Java library for direct storage and networking access from userpace. 
 Building the source requires [Apache Maven](http://maven.apache.org/) and [GNU/autotools](http://www.gnu.org/software/autoconf/autoconf.html) and Java version 8 or higher.
 To build DiSNI and its example programs, obtain a copy of DiSNI from [Github](https://github.com/zrlio/disni) and execute the following steps:
 
-To compile with RDMA support only:
+* Compile the Java sources using: mvn -DskipTests install
+* Compile libdisni using: cd libdisni; ./autoprepare.sh; ./configure --with-jdk=\<path\>; make install
 
-* Build libdisni using: ./autoprepare.sh; ./configure --with-jdk=path-to-jdk; make install
+By default DiSNI will only build with RDMA support. To enable NVMf support follow the following steps for compiling libdisni:
 
-To compile with RDMA and NVMf support:
-
-* Obtain spdk from [Github](https://github.com/spdk/spdk) (commit: 7336c0036e22c42b961a88d751fcf64f9901c030) and follow build instructions<br/>
-* Compile dpdk (17.02) with `EXTRA_CFLAGS="-fPIC"`<br/>
-* Build libdisni using: ./autoprepare.sh; ./configure --with-jdk=path-to-jdk --with-spdk=path-to-spdk --with-dpdk=path-to-dpdk; make install<br/>
-
-Common step:
-
-* Run: mvn -DskipTests install
+* Obtain dpdk from [dpdk.org](http://dpdk.org/download) (version 17.02)
+* Build dpdk using: make install T=x86_64-native-linuxapp-gcc DESTDIR=. EXTRA_CFLAGS="-fPIC" 
+* Obtain spdk from [Github](https://github.com/spdk/spdk) (commit: 7336c0036e22c42b961a88d751fcf64f9901c030)
+* Build spdk using: make DPDK_DIR=\<dpdk-path/x86_64-native-linuxapp-gcc\> CONFIG_RDMA=y 
+* Configure libdisni for NVMf: ./configure --with-jdk=\<path\> --with-spdk=\<path\> --with-dpdk=\<path\>
+* Build libdisni: make install
 
 ## How to Run the Examples
 
