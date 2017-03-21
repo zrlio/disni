@@ -46,20 +46,39 @@ To use DiSNI in your maven application use the following snippet in your pom.xml
       <version>1.0</version>
     </dependency>
     
-The RDMA and NVMf APIs in DiSNI are both following the Group/Endpoint model which is based on three key data types:
+The RDMA and NVMf APIs in DiSNI are both following the Group/Endpoint model which is based on three key data types (interfaces):
 
 * DiSNIServerEndpoint: 
-  * contains methods to bind() to a specific port, and to accept() new connections
+  * represents a listerning server waiting for new connections
+  * contains methods to bind() to a specific port and to accept() new connections 
 * DiSNIEndpoint: 
-  * represents a connection to a remote (or local) resource (e.g., RDMA or NVMf) and offers non-blocking methods to read() or write() the resource
+  * represents a connection to a remote (or local) resource (e.g., RDMA or NVMf) 
+  * offers non-blocking methods to read() or write() the resource
 * DiSNIGroup: 
-  * a factory for endpoints (both server and client)
+  * a factory for both client (DiSNIEndpoint) and server (DiSNIServerEndpoints)
+  
+Specific implementations of these interface in DiSNI/RDMA and DiSNI/NVMf are offering extra functionality tailored to their purpose. 
+
+### Programming NVMf using DiSNI
+
+Let's have a look at a simple client/server application using the DiSNI NVMf API. Here is an example of a simple NVMf server exporting a NVMe device with PCI address 0000:86:00.0. The server is listening on port 5050 and waits for new connections:
+```
+		NvmeTransportType transports[] = new NvmeTransportType[]{NvmeTransportType.PCIE, NvmeTransportType.RDMA}; 
+		String hugePages = "/dev/hugepages";
+		long perSocketMemory[] = new long[]{256,256};
+		NvmeEndpointGroup group = new NvmeEndpointGroup(transports, hugePages, perSocketMemory);
+		NvmeServerEndpoint serverEndpoint = group.createServerEndpoint();
+		URI url = new URI("nvmef://192.168.0.1:5050/0/1?subsystem=nqn.2016-06.io.spdk:cnode1&pci=0000:86:00.0");
+		serverEndpoint.bind(url);
+		
+		while(true){
+			NvmeEndpoint endpoint = serverEndpoint.accept();
+		}
+```
 
 ### Programming RDMA using DiSNI
     
-Here are the basic steps that are necessary to develop an RDMA client/server application using endpoints:
-
-Define your own custom endpoints by extending either extending RdmaClientEndpoint or RdmaActiveClientEndpoint
+Here are the basic steps that are necessary to develop an RDMA client/server application using DiSNI. First, define your own custom endpoints by extending either extending RdmaClientEndpoint or RdmaActiveClientEndpoint
 ```
 	public class CustomServerEndpoint extends RdmaActiveClientEndpoint {
 		public void init() throws IOException{
