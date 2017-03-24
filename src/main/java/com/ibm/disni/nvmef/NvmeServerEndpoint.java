@@ -25,12 +25,12 @@ package com.ibm.disni.nvmef;
 import java.io.IOException;
 import java.net.URI;
 import java.util.ArrayList;
+import java.util.StringTokenizer;
 import java.util.concurrent.LinkedBlockingQueue;
 
-import com.ibm.disni.DiSNIServerEndpoint;
 import com.ibm.disni.nvmef.spdk.*;
 
-public class NvmeServerEndpoint implements DiSNIServerEndpoint<NvmeEndpoint> {
+public class NvmeServerEndpoint {
 	private NvmeEndpointGroup group;
 	private NvmfTarget target;
 	private NvmfSubsystem nvmesubsystem;

@@ -24,171 +24,114 @@ package com.ibm.disni.benchmarks;
 
 import java.io.IOException;
 import java.net.URI;
+import java.net.URISyntaxException;
 import java.nio.ByteBuffer;
 import java.util.concurrent.ThreadLocalRandom;
 
-import com.ibm.disni.benchmarks.NvmfClient.AccessPattern;
+import com.ibm.disni.nvmef.NvmeCommand;
 import com.ibm.disni.nvmef.NvmeEndpoint;
 import com.ibm.disni.nvmef.NvmeEndpointGroup;
-import com.ibm.disni.nvmef.spdk.NvmfOperation;
 import com.ibm.disni.nvmef.spdk.NvmeTransportId;
 import com.ibm.disni.nvmef.spdk.NvmeTransportType;
-import com.ibm.disni.nvmef.spdk.NvmfAddressFamily;
+import sun.nio.ch.DirectBuffer;
 
-public class NvmfEndpointClient {
+public class NvmfEndpointClient extends NvmfClientBenchmark {
 	private final ThreadLocalRandom random;
 	private NvmeEndpointGroup group;
 	private NvmeEndpoint endpoint;
 	
-	public NvmfEndpointClient(NvmeTransportId tid) throws Exception {
+	public NvmfEndpointClient() {
 		this.random = ThreadLocalRandom.current();
-		this.group = new NvmeEndpointGroup(new NvmeTransportType[]{tid.getType()}, "/dev/hugepages", new long[]{256,256});
-		this.endpoint = group.createEndpoint();
-		endpoint.connect(tid.toURI());
-	}
-	
-	public int getMaxIOTransferSize() {
-		return endpoint.getMaxTransferSize();
 	}
 
-	public long benchmark(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws IOException{
-		NvmfOperation completions[] = new NvmfOperation[queueDepth];
-		ByteBuffer buffer = ByteBuffer.allocateDirect(transferSize);
+	public long run(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws IOException {
+		ByteBuffer buffer = group.allocateBuffer(transferSize, 4096);
 		byte bytes[] = new byte[buffer.capacity()];
 		random.nextBytes(bytes);
 		buffer.put(bytes);
+		buffer.clear();
 
-		int sectorCount = transferSize / endpoint.getSectorSize();
+		NvmeCommand commands[] = new NvmeCommand[queueDepth];
+		long[] processed = new long[queueDepth];
+		for (int i = 0; i < commands.length; i++) {
+			commands[i] = endpoint.newCommand();
+			commands[i].setBuffer(buffer);
+			commands[i].setId(i);
+			processed[i] = i;
+		}
+
+		final int sectorSize = endpoint.getSectorSize();
+		final int sectorCount = transferSize / sectorSize;
+		final long totalSizeSector = endpoint.getNamespaceSize() / sectorSize;
 
 		long start = System.nanoTime();
 		long posted = 0;
-		for (long completed = 0; completed < iterations; ) {
-			for (int i = 0; i < completions.length; i++) {
-				boolean post = false;
-				if (completions[i] == null) {
-					post = true;
-				} else if (completions[i].done()) {
-					completed++;
-					completions[i] = null;
-					post = true;
+		// start at random offset
+		long lba = random.nextLong(totalSizeSector - sectorCount);
+		// align to transfer size sector count
+		lba -= lba % sectorCount;
+		long lastNumProcessed = queueDepth;
+		for (long completed = 0; completed < iterations; completed += lastNumProcessed) {
+			for (int i = 0; i < lastNumProcessed && posted < iterations; i++) {
+				NvmeCommand command = commands[(int)processed[i]];
+				if (command.isPending() && !command.isDone()) {
+					throw new IOException("Was completed but is not done??");
 				}
-
-				if (post && posted < iterations) {
-					long lba = 0;
-					switch (accessPattern) {
-						case SEQUENTIAL:
-							lba = posted * sectorCount;
-							break;
-						case RANDOM:
-							lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
-							break;
-						case SAME:
-							lba = 1024;
-							break;
-					}
-					if (write) {
-						completions[i] = endpoint.write(buffer, lba);
-					} else {
-						completions[i] = endpoint.read(buffer, lba);
-					}
-					posted++;
+				command.setLinearBlockAddress(lba);
+				if (write) {
+					command.write();
+				} else {
+					command.read();
 				}
+				command.execute();
+				switch (accessPattern) {
+					case SEQUENTIAL:
+						lba += sectorCount;
+						lba = lba % (totalSizeSector - sectorCount);
+						break;
+					case RANDOM:
+						lba = random.nextLong(totalSizeSector - sectorCount);
+						break;
+				}
+				lba -= lba % sectorCount;
+				posted++;
 			}
-			while(completed < iterations && endpoint.processCompletions(completions.length) == 0);
+			do {
+				lastNumProcessed = endpoint.processCompletions(processed);
+			} while (lastNumProcessed == 0);
 		}
 		long end = System.nanoTime();
-		return (end - start)/iterations;
+		group.freeBuffer(buffer);
+		return end - start;
 	}
-	
-	public long latency(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws Exception{
-		ByteBuffer buffer = ByteBuffer.allocateDirect(transferSize);
-		buffer.clear();
-		
-		NvmfOperation completion = endpoint.read(buffer, 0);
-		long start = System.nanoTime();
-		for (long i = 0; i < iterations; i++) {
-			long lba = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
-			completion.setLba(lba);
-			completion.execute();
-			while(!completion.done()){
-				int res = endpoint.processCompletions(queueDepth);
-				while (res == 0){
-					res = endpoint.processCompletions(queueDepth);
-				}
-			}
-		}
-		long end = System.nanoTime();
-		completion.free();
-		return (end - start)/iterations/1000;
-	}
-	
-	public long verify(long iterations, int queueDepth, int transferSize, AccessPattern accessPattern, boolean write) throws Exception{
-		ByteBuffer buffer = ByteBuffer.allocateDirect(transferSize);
-		buffer.clear();
-		int sectorCount = transferSize / endpoint.getSectorSize();
-		
-		long start = System.nanoTime();
-		long lbas[] = new long[(int) iterations];
-		int front[] = new int[lbas.length];
-		int back[] = new int[lbas.length];
-		for (int i = 0; i < lbas.length; i++){
-			lbas[i] = random.nextLong(endpoint.getNamespaceSize() / endpoint.getSectorSize());
-			front[i] = random.nextInt(Integer.MAX_VALUE);
-			back[i] = random.nextInt(Integer.MAX_VALUE);
-		}
-		
-		NvmfOperation writeCompletion = endpoint.write(buffer, 0);
-		for (int i = 0; i < iterations; i++) {
-			long lba = lbas[i];
-			buffer.putInt(0, front[i]);
-			buffer.putInt(transferSize - 4, back[i]);
-			writeCompletion.setLba(lba);
-			writeCompletion.execute();
-			while(!writeCompletion.done()){
-				int res = endpoint.processCompletions(1);
-				while (res == 0){
-					res = endpoint.processCompletions(1);
-				}
-			}
-		}
-		writeCompletion.free();
-		
-		NvmfOperation readCompletion = endpoint.read(buffer, 0);
-		for (int i = 0; i < iterations; i++) {
-			long lba = lbas[i];
-			readCompletion.setLba(lba);
-			readCompletion.execute();
-			while(!readCompletion.done()){
-				int res = endpoint.processCompletions(1);
-				while (res == 0){
-					res = endpoint.processCompletions(1);
-				}
-			}
-			int _front = buffer.getInt(0);
-			int _back = buffer.getInt(transferSize -4);
-			System.out.println("i " + i + ", front " + front[i] + ", _front " + _front + ", back " + back[i] + ", _back " + _back);
-		}
-		readCompletion.free();
-		long end = System.nanoTime();
-		return (end - start)/iterations/1000;
-	}	
 
-	public static void main(String[] args) throws Exception{
-		NvmeTransportId transportId;
-		if (args.length == 3) {
-			transportId = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, args[0], args[1], args[2]);
-		} else {
-			transportId = NvmeTransportId.pcie(args[0]);
-		}		
-		System.out.println("Starting NvmfEndpointClient, v3, transport " + transportId.toString());
-		NvmfEndpointClient client = new NvmfEndpointClient(transportId);
-		
-		int iterations = 100;
-		client.verify(iterations, 1, 512, AccessPattern.RANDOM, false);
-		iterations = 100000;
-		System.out.println("Read latency 512 " + client.latency(iterations, 1, 512, AccessPattern.RANDOM, false) + "us");
-		System.out.println("Read latency 512 " + client.latency(iterations, 1, 512, AccessPattern.RANDOM, false) + "us");
-		System.out.println("Read latency 4K  " + client.latency(iterations, 1, 4096, AccessPattern.RANDOM, false) + "us");
-		System.out.println("Read latency 4K  " + client.latency(iterations, 1, 4096, AccessPattern.RANDOM, false) + "us");
+	void connect(NvmeTransportId tid) throws IOException {
+		this.group = new NvmeEndpointGroup(new NvmeTransportType[]{tid.getType()}, "/dev/hugepages",
+				new long[]{256,256});
+		this.endpoint = group.createEndpoint();
+
+		URI url;
+		try {
+			if (tid.getType() == NvmeTransportType.RDMA){
+				url = new URI("nvmef://" + tid.getAddress() + ":" + tid.getServiceId() + "/0/1?subsystem=" + tid.getSubsystemNQN());
+			} else {
+				url = new URI("nvmef://127.0.0.1:7777?pci=" + tid.getAddress());
+			}
+		} catch (URISyntaxException e) {
+			throw new IOException(e);
+		}
+		endpoint.connect(url);
+	}
+
+	void close() throws IOException {
+		try {
+			endpoint.close();
+		} catch (InterruptedException e) {
+			throw new IOException(e);
+		}
+	}
+
+	public static void main(String[] args) throws IOException {
+		new NvmfEndpointClient().start(args);
 	}
 }

@@ -33,9 +33,10 @@ public class SpdkProbe {
 			System.out.println("<address> [<port> <subsystemNQN>]");
 			System.exit(-1);
 		}
+		boolean isRDMA = args.length == 3;
 
 		NvmeTransportId transportId;
-		if (args.length == 3) {
+		if (isRDMA) {
 			transportId = NvmeTransportId.rdma(NvmfAddressFamily.IPV4, args[0], args[1], args[2]);
 		} else {
 			transportId = NvmeTransportId.pcie(args[0]);
@@ -153,9 +154,16 @@ public class SpdkProbe {
 		NvmeQueuePair queuePair = controller.allocQueuePair();
 		NvmeNamespace namespace = controller.getNamespace(1);
 
-		ByteBuffer writeBuf = ByteBuffer.allocateDirect(4096);
+		ByteBuffer writeBuf;
+		final int bufferSize = 4096;
+		if (!isRDMA) {
+			writeBuf = nvme.allocateBuffer(bufferSize, bufferSize);
+		} else {
+			writeBuf = ByteBuffer.allocateDirect(bufferSize);
+		}
 		writeBuf.put(new byte[]{'H', 'e', 'l', 'l', 'o'});
-		NvmfOperation completion = namespace.write(queuePair, ((DirectBuffer) writeBuf).address(), 0, 1);
+		IOCompletion completion = new IOCompletion();
+		namespace.write(queuePair, ((DirectBuffer) writeBuf).address(), 0, 1, completion);
 
 		do {
 			queuePair.processCompletions(10);
@@ -165,9 +173,17 @@ public class SpdkProbe {
 			System.out.println("Status code = " +
 					NvmeGenericCommandStatusCode.valueOf(completion.getStatusCode()).name());
 		}
+		if (!isRDMA) {
+			nvme.freeBuffer(writeBuf);
+		}
 
-		ByteBuffer buffer = ByteBuffer.allocateDirect(4096);
-		completion = namespace.read(queuePair, ((DirectBuffer) buffer).address(), 0, 1);
+		ByteBuffer buffer;
+		if (!isRDMA) {
+			buffer = nvme.allocateBuffer(bufferSize, bufferSize);
+		} else {
+			buffer = ByteBuffer.allocateDirect(bufferSize);
+		}
+		namespace.read(queuePair, ((DirectBuffer) buffer).address(), 0, 1, completion);
 		do {
 			queuePair.processCompletions(10);
 		} while (!completion.done());
@@ -180,5 +196,8 @@ public class SpdkProbe {
 		byte cString[] = new byte[5];
 		buffer.get(cString);
 		System.out.println("Read " + new String(cString));
+		if (!isRDMA) {
+			nvme.freeBuffer(buffer);
+		}
 	}
 }

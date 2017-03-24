@@ -23,6 +23,7 @@ package com.ibm.disni.benchmarks;
 
 import com.ibm.disni.nvmef.spdk.*;
 
+import java.lang.reflect.Array;
 import java.util.ArrayList;
 import java.util.List;
 

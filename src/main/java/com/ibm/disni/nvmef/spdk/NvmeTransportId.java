@@ -49,61 +49,6 @@ public class NvmeTransportId {
 		// for transport type PCIE the rest of the parameters are ignored by spdk (at least for now)
 		return new NvmeTransportId(NvmeTransportType.PCIE, NvmfAddressFamily.INTRA_HOST, pciAddress, "", "");
 	}
-	
-	public static NvmeTransportId parse(URI uri) throws IOException {
-		String address = uri.getHost();
-		String port = Integer.toString(uri.getPort());
-		int controller = 0;
-		int namespace =  1;
-		String subsystem = "";
-		String pci = "";
-		
-		String path = uri.getPath();
-		if (path != null){
-			StringTokenizer pathTokenizer = new StringTokenizer(path, "/");
-			if (pathTokenizer.countTokens() > 2){
-				throw new IOException("URL format error, too many elements in path");
-			}
-			for (int i = 0; pathTokenizer.hasMoreTokens(); i++){
-				switch(i) {
-				case 0:
-					controller = Integer.parseInt(pathTokenizer.nextToken());
-					break;
-				case 1:
-					namespace = Integer.parseInt(pathTokenizer.nextToken());
-					break;
-				}
-			}
-		}
-		
-		String query = uri.getQuery();
-		if (query != null){
-			StringTokenizer queryTokenizer = new StringTokenizer(query, "&");
-			while (queryTokenizer.hasMoreTokens()){
-				String param = queryTokenizer.nextToken();
-				if (param.startsWith("subsystem")){
-					subsystem = param.substring(10);
-				}
-				if (param.startsWith("pci")){
-					pci = param.substring(4);
-				}	
-			}			
-		}
-		
-		if (pci.isEmpty()){
-			return new NvmeTransportId(NvmeTransportType.RDMA, NvmfAddressFamily.IPV4, address, port, subsystem);
-		} else {
-			return new NvmeTransportId(NvmeTransportType.PCIE, NvmfAddressFamily.INTRA_HOST, pci, "", "");
-		}
-	}	
-	
-	public URI toURI() throws URISyntaxException {
-		if (type == NvmeTransportType.RDMA){
-			return new URI("nvmef://" + address + ":" + serviceId + "/0/1?subsystem=" + this.subsystemNQN);
-		} else {
-			return new URI("nvmef://127.0.0.1:7777?pci=" + address);
-		}
-	}
 
 	public NvmeTransportType getType() {
 		return type;

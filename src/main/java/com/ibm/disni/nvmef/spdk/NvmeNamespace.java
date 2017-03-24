@@ -30,10 +30,15 @@ public class NvmeNamespace extends NatObject {
     private final NativeDispatcher nativeDispatcher;
 	private final MemoryAllocation memoryAllocation;
 
+	private final long size;
+	private final int sectorSize;
+
     NvmeNamespace(long objId, NativeDispatcher nativeDispatcher, MemoryAllocation memoryAllocation) {
         super(objId);
         this.nativeDispatcher = nativeDispatcher;
 		this.memoryAllocation = memoryAllocation;
+		size = nativeDispatcher._nvme_ns_get_size(getObjId());
+		sectorSize = nativeDispatcher._nvme_ns_get_sector_size(getObjId());
     }
 
     public boolean isActive() {
@@ -41,20 +46,34 @@ public class NvmeNamespace extends NatObject {
     }
 
     public long getSize() {
-        return nativeDispatcher._nvme_ns_get_size(getObjId());
+        return size;
     }
 
 	public int getSectorSize() {
-		return nativeDispatcher._nvme_ns_get_sector_size(getObjId());
+		return sectorSize;
 	}
 
 	public int getMaxIOTransferSize() { return nativeDispatcher._nvme_ns_get_max_io_xfer_size(getObjId()); }
 
-	public NvmfOperation read(NvmeQueuePair queuePair, long address, long linearBlockAddress, int count) throws IOException {
-		return new NvmfOperation(memoryAllocation, nativeDispatcher, getObjId(), queuePair.getObjId(), address, linearBlockAddress, count, false);
+	public void Op(NvmeQueuePair queuePair, long address, long linearBlockAddress, int count, IOCompletion completion, boolean write) throws IOException {
+		try {
+			completion.reset();
+		} catch (PendingOperationException e) {
+			throw new IllegalArgumentException("Completion not done", e);
+		}
+		completion.setQueuePair(queuePair);
+		int ret = nativeDispatcher._nvme_ns_io_cmd(getObjId(), queuePair.getObjId(), address,
+				linearBlockAddress, count, completion.address(), write);
+		if (ret < 0) {
+			throw new IOException("nvme_ns_cmd_read failed with " + ret);
+		}
 	}
 
-	public NvmfOperation write(NvmeQueuePair queuePair, long address, long linearBlockAddress, int count) throws IOException {
-		return new NvmfOperation(memoryAllocation, nativeDispatcher, getObjId(), queuePair.getObjId(), address, linearBlockAddress, count, true);
+	public void read(NvmeQueuePair queuePair, long address, long linearBlockAddress, int count, IOCompletion completion) throws IOException {
+		Op(queuePair, address, linearBlockAddress, count, completion, false);
+	}
+
+	public void write(NvmeQueuePair queuePair, long address, long linearBlockAddress, int count, IOCompletion completion) throws IOException {
+		Op(queuePair, address, linearBlockAddress, count, completion, true);
 	}
 }
