@@ -26,6 +26,7 @@ import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
+import com.ibm.disni.DiSNIGroup;
 import com.ibm.disni.nvmef.spdk.Nvme;
 import com.ibm.disni.nvmef.spdk.NvmeController;
 import com.ibm.disni.nvmef.spdk.NvmeTransportId;
@@ -33,7 +34,7 @@ import com.ibm.disni.nvmef.spdk.NvmeTransportType;
 import com.ibm.disni.nvmef.spdk.NvmfConnection;
 import com.ibm.disni.nvmef.spdk.NvmfTarget;
 
-public class NvmeEndpointGroup {
+public class NvmeEndpointGroup implements DiSNIGroup<NvmeEndpoint> {
 	private Nvme nvme;
 	
 	public NvmeEndpointGroup(NvmeTransportType[] transportTypes, String hugePath, long[] socketMemoryMB){

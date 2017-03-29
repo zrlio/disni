@@ -26,9 +26,10 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 
+import com.ibm.disni.DiSNIEndpoint;
 import com.ibm.disni.nvmef.spdk.*;
 
-public class NvmeEndpoint {
+public class NvmeEndpoint implements DiSNIEndpoint {
 	private final NvmeEndpointGroup group;
     private NvmeQueuePair queuePair;
 	private NvmeNamespace namespace;
