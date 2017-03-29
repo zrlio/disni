@@ -22,13 +22,9 @@
 package com.ibm.disni.benchmarks;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
-import java.util.concurrent.Semaphore;
-import java.util.concurrent.atomic.AtomicInteger;
-
 import com.ibm.disni.examples.ReadServer;
 import com.ibm.disni.rdma.RdmaEndpoint;
 import com.ibm.disni.rdma.RdmaEndpointFactory;
@@ -64,15 +60,12 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.ReadClientEndp
 		return new ReadClientEndpoint(group, id, serverSide, size);
 	}
 	
-	private void run() throws IOException, InterruptedException {
+	private void run() throws Exception {
 		System.out.println("ReadClient, size " + size + ", loop " + loop);
 		
 		ReadClient.ReadClientEndpoint endpoint = group.createEndpoint();
-		InetAddress ipAddress = InetAddress.getByName(host);
-		InetSocketAddress address = new InetSocketAddress(ipAddress, 1919);
-		endpoint.connect(address, 1000);
-		InetSocketAddress _addr = (InetSocketAddress) endpoint.getDstAddr();
-		System.out.println("ReadClient, client connected, address " + _addr.toString());	
+		endpoint.connect(URI.create("rdma://" + host + ":" + 1919));
+		System.out.println("ReadClient, client connected, address " + host + ", port " + 1919);	
 		
 		//in our custom endpoints we make sure CQ events get stored in a queue, we now query that queue for new CQ events.
 		//in this case a new CQ event means we have received some data, i.e., a message from the server
@@ -128,7 +121,7 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.ReadClientEndp
 		System.out.println("ReadClient, latency " + latency);
 	}	
 	
-	public static void main(String[] args) throws IOException, InterruptedException{
+	public static void main(String[] args) throws Exception {
 		String[] _args = args;
 		if (args.length < 1) {
 			System.exit(0);
@@ -183,7 +176,6 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.ReadClientEndp
 		
 		private IbvWC[] wcList;
 		private SVCPollCq poll;	
-		private Semaphore sendQueueAvailable;		
 		
 		protected ReadClientEndpoint(RdmaEndpointGroup<? extends RdmaEndpoint> group, RdmaCmId idPriv, boolean serverSide, int size) throws IOException {
 			super(group, idPriv, serverSide);
@@ -205,8 +197,6 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.ReadClientEndp
 			this.sgeRecv = new IbvSge();
 			this.sgeListRecv = new LinkedList<IbvSge>();
 			this.recvWR = new IbvRecvWR();	
-			
-			this.sendQueueAvailable = new Semaphore(16);
 		}
 		
 		public ByteBuffer getDataBuf() {

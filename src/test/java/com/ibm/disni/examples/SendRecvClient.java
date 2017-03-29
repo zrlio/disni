@@ -22,8 +22,7 @@
 package com.ibm.disni.examples;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -56,11 +55,9 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.Custom
 		//we have passed our own endpoint factory to the group, therefore new endpoints will be of type CustomClientEndpoint
 		//let's create a new client endpoint
 		SendRecvClient.CustomClientEndpoint endpoint = endpointGroup.createEndpoint();
-		InetAddress localHost = InetAddress.getByName(ipAddress);
-		InetSocketAddress address = new InetSocketAddress(localHost, 1919);		
 		
 		//connect to the server
-		endpoint.connect(address, 1000);
+		endpoint.connect(URI.create("rdma://" + ipAddress + ":" + 1919));
 		System.out.println("SimpleClient::client channel set up ");
 		
 		//in our custom endpoints we have prepared (memory registration and work request creation) some memory 

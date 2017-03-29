@@ -22,8 +22,7 @@
 package com.ibm.disni.benchmarks;
 
 import java.io.IOException;
-import java.net.InetAddress;
-import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -61,16 +60,14 @@ public class ReadServer implements RdmaEndpointFactory<ReadServer.ReadServerEndp
 	}
 	
 	
-	private void run() throws IOException, InterruptedException {
+	private void run() throws Exception {
 		System.out.println("ReadServer, size " + size + ", loop " + loop);
 		
 		RdmaServerEndpoint<ReadServer.ReadServerEndpoint> serverEndpoint = group.createServerEndpoint();
-		InetAddress ipAddress = InetAddress.getByName(host);
-		InetSocketAddress address = new InetSocketAddress(ipAddress, 1919);
-		serverEndpoint.bind(address, 10);
+		URI uri = URI.create("rdma://" + host + ":" + 1919);
+		serverEndpoint.bind(uri);
 		ReadServer.ReadServerEndpoint endpoint = serverEndpoint.accept();
-		InetSocketAddress _addr = (InetSocketAddress) endpoint.getDstAddr();
-		System.out.println("ReadServer, client connected, address " + _addr.toString());	
+		System.out.println("ReadServer, client connected, address " + uri.toString());	
 		
 		//let's send a message to the client
 		//in the message we include the RDMA information of a local buffer which we allow the client to read using a one-sided RDMA operation
@@ -90,7 +87,7 @@ public class ReadServer implements RdmaEndpointFactory<ReadServer.ReadServerEndp
 	}
 	
 	
-	public static void main(String[] args) throws IOException, InterruptedException{
+	public static void main(String[] args) throws Exception {
 		String[] _args = args;
 		if (args.length < 1) {
 			System.exit(0);

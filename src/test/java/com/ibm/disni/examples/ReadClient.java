@@ -22,8 +22,8 @@
 package com.ibm.disni.examples;
 
 import java.io.IOException;
-import java.net.InetAddress;
 import java.net.InetSocketAddress;
+import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -55,11 +55,9 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.CustomClientEn
 		//we have passed our own endpoint factory to the group, therefore new endpoints will be of type CustomClientEndpoint
 		//let's create a new client endpoint		
 		ReadClient.CustomClientEndpoint endpoint = endpointGroup.createEndpoint();
-		InetAddress localHost = InetAddress.getByName(ipAddress);
-		InetSocketAddress address = new InetSocketAddress(localHost, 1919);
 		
 		//connect to the server
-		endpoint.connect(address, 1000);
+		endpoint.connect(URI.create("rdma://" + ipAddress + ":" + 1919));
 		InetSocketAddress _addr = (InetSocketAddress) endpoint.getDstAddr();
 		System.out.println("ReadClient::client connected, address " + _addr.toString());
 		
