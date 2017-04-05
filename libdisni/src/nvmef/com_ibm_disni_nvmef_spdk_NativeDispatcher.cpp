@@ -568,6 +568,17 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1su
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvmf_subsystem_start
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1subsystem_1start
+  (JNIEnv* env, jobject thiz, jlong subsystem_id) {
+    spdk_nvmf_subsystem* subsystem = reinterpret_cast<spdk_nvmf_subsystem*>(subsystem_id);
+    return spdk_nvmf_subsystem_start(subsystem);
+}
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _nvmf_subsystem_poll
  * Signature: (J[J)I
  */

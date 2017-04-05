@@ -55,7 +55,8 @@ public class NvmeServerEndpoint implements DiSNIServerEndpoint<NvmeEndpoint> {
 		this.target = group.createNvmfTarget();
 		this.nvmesubsystem = target.createSubsystem(nvmeResource.getSubsystem(), NvmfSubtype.NVME, NvmfSubsystemMode.DIRECT);
 		nvmesubsystem.addController(nvmecontroller, nvmeResource.getPci());
-		nvmesubsystem.addListener(NvmfTransportName.RDMA, nvmeResource.getAddress(), nvmeResource.getPort());		
+		nvmesubsystem.addListener(NvmfTransportName.RDMA, nvmeResource.getAddress(), nvmeResource.getPort());
+		nvmesubsystem.start();
 		
 		return this;
 	}

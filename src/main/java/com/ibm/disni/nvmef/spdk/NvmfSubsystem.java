@@ -59,6 +59,13 @@ public class NvmfSubsystem extends NatObject {
 		}
 	}
 
+	public void start() throws Exception {
+		int ret = nativeDispatcher._nvmf_subsystem_start(getObjId());
+		if (ret != 0) {
+			throw new Exception("spdk_nvmf_subsystem_start failed with " + ret);
+		}
+	}
+
 	public void delete() {
 		nativeDispatcher._nvmf_delete_subsystem(getObjId());
 	}

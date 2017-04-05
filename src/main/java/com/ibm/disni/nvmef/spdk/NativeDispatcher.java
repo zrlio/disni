@@ -95,6 +95,8 @@ public class NativeDispatcher {
 
 	public native int _nvmf_subsystem_add_listener(long subsystem, String transportName, String address, String serviceId);
 
+	public native int _nvmf_subsystem_start(long subsystem);
+
 	// polls for IO completions and handles IO requests including connect requests
 	public native int _nvmf_subsystem_poll(long subsystem, long connects[]);
 
