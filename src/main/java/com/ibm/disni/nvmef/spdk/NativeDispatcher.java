@@ -83,6 +83,10 @@ public class NativeDispatcher {
 
 	public native int _subsystem_fini();
 
+	public native int _reactors_init(int maxDelayUs);
+
+	public native int _reactors_fini();
+
 	public native int _nvmf_tgt_init(short maxQueueDepth, short maxConnectionPerSession, int inCapsuleDataSize, int maxIOSize);
 
 	public native long _nvmf_create_subsystem(String nqn, int type, int mode);

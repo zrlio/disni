@@ -177,6 +177,22 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1subsyste
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _reactors_init
+ * Signature: (I)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1reactors_1init
+  (JNIEnv *, jobject, jint);
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _reactors_fini
+ * Signature: ()I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1reactors_1fini
+  (JNIEnv *, jobject);
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _nvmf_tgt_init
  * Signature: (SSII)I
  */
