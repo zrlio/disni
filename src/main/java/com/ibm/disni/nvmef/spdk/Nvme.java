@@ -38,59 +38,23 @@ public class Nvme {
 
 	private NvmfTarget nvmfTarget;
 
-	public Nvme(NvmeTransportType[] transportTypes, String hugePath, long[] socketMemoryMB) throws IllegalArgumentException {
+	public Nvme(NvmeTransportType[] transportTypes, String hugePath, long memorySizeMB) throws IllegalArgumentException {
 		nativeDispatcher = new NativeDispatcher();
 		memoryAllocation = MemoryAllocation.getInstance();
 
-		boolean pcie = false;
-		for(NvmeTransportType type : transportTypes) {
+
+		int[] transportTypesInt = new int[transportTypes.length];
+		for(int i = 0; i < transportTypes.length; i++) {
+			NvmeTransportType type = transportTypes[i];
 			if (!nativeDispatcher._nvme_transport_available(type.getNumVal())) {
 				throw new IllegalArgumentException("Unsupported transport " + type.name());
 			}
-			if (type == NvmeTransportType.PCIE) {
-				pcie = true;
-			}
-		}
-		ArrayList<String> args = new ArrayList<String>();
-		args.add("nvme");
-		if (!pcie) {
-			args.add("--no-pci");
+			transportTypesInt[i] = type.getNumVal();
 		}
 
-		if (hugePath == null) {
-			//FIXME: this does not seem to work with the current SPDK build
-			args.add("--no-huge");
-			long totalMemory = 0;
-			for (long memory : socketMemoryMB) {
-				totalMemory += memory;
-			}
-
-			args.add("-m");
-			args.add(Long.toString(totalMemory));
-		} else {
-			args.add("--huge-dir");
-			args.add(hugePath);
-
-			args.add("--socket-mem");
-			if (socketMemoryMB == null || socketMemoryMB.length == 0) {
-				throw new IllegalArgumentException("socketMemoryMB null or zero length");
-			}
-			StringBuilder sb = new StringBuilder();
-			for (long memory : socketMemoryMB) {
-				if (sb.length() > 0) {
-					sb.append(',');
-				}
-				sb.append(Long.toString(memory));
-			}
-			args.add(sb.toString());
-		}
-
-		args.add("--proc-type");
-		args.add("primary");
-
-		int ret = nativeDispatcher._rte_eal_init(args.toArray(new String[args.size()]));
+		int ret = nativeDispatcher._env_init(hugePath, memorySizeMB, transportTypesInt);
 		if (ret < 0) {
-			throw new IllegalArgumentException("rte_eal_init failed with " + ret);
+			throw new IllegalArgumentException("spdk_env_init failed with " + ret);
 		}
 	}
 

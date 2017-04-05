@@ -33,10 +33,11 @@ public class NativeDispatcher {
 		System.loadLibrary("disni");
 	}
 
-	/* DPDK eal initialization is necessary to setup hugepages, VFIO etc. */
-	public native int _rte_eal_init(String[] args);
-
 	/* SPDK util */
+
+	public native int _env_init(String hugePath, long memorySizeMB, int[] transportTypes);
+
+	public native int _log_set_trace_flag(String name);
 
 	/* buffers returned are locked and have vtophys translation -> required for local NVMe access */
 	public native long _malloc(long size, long alignment);
@@ -44,8 +45,6 @@ public class NativeDispatcher {
 	public native void _free(long address);
 
 	/* SPDK NVMe common functions */
-
-	public native int _log_set_trace_flag(String name);
 
 	public native boolean _nvme_transport_available(int transportType);
 
