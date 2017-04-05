@@ -9,11 +9,19 @@ extern "C" {
 #endif
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
- * Method:    _rte_eal_init
- * Signature: ([Ljava/lang/String;)I
+ * Method:    _env_init
+ * Signature: (Ljava/lang/String;J[I)I
  */
-JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1rte_1eal_1init
-  (JNIEnv *, jobject, jobjectArray);
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1env_1init
+  (JNIEnv *, jobject, jstring, jlong, jintArray);
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _log_set_trace_flag
+ * Signature: (Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1log_1set_1trace_1flag
+  (JNIEnv *, jobject, jstring);
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
@@ -30,14 +38,6 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1malloc
  */
 JNIEXPORT void JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1free
   (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
- * Method:    _log_set_trace_flag
- * Signature: (Ljava/lang/String;)I
- */
-JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1log_1set_1trace_1flag
-  (JNIEnv *, jobject, jstring);
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher

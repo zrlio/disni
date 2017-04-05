@@ -6,8 +6,4 @@ libdisni_la_LIBADD = \
   verbs/libverbs.la \
   affinity/libaffinity.la \
   nvmef/libnvmef.la
-if SPDK
-#XXX: libtools has no better way to deal with whole-archive
-libdisni_la_LDFLAGS = -Wl,--whole-archive,@dpdk@/lib/librte_eal.a,@dpdk@/lib/librte_mempool.a,@dpdk@/lib/librte_ring.a,--no-whole-archive
-endif
 

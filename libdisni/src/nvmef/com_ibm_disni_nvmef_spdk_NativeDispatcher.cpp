@@ -34,6 +34,7 @@ extern "C" {
 #include <spdk/nvmf.h>
 //XXX
 #include <nvme_internal.h>
+#include <env_internal.h>
 }
 
 
@@ -45,6 +46,7 @@ extern "C" {
 
 #include <iostream>
 #include <sstream>
+#include <vector>
 
 #include <cstdio>
 #include <cstring>
@@ -94,49 +96,55 @@ class JNIString {
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
- * Method:    _rte_eal_init
- * Signature: ([Ljava/lang/String;)I
+ * Method:    _env_init
+ * Signature: (Ljava/lang/String;J[I)I
  */
-JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1rte_1eal_1init
-  (JNIEnv* env, jobject thiz, jobjectArray args) {
-    jsize length = env->GetArrayLength(args);
-    int argc = length + 4;
-    const char** cargs = new const char*[argc];
-    JNIString** jnistrs = new JNIString*[length];
-    for (jsize i = 0; i < length; i++) {
-        jstring string = (jstring) env->GetObjectArrayElement(args, i);
-        jnistrs[i] = new JNIString(env, string);
-        cargs[i] = jnistrs[i]->c_str();
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1env_1init
+  (JNIEnv* env, jobject thiz, jstring huge_path, jlong memory_size_MB, jintArray transport_types) {
+    spdk_env_opts opts;
+    spdk_env_opts_init(&opts);
+
+    jsize jtransport_types_size = env->GetArrayLength(transport_types);
+    jint* jtransport_types = env->GetIntArrayElements(transport_types, NULL);
+    bool pcie = false;
+    for (jsize i = 0; i < jtransport_types_size; i++) {
+        if (jtransport_types[i] == SPDK_NVME_TRANSPORT_PCIE) {
+            pcie = true;
+        }
+    }
+    env->ReleaseIntArrayElements(transport_types, jtransport_types, 0);
+
+    std::vector<const char*> cargs;
+    JNIString jHugePath(env, huge_path);
+    int args_idx = 0;
+    cargs.push_back("--huge-dir");
+    cargs.push_back(jHugePath.c_str());
+
+    if (pcie) {
+        cargs.push_back("--no-pci");
     }
 
-    // set core for DPDK thread - we do not use this thread, unfortunately
-    // it cannot be turned of
-    cargs[length] = "-l";
-    std::stringstream cpu;
-    cpu << sched_getcpu();
-    std::string cpu_str = cpu.str();
-    cargs[length + 1] = cpu_str.c_str();
+    cargs.push_back("--proc");
+    cargs.push_back("primary");
 
-    // unique prefix to be able to start multiple SPDK processes
-    cargs[length + 2] = "--file-prefix";
+    cargs.push_back("--file-prefix");
     pid_t pid = getpid();
     std::stringstream prefix;
     prefix << "rte_" << pid;
     std::string prefix_str = prefix.str();
-    cargs[length + 3] = prefix_str.c_str();
+    cargs.push_back(prefix_str.c_str());
 
-    std::cerr << "rte_eal_init ";
-    for (size_t i = 0; i < argc; i++) {
-        std::cerr << cargs[i] << " ";
-    }
-    std::cerr << std::endl;
+    cargs.push_back("-m");
+    std::stringstream memory_size_ss;
+    memory_size_ss << memory_size_MB;
+    std::string memory_size_str = memory_size_ss.str();
+    cargs.push_back(memory_size_str.c_str());
 
-    int ret = rte_eal_init(argc, const_cast<char**>(cargs));
-    for (jsize i = 0; i < length; i++) {
-        delete jnistrs[i];
-    }
-    delete[] cargs;
-    delete[] jnistrs;
+    //XXX we should call spdk_env_init but it does not allow to set --no-pci etc
+    int ret = rte_eal_init(cargs.size(), const_cast<char**>(cargs.data()));
+
+    spdk_vtophys_register_dpdk_mem();
+    return ret;
 }
 
 /*
@@ -511,8 +519,11 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1su
         return -EFAULT;
     }
 
-    return spdk_nvmf_subsystem_add_listener(subsystem, trname.c_str(),
-            addr.c_str(), svcid.c_str());
+    spdk_nvmf_listen_addr listen_addr;
+    listen_addr.traddr = const_cast<char*>(addr.c_str());
+    listen_addr.trsvcid = const_cast<char*>(svcid.c_str());
+    listen_addr.trname = const_cast<char*>(trname.c_str());
+    return spdk_nvmf_subsystem_add_listener(subsystem, &listen_addr);
 }
 
 /*
