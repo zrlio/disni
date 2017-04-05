@@ -35,6 +35,7 @@ extern "C" {
 //XXX
 #include <nvme_internal.h>
 #include <env_internal.h>
+#include <spdk_internal/event.h>
 }
 
 

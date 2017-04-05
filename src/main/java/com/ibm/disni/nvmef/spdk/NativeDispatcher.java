@@ -79,6 +79,10 @@ public class NativeDispatcher {
 
 	/* NVMf target */
 
+	public native int _subsystem_init();
+
+	public native int _subsystem_fini();
+
 	public native int _nvmf_tgt_init(short maxQueueDepth, short maxConnectionPerSession, int inCapsuleDataSize, int maxIOSize);
 
 	public native long _nvmf_create_subsystem(String nqn, int type, int mode);

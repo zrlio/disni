@@ -34,7 +34,11 @@ public class NvmfTarget {
 			throw new Exception("The target is already initialized!");
 		}
 		this.nativeDispatcher = nativeDispatcher;
-		int ret = nativeDispatcher._nvmf_tgt_init(maxQueueDepth, maxConnectionPerSession, inCapsuleDataSize, maxIOSize);
+		int ret = nativeDispatcher._subsystem_init();
+		if (ret != 0) {
+			throw new IllegalArgumentException("spdk_subsystem_init failed with " + ret);
+		}
+		ret = nativeDispatcher._nvmf_tgt_init(maxQueueDepth, maxConnectionPerSession, inCapsuleDataSize, maxIOSize);
 		if (ret != 0) {
 			throw new IllegalArgumentException("spdk_nvmf_tgt_init failed with " + ret);
 		}
@@ -58,6 +62,10 @@ public class NvmfTarget {
 		int ret = nativeDispatcher._nvmf_tgt_fini();
 		if (ret != 0) {
 			throw new Exception("spdk_nvmf_tgt_fini failed with " + ret);
+		}
+		ret = nativeDispatcher._subsystem_fini();
+		if (ret != 0) {
+			throw new Exception("spdk_subsystem_fini failed with " + ret);
 		}
 		initialized = false;
 	}
