@@ -108,7 +108,7 @@ public class NvmfClient extends NvmfClientBenchmark {
 	}
 
 	void connect(NvmeTransportId tid) throws IOException {
-		nvme = new Nvme(new NvmeTransportType[]{tid.getType()}, "/dev/hugepages", new long[]{256,256});
+		nvme = new Nvme(new NvmeTransportType[]{tid.getType()}, "/dev/hugepages", 256);
 		controllers = new ArrayList<NvmeController>();
 		nvme.probe(tid, controllers);
 		NvmeController controller = controllers.get(0);

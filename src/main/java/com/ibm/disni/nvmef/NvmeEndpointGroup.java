@@ -37,8 +37,8 @@ import com.ibm.disni.nvmef.spdk.NvmfTarget;
 public class NvmeEndpointGroup implements DiSNIGroup<NvmeEndpoint> {
 	private Nvme nvme;
 	
-	public NvmeEndpointGroup(NvmeTransportType[] transportTypes, String hugePath, long[] socketMemoryMB){
-		this.nvme = new Nvme(transportTypes, hugePath, socketMemoryMB);
+	public NvmeEndpointGroup(NvmeTransportType[] transportTypes, String hugePath, long memorySizeMB){
+		this.nvme = new Nvme(transportTypes, hugePath, memorySizeMB);
 	}
 	
 	//most likely not used

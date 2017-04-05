@@ -142,7 +142,6 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1env_1ini
 
     //XXX we should call spdk_env_init but it does not allow to set --no-pci etc
     int ret = rte_eal_init(cargs.size(), const_cast<char**>(cargs.data()));
-
     spdk_vtophys_register_dpdk_mem();
     return ret;
 }

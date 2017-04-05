@@ -40,7 +40,7 @@ public class NvmfServer {
 		String port = args[3];
 
 		Nvme nvme = new Nvme(new NvmeTransportType[]{NvmeTransportType.PCIE, NvmeTransportType.RDMA},
-				"/dev/hugepages", new long[]{256,256});
+				"/dev/hugepages", 256);
 		nvme.logEnableTrace();
 
 		NvmeTransportId transportId = NvmeTransportId.pcie(pci_addr);
