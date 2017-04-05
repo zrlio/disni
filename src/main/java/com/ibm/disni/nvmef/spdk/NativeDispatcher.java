@@ -89,11 +89,11 @@ public class NativeDispatcher {
 
 	public native int _nvmf_tgt_init(short maxQueueDepth, short maxConnectionPerSession, int inCapsuleDataSize, int maxIOSize);
 
+	public native int _nvmf_tgt_listen(String transportName, String address, String serviceId);
+
 	public native long _nvmf_create_subsystem(String nqn, int type, int mode);
 
 	public native void _nvmf_delete_subsystem(long subsystem);
-
-	public native int _nvmf_subsystem_add_listener(long subsystem, String transportName, String address, String serviceId);
 
 	public native int _nvmf_subsystem_start(long subsystem);
 

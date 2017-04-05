@@ -473,6 +473,35 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1tg
             in_capsule_data_size, max_io_size);
 }
 
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvmf_tgt_listen
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1tgt_1listen
+  (JNIEnv* env, jobject thiz, jstring transport_name, jstring address, jstring service_id) {
+    if (    env->IsSameObject(address, NULL) ||
+            env->IsSameObject(service_id, NULL) ||
+            env->IsSameObject(transport_name, NULL)) {
+        return -EFAULT;
+    }
+    JNIString addr(env, address);
+    if (addr.c_str() == NULL) {
+        return -EFAULT;
+    }
+    JNIString svcid(env, service_id);
+    if (svcid.c_str() == NULL) {
+        return -EFAULT;
+    }
+    JNIString trname(env, transport_name);
+    if (trname.c_str() == NULL) {
+        return -EFAULT;
+    }
+
+    spdk_nvmf_listen_addr* listen_addr = spdk_nvmf_tgt_listen(trname.c_str(), addr.c_str(), svcid.c_str());
+    return listen_addr == NULL ? -1 : 0;
+}
+
 struct subsystem_connections {
     uint32_t connects;
     uint32_t disconnects;

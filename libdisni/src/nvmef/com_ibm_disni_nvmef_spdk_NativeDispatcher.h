@@ -201,6 +201,14 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1tg
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvmf_tgt_listen
+ * Signature: (Ljava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1tgt_1listen
+  (JNIEnv *, jobject, jstring, jstring, jstring);
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _nvmf_create_subsystem
  * Signature: (Ljava/lang/String;II)J
  */
@@ -214,14 +222,6 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1c
  */
 JNIEXPORT void JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1delete_1subsystem
   (JNIEnv *, jobject, jlong);
-
-/*
- * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
- * Method:    _nvmf_subsystem_add_listener
- * Signature: (JLjava/lang/String;Ljava/lang/String;Ljava/lang/String;)I
- */
-JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvmf_1subsystem_1add_1listener
-  (JNIEnv *, jobject, jlong, jstring, jstring, jstring);
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher

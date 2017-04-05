@@ -37,13 +37,6 @@ public class NvmfSubsystem extends NatObject {
 		this.mode = mode;
 	}
 
-	public void addListener(NvmfTransportName transportName, String address, String serviceId) throws Exception {
-		int ret = nativeDispatcher._nvmf_subsystem_add_listener(getObjId(), transportName.name(), address, serviceId);
-		if (ret != 0) {
-			throw new Exception("spdk_nvmf_subsystem_add_listener failed with " + ret);
-		}
-	}
-
 	//TODO: pci address type
 	public void addController(NvmeController controller, String pciAddress) throws Exception {
 		int ret = nativeDispatcher._nvmf_subsystem_add_ctrlr(getObjId(), controller.getObjId(), pciAddress);

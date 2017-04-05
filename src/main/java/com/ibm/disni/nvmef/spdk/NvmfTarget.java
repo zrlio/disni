@@ -62,6 +62,13 @@ public class NvmfTarget {
 		nativeDispatcher._nvmef_acceptor_poll(null);
 	}
 
+	public void createListener(NvmfTransportName transportName, String address, String serviceId) throws Exception {
+		int ret = nativeDispatcher._nvmf_tgt_listen(transportName.name(), address, serviceId);
+		if (ret != 0) {
+			throw new Exception("spdk_nvmf_tgt_listen failed with " + ret);
+		}
+	}
+
 	public void fini() throws Exception {
 		int ret = nativeDispatcher._nvmf_tgt_fini();
 		if (ret != 0) {

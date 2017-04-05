@@ -63,10 +63,10 @@ public class NvmfServer {
 
 		System.out.println("Create subsystem with NQN " + nqn);
 		NvmfTarget target = nvme.createNvmfTarget((short)128, (short)4, 4096, 128*1024 /* 128 KB */);
+		target.createListener(NvmfTransportName.RDMA, address, port);
 		NvmfSubsystem subsystem =
 				target.createSubsystem(nqn, NvmfSubtype.NVME, NvmfSubsystemMode.DIRECT);
 		subsystem.addController(controller, pci_addr);
-		subsystem.addListener(NvmfTransportName.RDMA, address, port);
 
 		ArrayList<NvmfConnection> connections = new ArrayList<NvmfConnection>();
 		while (true) {
