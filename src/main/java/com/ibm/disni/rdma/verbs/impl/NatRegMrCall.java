@@ -68,7 +68,7 @@ public class NatRegMrCall extends SVCRegMr {
 		cmd.getBuffer().clear();
 		long objId = nativeDispatcher._regMr(pd.getObjId(), userAddress, bufferCapacity, cmd.address(), cmd.address() + 4, cmd.address() + 8);
 		if (objId <= 0){
-			throw new IOException("Memory registration failed");
+			throw new IOException("Memory registration failed with " + objId);
 		} else {
 			int lkey = cmd.getBuffer().getInt();
 			int rkey = cmd.getBuffer().getInt();
