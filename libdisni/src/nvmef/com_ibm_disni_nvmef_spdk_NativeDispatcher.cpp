@@ -116,9 +116,15 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1env_1ini
     }
     env->ReleaseIntArrayElements(transport_types, jtransport_types, 0);
 
-    std::vector<const char*> cargs;
+    if (env->IsSameObject(huge_path, NULL)) {
+        return -EFAULT;
+    }
     JNIString jHugePath(env, huge_path);
+    if (jHugePath.c_str() == NULL) {
+        return -EFAULT;
+    }
     int args_idx = 0;
+    std::vector<const char*> cargs;
     cargs.push_back("--huge-dir");
     cargs.push_back(jHugePath.c_str());
 
