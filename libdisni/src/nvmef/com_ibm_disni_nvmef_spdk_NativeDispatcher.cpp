@@ -128,7 +128,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1env_1ini
     cargs.push_back("--huge-dir");
     cargs.push_back(jHugePath.c_str());
 
-    if (pcie) {
+    if (!pcie) {
         cargs.push_back("--no-pci");
     }
 
