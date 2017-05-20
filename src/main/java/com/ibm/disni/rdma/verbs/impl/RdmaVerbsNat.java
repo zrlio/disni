@@ -136,6 +136,15 @@ public class RdmaVerbsNat extends RdmaVerbs {
 		return regMrCall;
 	}
 
+	public SVCRegMr regMr(IbvPd pd, long address, int length, int access) throws IOException {
+		NatRegMrCall regMrCall = regList.poll();
+		if (regMrCall == null){
+			regMrCall = new NatRegMrCall(this, nativeDispatcher, memAlloc);
+		}
+		regMrCall.set(pd, address, length, access);
+		return regMrCall;
+
+	}
 	public SVCDeregMr deregMr(IbvMr mr)
 			throws IOException {
 		NatDeregMrCall deregMrCall = deregList.poll();

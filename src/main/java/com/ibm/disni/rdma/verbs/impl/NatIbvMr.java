@@ -29,8 +29,8 @@ import com.ibm.disni.rdma.verbs.IbvMr;
 public class NatIbvMr extends IbvMr implements NatObject {
 	private long objId;
 	
-	public NatIbvMr(long objId, IbvContext context, long addr, int length, int lkey, int rkey, int handle) throws IOException{
-		super(context, addr, length, lkey, rkey, handle);
+	public NatIbvMr(long objId, IbvContext context, long addr, int length, int access, int lkey, int rkey, int handle) throws IOException{
+		super(context, addr, length, access, lkey, rkey, handle);
 		this.objId = objId;
 	}
 

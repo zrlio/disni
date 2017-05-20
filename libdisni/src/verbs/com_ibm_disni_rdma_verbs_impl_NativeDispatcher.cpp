@@ -825,9 +825,8 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1mod
  * Signature: (IIJIJJJ)V
  */
 JNIEXPORT jlong JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1regMr
-  (JNIEnv *env, jobject obj, jlong pd, jlong address, jint len, jlong lkey, jlong rkey, jlong handle){
+  (JNIEnv *env, jobject obj, jlong pd, jlong address, jint len, jint access, jlong lkey, jlong rkey, jlong handle){
 	struct ibv_pd *protection = NULL;
-	int access = IBV_ACCESS_LOCAL_WRITE | IBV_ACCESS_REMOTE_WRITE | IBV_ACCESS_REMOTE_READ;
 	void *addr = (void *) address;
 	//jint ret = -1;
 	unsigned long long obj_id = -1;

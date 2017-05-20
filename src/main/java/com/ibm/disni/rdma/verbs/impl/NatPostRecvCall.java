@@ -65,16 +65,18 @@ public class NatPostRecvCall extends SVCPostRecv {
 		long wrOffset = NatIbvRecvWR.CSIZE;
 		for (IbvRecvWR recvWR : wrList){
 			NatIbvRecvWR natRecvWR = new NatIbvRecvWR(recvWR);
-			natRecvWR.setPtr_sge_list(sgeOffset);
 			natRecvWR.setNext(wrOffset);
-			
 			wrNatList.add(natRecvWR);
-			sgeNatList.addAll(recvWR.getSg_list());
-			
+
 			size += NatIbvRecvWR.CSIZE;
-			size += recvWR.getSg_list().size()*NatIbvSge.CSIZE;
 			wrOffset += NatIbvRecvWR.CSIZE;
-			sgeOffset += recvWR.getSg_list().size()*NatIbvSge.CSIZE;
+
+			if (recvWR.getNum_sge() > 0) {
+				natRecvWR.setPtr_sge_list(sgeOffset);
+				sgeNatList.addAll(recvWR.getSg_list());
+				size += recvWR.getSg_list().size()*NatIbvSge.CSIZE;
+				sgeOffset += recvWR.getSg_list().size()*NatIbvSge.CSIZE;
+			}
 		}
 		if (cmd != null){
 			cmd.free();
