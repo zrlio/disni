@@ -30,7 +30,7 @@ import com.ibm.disni.util.DiSNILogger;
 
 public class NativeDispatcher {
 	private static final Logger logger = DiSNILogger.getLogger();
-	private static int JVERBS_VERSION = 30;
+	private static int JVERBS_VERSION = 31;
 	
 	static {
 	    System.loadLibrary("disni");
