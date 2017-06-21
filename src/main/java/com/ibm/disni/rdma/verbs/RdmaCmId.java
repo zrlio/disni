@@ -145,16 +145,16 @@ public class RdmaCmId  {
 		return cm.accept(this, connParam);
 	}
 	
-	public void disconnect() throws IOException{
-		cm.disconnect(this);
+	public int disconnect() throws IOException{
+		return cm.disconnect(this);
 	}
 	
-	public void destroyId() throws IOException {
-		cm.destroyCmId(this);
+	public int destroyId() throws IOException {
+		return cm.destroyCmId(this);
 	}
 	
-	public void destroyQP() throws IOException {
-		cm.destroyQP(this);
+	public int destroyQP() throws IOException {
+		return cm.destroyQP(this);
 	}	
 	
 	public SocketAddress getSource() throws IOException {
@@ -165,7 +165,7 @@ public class RdmaCmId  {
 		return cm.getDstAddr(this);
 	}
 	
-	public void destroyEp() throws IOException {
-		cm.destroyEp(this);
+	public int destroyEp() throws IOException {
+		return cm.destroyEp(this);
 	}	
 }
