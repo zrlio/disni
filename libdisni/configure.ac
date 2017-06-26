@@ -2,7 +2,7 @@
 # Process this file with autoconf to produce a configure script.
 
 #AC_PREREQ([2.67])
-AC_INIT([libdisni], [1.1], [https://github.com/zrlio/disni/issues])
+AC_INIT([libdisni], [1.2], [https://github.com/zrlio/disni/issues])
 AC_CONFIG_SRCDIR([src/verbs/com_ibm_disni_rdma_verbs_impl_NativeDispatcher.cpp])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIRS([m4])
@@ -56,6 +56,7 @@ AC_FUNC_MALLOC
 AC_CHECK_FUNCS([memset])
 
 AC_CONFIG_FILES([Makefile
+                 libdisni.spec
                  src/Makefile
 		 src/verbs/Makefile
 		 src/affinity/Makefile
