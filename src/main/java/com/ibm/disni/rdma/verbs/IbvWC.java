@@ -47,7 +47,22 @@ public class IbvWC {
 	public enum IbvWcStatus {
 		IBV_WC_SUCCESS, IBV_WC_LOC_LEN_ERR, IBV_WC_LOC_QP_OP_ERR, IBV_WC_LOC_EEC_OP_ERR, IBV_WC_LOC_PROT_ERR, IBV_WC_WR_FLUSH_ERR, IBV_WC_MW_BIND_ERR, IBV_WC_BAD_RESP_ERR, IBV_WC_LOC_ACCESS_ERR, IBV_WC_REM_INV_REQ_ERR, IBV_WC_REM_ACCESS_ERR, IBV_WC_REM_OP_ERR, IBV_WC_RETRY_EXC_ERR, IBV_WC_RNR_RETRY_EXC_ERR, IBV_WC_LOC_RDD_VIOL_ERR, IBV_WC_REM_INV_RD_REQ_ERR, IBV_WC_REM_ABORT_ERR, IBV_WC_INV_EECN_ERR, IBV_WC_INV_EEC_STATE_ERR, IBV_WC_FATAL_ERR, IBV_WC_RESP_TIMEOUT_ERR, IBV_WC_GENERAL_ERR
 	};
-	
+
+	public enum IbvWcOpcode {
+		IBV_WC_SEND(0),
+		IBV_WC_RDMA_WRITE(1),
+		IBV_WC_RDMA_READ(2),
+		IBV_WC_COMP_SWAP(3),
+		IBV_WC_FETCH_ADD(4),
+		IBV_WC_BIND_MW(5),
+		IBV_WC_RECV(128),
+		IBV_WC_RECV_RDMA_WITH_IMM(129);
+
+		private int opcode;
+		IbvWcOpcode(int opcode) { this.opcode = opcode; }
+		public int getOpcode() { return opcode; }
+	}
+
     public static int CQ_OK =  0;
     public static int CQ_EMPTY = -1;
     public static int CQ_POLL_ERR = -2;		
