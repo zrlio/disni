@@ -45,7 +45,7 @@ using namespace std;
 //#define MAX_WR 200;
 #define MAX_SGE 4;
 //#define N_CQE 200
-#define JVERBS_JNI_VERSION 31;
+#define JVERBS_JNI_VERSION 30;
 
 //global resource id counter
 static unsigned long long counter = 0;
