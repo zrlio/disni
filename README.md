@@ -39,12 +39,12 @@ Common steps:
 
 ## Programming with DiSNI
 
-To use DiSNI in your maven application use the following snippet in your pom.xml file (you need to build DiSNI before to update your local maven repo):
+DiSNI is part of maven central, therefore the simplest way to use DiSNI in your maven application is to add the following snippet to your application pom.xml file.
 
     <dependency>
       <groupId>com.ibm.disni</groupId>
       <artifactId>disni</artifactId>
-      <version>1.0</version>
+      <version>1.1</version>
     </dependency>
     
 The RDMA and NVMf APIs in DiSNI are both following the Group/Endpoint model which is based on three key data types (interfaces):

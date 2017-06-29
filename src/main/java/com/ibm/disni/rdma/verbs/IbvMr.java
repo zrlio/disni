@@ -51,6 +51,7 @@ public class IbvMr {
 	protected IbvContext context;
 	protected long addr;
 	protected int length;
+	protected int access;
 	protected int lkey;
 	protected int rkey;
 	protected int handle;
@@ -59,11 +60,12 @@ public class IbvMr {
 //		this.context = null;
 //	}
 
-	public IbvMr(IbvContext context, long addr, int length, int lkey, int rkey, int handle) throws IOException  {
+	public IbvMr(IbvContext context, long addr, int length, int access, int lkey, int rkey, int handle) throws IOException  {
 		this.verbs = RdmaVerbs.open();
 		this.context = context;
 		this.addr = addr;
 		this.length = length;
+		this.access = access;
 		this.lkey = lkey;
 		this.rkey = rkey;
 		this.handle = handle;
@@ -153,7 +155,7 @@ public class IbvMr {
 	}	 
 
 	public String toString() {
-		return "handle=" + handle + ", addr= " + addr + ", length=" + length + ", lkey=" + lkey + ", rkey=" + rkey;
+		return "handle=" + handle + ", addr= " + addr + ", length=" + length + ", access= " + access + ", lkey=" + lkey + ", rkey=" + rkey;
 	}
 	
 	/**

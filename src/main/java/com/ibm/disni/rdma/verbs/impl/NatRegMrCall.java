@@ -36,6 +36,7 @@ public class NatRegMrCall extends SVCRegMr {
 	private MemoryAllocation memAlloc;
 
 	private NatIbvPd pd;
+	private int access;
 	private int bufferCapacity;
 	private MemBuf cmd;
 	private long userAddress;
@@ -52,9 +53,14 @@ public class NatRegMrCall extends SVCRegMr {
 	}
 
 	public void set(IbvPd pd, ByteBuffer buffer, int access) {
+		set(pd, ((sun.nio.ch.DirectBuffer) buffer).address(), buffer.capacity(), access);
+	}
+
+	public void set(IbvPd pd, long address, int length, int access) {
 		this.pd = (NatIbvPd) pd;
-		this.bufferCapacity = buffer.capacity();
-		this.userAddress = ((sun.nio.ch.DirectBuffer) buffer).address();
+		this.userAddress = address;
+		this.bufferCapacity = length;
+		this.access = access;
 		
 		if (cmd != null){
 			cmd.free();
@@ -66,14 +72,14 @@ public class NatRegMrCall extends SVCRegMr {
 
 	public SVCRegMr execute() throws IOException {
 		cmd.getBuffer().clear();
-		long objId = nativeDispatcher._regMr(pd.getObjId(), userAddress, bufferCapacity, cmd.address(), cmd.address() + 4, cmd.address() + 8);
+		long objId = nativeDispatcher._regMr(pd.getObjId(), userAddress, bufferCapacity, access, cmd.address(), cmd.address() + 4, cmd.address() + 8);
 		if (objId <= 0){
 			throw new IOException("Memory registration failed with " + objId);
 		} else {
 			int lkey = cmd.getBuffer().getInt();
 			int rkey = cmd.getBuffer().getInt();
 			int handle = cmd.getBuffer().getInt();
-			this.mr = new NatIbvMr(objId, null, userAddress, bufferCapacity, lkey, rkey, handle);
+			this.mr = new NatIbvMr(objId, null, userAddress, bufferCapacity, access, lkey, rkey, handle);
 		}
 		
 		return this;

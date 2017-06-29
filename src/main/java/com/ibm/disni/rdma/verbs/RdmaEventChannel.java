@@ -65,7 +65,7 @@ public class RdmaEventChannel {
 		return cm.getCmEvent(this, timeout);
 	}
 	
-	public void destroyEventChannel() throws IOException{
-		cm.destroyEventChannel(this);
+	public int destroyEventChannel() throws IOException{
+		return cm.destroyEventChannel(this);
 	}
 } 
