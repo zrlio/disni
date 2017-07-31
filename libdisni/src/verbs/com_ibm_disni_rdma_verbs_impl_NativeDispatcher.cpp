@@ -756,6 +756,7 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1cr
 	struct ibv_comp_channel *comp_channel = NULL;
 	unsigned long long obj_id = -1;
 	int _ncqe = ncqe;
+	int _comp_vector = comp_vector;
 	
 	pthread_rwlock_rdlock(&mut_context);
 	context = map_context[ctx];
@@ -765,7 +766,7 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1cr
 	pthread_rwlock_unlock(&mut_comp_channel);
 
 	if (context != NULL && comp_channel != NULL){
-		struct ibv_cq *cq = ibv_create_cq(context, _ncqe, NULL, comp_channel, 0);
+		struct ibv_cq *cq = ibv_create_cq(context, _ncqe, NULL, comp_channel, _comp_vector);
 		if (cq != NULL){
 			obj_id = createObjectId(cq);
 			pthread_rwlock_wrlock(&mut_cq);
