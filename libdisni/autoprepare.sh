@@ -1,4 +1,3 @@
-touch NEWS README AUTHORS ChangeLog
 libtoolize
 aclocal
 autoconf
