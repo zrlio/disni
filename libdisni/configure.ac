@@ -42,7 +42,7 @@ AC_SUBST([dpdk])
 AC_ARG_ENABLE(logging, [  --enable-logging],
 [if test "$enableval" = yes; then
   AC_DEFINE([ENABLE_LOGGING], , [Enable logging])
-fi])
+fi], [enable_logging=no])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdlib.h string.h sys/socket.h])
@@ -60,3 +60,20 @@ AC_CONFIG_FILES([Makefile
 		 src/affinity/Makefile
          src/nvmef/Makefile])
 AC_OUTPUT
+
+AS_ECHO(["
+-----------------------------------------------------------------------
+${PACKAGE_NAME} Version ${PACKAGE_VERSION}
+
+Using installation prefix: ${prefix}
+Using installation exec_prefix: ${exec_prefix}
+Using libdir: ${libdir}
+Using C++ compiler: ${CXX} ${CXXFLAGS} ${CPPFLAGS}
+jdk base directory: ${jdk}
+SPDK base directory: ${spdk}
+DPDK base directory: ${dpdk}
+Enable logging: ${enable_logging}
+
+You can now run 'make' to build and 'make install' to install.
+-----------------------------------------------------------------------
+"])
