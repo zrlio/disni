@@ -15,10 +15,10 @@ AC_PROG_CC
 AC_PROG_CPP
 
 # Checks for libraries.
-# FIXME: Replace `main' with a function in `-libverbs':
-AC_CHECK_LIB([ibverbs], [main])
-# FIXME: Replace `main' with a function in `-lrdmacm':
-AC_CHECK_LIB([rdmacm], [main])
+AC_CHECK_LIB([ibverbs], [ibv_get_device_list], [],
+	     [AC_ERROR([disni requires libibverbs])])
+AC_CHECK_LIB([rdmacm], [rdma_create_id], [],
+	     [AC_ERROR([disni requires librdmacm])])
 
 AC_ARG_WITH([jdk],
             [AS_HELP_STRING([--with-jdk],[jdk base directory])],
