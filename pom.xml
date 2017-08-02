@@ -151,9 +151,6 @@
         <additionalparam>-Xdoclint:none</additionalparam>
       </configuration>
       <version>2.9.1</version>
-      <configuration>
-        <additionalparam>-Xdoclint:none</additionalparam>
-      </configuration>
       <executions>
         <execution>
           <id>attach-javadocs</id>
