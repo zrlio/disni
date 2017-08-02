@@ -45,7 +45,8 @@ AC_ARG_ENABLE(logging, [  --enable-logging],
 fi], [enable_logging=no])
 
 # Checks for header files.
-AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdlib.h string.h sys/socket.h])
+AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdlib.h string.h sys/socket.h rdma/rdma_cma.h],
+		 [], [AC_ERROR([required header file missing])])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_UINT32_T
