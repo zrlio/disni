@@ -17,14 +17,14 @@ AC_PROG_CPP
 
 # Checks for libraries.
 AC_CHECK_LIB([ibverbs], [ibv_get_device_list], [],
-	     [AC_ERROR([disni requires libibverbs])])
+	     [AC_MSG_ERROR(disni requires libibverbs)])
 AC_CHECK_LIB([rdmacm], [rdma_create_id], [],
-	     [AC_ERROR([disni requires librdmacm])])
+	     [AC_MSG_ERROR(disni requires librdmacm)])
 
 AC_ARG_WITH([jdk],
             [AS_HELP_STRING([--with-jdk],[jdk base directory])],
             [jdk=$withval],
-            [AC_ERROR([jdk directory not specified])])
+            [AC_MSG_ERROR(jdk directory not specified)])
 AC_SUBST([jdk])
 
 AC_ARG_WITH([spdk],
@@ -36,7 +36,7 @@ AM_CONDITIONAL([SPDK], [test "x$with_spdk" != "x"])
 AC_ARG_WITH([dpdk],
             [AS_HELP_STRING([--with-dpdk],[dpdk base directory])],
             [dpdk=$withval],
-            AS_IF([test "x$with_spdk" != "x"],[AC_ERROR([dpdk directory not specified])]))
+            AS_IF([test "x$with_spdk" != "x"],[AC_MSG_ERROR(dpdk directory not specified)]))
 AC_SUBST([dpdk])
 
 AC_ARG_ENABLE(logging, [  --enable-logging],
@@ -46,7 +46,7 @@ fi], [enable_logging=no])
 
 # Checks for header files.
 AC_CHECK_HEADERS([arpa/inet.h netinet/in.h stdlib.h string.h sys/socket.h rdma/rdma_cma.h],
-		 [], [AC_ERROR([required header file missing])])
+		 [], [AC_MSG_ERROR(required header file missing)])
 
 # Checks for typedefs, structures, and compiler characteristics.
 AC_TYPE_UINT32_T
