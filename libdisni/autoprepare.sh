@@ -1,4 +1,1 @@
-libtoolize
-aclocal
-autoconf
-automake --add-missing
+autoreconf --install
