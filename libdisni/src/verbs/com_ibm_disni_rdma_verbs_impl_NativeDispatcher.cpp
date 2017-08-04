@@ -23,6 +23,9 @@
 #  include <config.h>
 #endif /* HAVE_CONFIG_H */
 
+/* Expose the PRI* macros in inttypes.h */
+#define __STDC_FORMAT_MACROS
+
 #include "com_ibm_disni_rdma_verbs_impl_NativeDispatcher.h"
 #include <rdma/rdma_cma.h>
 #include <map>
@@ -38,6 +41,7 @@
 #include <unistd.h>
 #include <fcntl.h>
 #include <poll.h>
+#include <inttypes.h>
 #include <stddef.h>
 
 using namespace std;
@@ -150,7 +154,7 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1cr
 			pthread_rwlock_wrlock(&mut_cm_id);
 			map_cm_id[obj_id] = cm_listen_id;
 			pthread_rwlock_unlock(&mut_cm_id);
-			log("j2c::createId: ret %i, obj_id %llu\n", ret, cm_listen_id);
+			log("j2c::createId: ret %i, obj_id %p\n", ret, (void *)cm_listen_id);
 		} else {
 			log("j2c::createId: rdma_create_id failed\n");
 		}
@@ -243,9 +247,9 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1bin
 	if (cm_listen_id != NULL){
 		ret = rdma_bind_addr(cm_listen_id, (struct sockaddr*) s_addr);
 		if (ret == 0){
-			log("j2c::bind: ret %i, cm_listen_id %llu\n", ret, cm_listen_id);
+			log("j2c::bind: ret %i, cm_listen_id %p\n", ret, (void *)cm_listen_id);
 		} else {
-			log("j2c::bind: rdma_bind_addr failed, cm_listen_id %llu \n", cm_listen_id);
+			log("j2c::bind: rdma_bind_addr failed, cm_listen_id %p \n", (void *)cm_listen_id);
 		}
 	} else {
 		log("j2c::bind: cm_listen_id null\n");
@@ -414,7 +418,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1con
 		conn_param.rnr_retry_count = (unsigned char) rnr_retry;
 		ret = rdma_connect(cm_listen_id, &conn_param);
 		if (ret == 0){
-			log("j2c::connect: ret %i, guid %llu\n", ret, ibv_get_device_guid(cm_listen_id->verbs->device));
+			log("j2c::connect: ret %i, guid %" PRIu64 "\n", ret, ibv_get_device_guid(cm_listen_id->verbs->device));
 		} else {
 			log("j2c::connect: rdma_connect failed\n");
 		}
@@ -582,7 +586,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1des
 	pthread_rwlock_unlock(&mut_cm_id);
 
 	if (cm_listen_id != NULL){
-		log("j2c::destroyEp: id %llu\n", id);
+		log("j2c::destroyEp: id %p\n", (void *)id);
 		rdma_destroy_ep(cm_listen_id);
 		pthread_rwlock_wrlock(&mut_cm_id);
 		map_cm_id.erase(id);
@@ -671,7 +675,7 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1ge
                         pthread_rwlock_unlock(&mut_context);
                         log("j2c::getContext: obj_id %llu\n", obj_id);
                 } else {
-                        log("j2c::getContext: context_list empty %llu\n", cm_listen_id);
+                        log("j2c::getContext: context_list empty %p\n", (void *)cm_listen_id);
                 }
 	} else {
                 log("j2c::getContext: rdma_get_devices failed\n");
@@ -772,7 +776,7 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1cr
 			pthread_rwlock_wrlock(&mut_cq);
 			map_cq[obj_id] = cq;
 			pthread_rwlock_unlock(&mut_cq);
-			log("j2c::createCQ: obj_id %llu, cq %llu, cqnum %u, size %u\n", obj_id, cq, cq->handle, _ncqe);
+			log("j2c::createCQ: obj_id %p, cq %p, cqnum %u, size %u\n", (void *)obj_id, (void *)cq, cq->handle, _ncqe);
 		} else {
 			log("j2c::createCQ: ibv_create_cq failed\n");
 		}
@@ -844,7 +848,7 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1re
 			*_rkey = mr->rkey;
 			*_handle = mr->handle;
 
-			log("j2c::regMr: obj_id %llu, mr %llu\n", obj_id, mr);
+			log("j2c::regMr: obj_id %p, mr %p\n", (void *)obj_id, (void *)mr);
 		} else {
 			log("j2c::regMr: ibv_reg_mr failed\n");
 		}
@@ -1137,9 +1141,9 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
 	pthread_rwlock_unlock(&mut_qp);
 	if (qp != NULL){
 		qpnum = qp->qp_num;
-		log("j2c::getQpNum: obj_id %llu, qpnum %i\n", obj_id, qpnum);
+		log("j2c::getQpNum: obj_id %p, qpnum %i\n", (void *)obj_id, qpnum);
 	} else {
-		log("j2c::getQpNum: failed, obj_id %llu\n", obj_id);
+		log("j2c::getQpNum: failed, obj_id %p\n", (void *)obj_id);
 	}
 
 	return qpnum;
@@ -1159,9 +1163,9 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
         pthread_rwlock_unlock(&mut_context);
         if (context != NULL){
                 cmd_fd = context->cmd_fd;
-                log("j2c::getContextFd: obj_id %llu, fd %i\n", obj_id, cmd_fd);
+                log("j2c::getContextFd: obj_id %p, fd %i\n", (void *)obj_id, cmd_fd);
         } else {
-                log("j2c::getContext: failed, obj_id %llu\n", obj_id);
+                log("j2c::getContext: failed, obj_id %p\n", (void *)obj_id);
         }
 
         return cmd_fd;
@@ -1181,9 +1185,9 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
 	pthread_rwlock_unlock(&mut_pd);
 	if (protection != NULL){
 		handle = protection->handle;
-		log("j2c::getPdHandle: obj_id %llu, handle %i\n", pd, handle);
+		log("j2c::getPdHandle: obj_id %p, handle %i\n", (void *)pd, handle);
 	} else {
-		log("j2c::getPdHandle: failed, obj_id %llu\n", pd);
+		log("j2c::getPdHandle: failed, obj_id %p\n", (void *)pd);
 	}
 
 	return handle;

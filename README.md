@@ -10,13 +10,13 @@ To build DiSNI and its example programs, obtain a copy of DiSNI from [Github](ht
 1. Compile the Java sources using: mvn -DskipTests install
 2. Compile libdisni using: cd libdisni; ./autoprepare.sh; ./configure --with-jdk=\<path\>; make install
 
-By default DiSNI will only build with RDMA support. To enable NVMf support execute the following steps when compiling libdisni:
+By default DiSNI will only build with RDMA support. To enable NVMf you will need to install DPDK and SPDK using following steps. Below, \<target\> refers to the DPDK 4-tuple for your platform, which would be `x86_64-native-linuxapp-gcc` for Intel/AMD processors and `ppc_64-power8-linuxapp-gcc` for Power (run `make help` in the DPDK top source directory for a list of 4-tuples supported by DPDK):
 
 2. Obtain dpdk from [dpdk.org](http://dpdk.org/download) (version 17.02)\
-3. Build dpdk using: make install T=x86_64-native-linuxapp-gcc DESTDIR=. CONFIG_RTE_BUILD_SHARED_LIB=y
+3. Build dpdk using: make install T=\<target\> DESTDIR=. CONFIG_RTE_BUILD_SHARED_LIB=y
 4. Obtain spdk from [Github](https://github.com/spdk/spdk) (version 17.03)
 5. Build spdk using: make DPDK_DIR=\<dpdk-path/x86_64-native-linuxapp-gcc\> CONFIG_RDMA=y
-6. Configure libdisni for NVMf: ./configure --with-jdk=\<path\> --with-spdk=\<path\> --with-dpdk=\<path\>
+6. Configure libdisni for NVMf: ./configure --with-jdk=\<path\> --with-spdk=\<path\> --with-dpdk=\<path\>/\<target\>
 7. Build libdisni: make install
 8. Make sure shared libraries of DPDK are in the LD_LIBRARY_PATH
 

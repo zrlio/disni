@@ -55,8 +55,6 @@ extern "C" {
 #include <cerrno>
 #include <cstdlib>
 
-#define PACKAGE_NAME "com/ibm/disni/nvmef/spdk"
-
 struct probe_ctx {
     size_t probe_count;
     size_t attach_idx;

@@ -1,5 +1,1 @@
-touch NEWS README AUTHORS ChangeLog
-libtoolize
-aclocal
-autoconf
-automake --add-missing
+autoreconf --install
