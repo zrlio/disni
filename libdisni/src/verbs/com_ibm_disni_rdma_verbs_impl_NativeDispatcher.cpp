@@ -300,7 +300,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1res
 	cm_listen_id = map_cm_id[id];
 	pthread_rwlock_unlock(&mut_cm_id);
 	if (cm_listen_id != NULL){
-		ret = rdma_resolve_addr(cm_listen_id, NULL, (struct sockaddr*) d_addr, 2000);
+		ret = rdma_resolve_addr(cm_listen_id, NULL, (struct sockaddr*) d_addr, (int) timeout);
 		if (ret == 0){
 			log("j2c::resolveAddr: ret %i\n", ret);
 		} else {
@@ -319,7 +319,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1res
  * Signature: (II)V
  */
 JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1resolveRoute
-  (JNIEnv *env, jobject obj, jlong id, jint to){
+  (JNIEnv *env, jobject obj, jlong id, jint timeout){
 	struct rdma_cm_id *cm_listen_id = NULL;
 	jint ret = -1;
 	
@@ -327,7 +327,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1res
 	cm_listen_id = map_cm_id[id];
 	pthread_rwlock_unlock(&mut_cm_id);
 	if (cm_listen_id != NULL){
-		ret = rdma_resolve_route(cm_listen_id, 2000);
+		ret = rdma_resolve_route(cm_listen_id, (int) timeout);
 		if (ret == 0){
 			log("j2c::resolveRoute: ret %i\n", ret);
 		} else {
@@ -349,7 +349,6 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
   (JNIEnv *env, jobject obj, jlong channel, jlong listen_id, jlong client_id, jint timeout){
 	struct rdma_event_channel *cm_channel = NULL;
 	struct rdma_cm_event *cm_event;
-	int _timeout = (int) timeout;
 	jint event = -1;
 
 	pthread_rwlock_rdlock(&mut_cm_channel);
@@ -360,7 +359,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
 		pollfdcm.fd = cm_channel->fd;
 		pollfdcm.events  = POLLIN;
 		pollfdcm.revents = 0;
-		int ret = poll(&pollfdcm, 1, timeout);
+		int ret = poll(&pollfdcm, 1, (int) timeout);
 		if (ret > 0){
 			ret = rdma_get_cm_event(cm_channel, &cm_event);
 			if (ret == 0){
