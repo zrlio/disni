@@ -49,7 +49,7 @@ using namespace std;
 //#define MAX_WR 200;
 #define MAX_SGE 4;
 //#define N_CQE 200
-#define JVERBS_JNI_VERSION 31;
+#define JVERBS_JNI_VERSION 32;
 
 //global resource id counter
 static unsigned long long counter = 0;
@@ -1168,6 +1168,28 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
         }
 
         return cmd_fd;
+}
+
+/*
+ * Class:     com_ibm_disni_rdma_verbs_impl_nat_NativeDispatcher
+ * Method:    _getContextNumCompVectors
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1getContextNumCompVectors
+  (JNIEnv *env, jobject obj, jlong obj_id) {
+    jint num_comp_vectors = -1;
+
+    pthread_rwlock_rdlock(&mut_context);
+    struct ibv_context *context = map_context[obj_id];
+    pthread_rwlock_unlock(&mut_context);
+    if (context != NULL) {
+        num_comp_vectors = context->num_comp_vectors;
+        log("j2c::getContextNumCompVectors: obj_id %llu, num_comp_vectors %i\n", obj_id, num_comp_vectors);
+    } else {
+        log("j2c::getContextNumCompVectors: failed, obj_id %llu\n", obj_id);
+    }
+
+    return num_comp_vectors;
 }
 
 /*
