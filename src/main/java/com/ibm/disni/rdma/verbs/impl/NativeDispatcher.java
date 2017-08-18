@@ -30,8 +30,8 @@ import com.ibm.disni.util.DiSNILogger;
 
 public class NativeDispatcher {
 	private static final Logger logger = DiSNILogger.getLogger();
-	private static int JVERBS_VERSION = 31;
-	
+	private static int JVERBS_VERSION = 32;
+
 	static {
 	    System.loadLibrary("disni");
 	}	
@@ -128,6 +128,7 @@ public class NativeDispatcher {
 	public native long _getContext(long id);
 	public native int _getQpNum(long id);
 	public native int _getContextFd(long objId);
+	public native int _getContextNumCompVectors(long objId);
 	public native int _getPdHandle(long objId);
 	
 	//struct verification

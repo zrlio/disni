@@ -40,10 +40,12 @@ import java.io.IOException;
 public class IbvContext  {
 	private RdmaVerbs verbs;
 	protected int cmd_fd;
+	protected int numCompVectors;
 	
-	protected IbvContext(int cmd_fd) throws IOException{
+	protected IbvContext(int cmd_fd, int numCompVectors) throws IOException {
 		this.verbs = RdmaVerbs.open();
 		this.cmd_fd = cmd_fd;
+		this.numCompVectors = numCompVectors;
 	}
 
 	/**
@@ -53,6 +55,10 @@ public class IbvContext  {
 	 */
 	public int getCmd_fd() {
 		return cmd_fd;
+	}
+
+	public int getNumCompVectors() {
+		return numCompVectors;
 	}
 	
 	//---------- oo-verbs

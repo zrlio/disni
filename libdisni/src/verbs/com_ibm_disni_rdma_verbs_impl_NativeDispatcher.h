@@ -297,6 +297,14 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
 
 /*
  * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
+ * Method:    _getContextNumCompVectors
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1getContextNumCompVectors
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
  * Method:    _getPdHandle
  * Signature: (J)I
  */
