@@ -72,6 +72,9 @@ public class NatRegMrCall extends SVCRegMr {
 
 	public SVCRegMr execute() throws IOException {
 		cmd.getBuffer().clear();
+		if (!pd.isOpen()) {
+			throw new IOException("Trying to register memory with closed PD.");
+		}
 		long objId = nativeDispatcher._regMr(pd.getObjId(), userAddress, bufferCapacity, access, cmd.address(), cmd.address() + 4, cmd.address() + 8);
 		if (objId <= 0){
 			throw new IOException("Memory registration failed with " + objId);

@@ -35,10 +35,12 @@ import java.io.IOException;
 public class RdmaEventChannel {
 	private RdmaCm cm;
 	private int fd;
+	protected volatile boolean isOpen;
 	
 	protected RdmaEventChannel(int fd) throws IOException{
 		this.cm = RdmaCm.open();
 		this.fd = fd;
+		this.isOpen = true;
 	}
 
 	/**
@@ -50,6 +52,14 @@ public class RdmaEventChannel {
 		return fd;
 	}
 	
+	public boolean isOpen() {
+		return isOpen;
+	}
+
+	public void close() {
+		isOpen = false;
+	}
+
 	//---------- oo-verbs
 	
 	public static RdmaEventChannel createEventChannel() throws IOException{

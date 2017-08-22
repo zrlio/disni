@@ -103,6 +103,9 @@ public class NatPostRecvCall extends SVCPostRecv {
 
 	@Override
 	public SVCPostRecv execute() throws IOException {
+		if (!qp.isOpen()) {
+			throw new IOException("Trying to post receive on closed QP");
+		}
 		int ret = nativeDispatcher._postRecv(qp.getObjId(), cmd.address());
 		if (ret != 0){
 			throw new IOException("Post recv failed");

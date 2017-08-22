@@ -36,11 +36,13 @@ public class IbvCompChannel {
 	private RdmaVerbs verbs;
 	private int fd;
 	protected IbvContext context;
+	protected volatile boolean isOpen;
 
 	protected IbvCompChannel(int fd, IbvContext context) throws IOException {
 		this.verbs = RdmaVerbs.open();
 		this.fd = fd;
 		this.context = context;
+		this.isOpen = true;
 	}
 
 	/**
@@ -61,6 +63,14 @@ public class IbvCompChannel {
 		return this.context;
 	}
 	
+	public boolean isOpen() {
+		return isOpen;
+	}
+
+	public void close() {
+		isOpen = false;
+	}
+
 	//---------- oo-verbs
 	
 	public boolean getCqEvent(IbvCQ cq, int timeout) throws IOException {

@@ -55,6 +55,7 @@ public class IbvMr {
 	protected int lkey;
 	protected int rkey;
 	protected int handle;
+	protected volatile boolean isOpen;
 
 //	public IbvMr() throws IOException {
 //		this.context = null;
@@ -69,6 +70,7 @@ public class IbvMr {
 		this.lkey = lkey;
 		this.rkey = rkey;
 		this.handle = handle;
+		this.isOpen = true;
 	}
 
 	/**
@@ -167,6 +169,14 @@ public class IbvMr {
 		return this.context;
 	}
 	
+	public boolean isOpen() {
+		return isOpen;
+	}
+
+	public void close() {
+		isOpen = false;
+	}
+
 	//---------- oo-verbs
 	
 	public SVCDeregMr deregMr() throws IOException {

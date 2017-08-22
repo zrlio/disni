@@ -38,6 +38,7 @@ public class IbvPd  {
 	
 	protected int handle;
 	protected IbvContext context;
+	protected volatile boolean isOpen;
 
 //	protected IbvPd() throws IOException{
 //		this.verbs = RdmaVerbs.open();
@@ -46,14 +47,16 @@ public class IbvPd  {
 	public IbvPd(IbvContext context) throws IOException {
 		this.verbs = RdmaVerbs.open();
 		this.context = context;
+		this.isOpen = true;
 	}
 
 	/**
 	 * A unique handle identifying this protection domain.
 	 *
 	 * @return the handle
+	 * @throws IOException
 	 */
-	public int getHandle() {
+	public int getHandle() throws IOException {
 		return handle;
 	}
 	
@@ -66,6 +69,14 @@ public class IbvPd  {
 		return context;
 	}
 	
+	public boolean isOpen() {
+		return isOpen;
+	}
+
+	public void close() {
+		isOpen = false;
+	}
+
 	//---------- oo-verbs
 	
 	public SVCRegMr regMr(ByteBuffer buffer, int access) throws IOException {

@@ -72,7 +72,9 @@ public class RdmaCmNat extends RdmaCm {
 	public RdmaCmId createId(RdmaEventChannel cmChannel, short rdma_ps)
 			throws IOException {
 		NatRdmaEventChannel channelImpl = (NatRdmaEventChannel) cmChannel;
-
+		if (!channelImpl.isOpen()) {
+			throw new IOException("Trying to create ID with closed channel.");
+		}
 		long objId = nativeDispatcher._createId(channelImpl.getObjId(), rdma_ps);
 		logger.info("createId, id " + objId);
 		
@@ -92,13 +94,25 @@ public class RdmaCmNat extends RdmaCm {
 		NatIbvPd natPd = (NatIbvPd) pd;
 		NatIbvCQ natSendCq = (NatIbvCQ) attr.getSend_cq();
 		NatIbvCQ natRecvCq = (NatIbvCQ) attr.getRecv_cq();
+		if (!idPriv.isOpen()) {
+			throw new IOException("Trying to create QP with closed ID");
+		}
+		if (!pd.isOpen()) {
+			throw new IOException("Trying to create QP with closed PD");
+		}
+		if (!natSendCq.isOpen()) {
+			throw new IOException("Trying to create a QP with closed send CQ");
+		}
+		if (!natRecvCq.isOpen()) {
+			throw new IOException("Trying to create a QP with closed receive CQ");
+		}
 		long objId = nativeDispatcher._createQP(idPriv.getObjId(), natPd.getObjId(), natSendCq.getObjId(), natRecvCq.getObjId(), attr.getQp_type(), attr.cap().getMax_send_wr(), attr.cap().getMax_recv_wr(), attr.cap().getMax_inline_data());
 		logger.info("createQP, objId " + objId + ", send_wr size " + attr.cap().getMax_send_wr() + ", recv_wr_size " + attr.cap().getMax_recv_wr());
 		
 		NatIbvQP qp = null;
 		if (objId >= 0){
 			qp = new NatIbvQP(objId, nativeDispatcher);
-			
+			idPriv.setQp(qp);
 		}
 		
 		return qp;
@@ -116,6 +130,9 @@ public class RdmaCmNat extends RdmaCm {
         MemBuf sockBuf = memAlloc.allocate(SockAddrIn.CSIZE, MemoryAllocation.MemType.DIRECT, SockAddrIn.class.getCanonicalName());
         addr.writeBack(sockBuf.getBuffer());
         NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
+        if (!idPriv.isOpen()) {
+            throw new IOException("Trying to bind() using a closed ID");
+        }
         int ret = nativeDispatcher._bindAddr(idPriv.getObjId(), sockBuf.address());
         sockBuf.free();
         logger.info("bindAddr, address " + address.toString());
@@ -126,6 +143,9 @@ public class RdmaCmNat extends RdmaCm {
 	@Override
 	public int listen(RdmaCmId id, int backlog) throws IOException {
 		NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
+		if (!idPriv.isOpen()) {
+		    throw new IOException("Trying to listen on closed ID");
+		}
 		int ret = nativeDispatcher._listen(idPriv.getObjId(), backlog);
 		logger.info("listen, id " + id.getPs());
 		
@@ -140,6 +160,9 @@ public class RdmaCmNat extends RdmaCm {
         MemBuf dstBuf = memAlloc.allocate(SockAddrIn.CSIZE, MemoryAllocation.MemType.DIRECT, SockAddrIn.class.getCanonicalName());
         dst.writeBack(dstBuf.getBuffer());
         NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
+        if (!idPriv.isOpen()) {
+            throw new IOException("Trying to resolve address with closed ID");
+        }
         int ret = nativeDispatcher._resolveAddr(idPriv.getObjId(), 0, dstBuf.address(), timeout);
         logger.info("resolveAddr, addres " + destination.toString());
         dstBuf.free();
@@ -150,6 +173,9 @@ public class RdmaCmNat extends RdmaCm {
 	@Override
 	public int resolveRoute(RdmaCmId id, int timeout) throws IOException {
 		NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
+        if (!idPriv.isOpen()) {
+            throw new IOException("Trying to resolve route with closed ID");
+        }
 		int ret = nativeDispatcher._resolveRoute(idPriv.getObjId(), timeout);
 		logger.info("resolveRoute, id " + id.getPs());
 		
@@ -163,6 +189,9 @@ public class RdmaCmNat extends RdmaCm {
 		
 		MemBuf memBuf = memAlloc.allocate(2*8, MemoryAllocation.MemType.DIRECT, "getcm");
 		ByteBuffer buf = memBuf.getBuffer();
+		if (!channelImpl.isOpen()) {
+			throw new IOException("Trying to get CM event on closed channel.");
+		}
 		int event = nativeDispatcher._getCmEvent(channelImpl.getObjId(), memBuf.address(), memBuf.address() + 8, timeout);
 		
 		if (event >= 0){
@@ -187,6 +216,9 @@ public class RdmaCmNat extends RdmaCm {
 	public int connect(RdmaCmId id, RdmaConnParam connParam)
 			throws IOException {
 		NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
+		if (!idPriv.isOpen()) {
+			throw new IOException("Trying to call connect() with closed ID");
+		}
 		int ret = nativeDispatcher._connect(idPriv.getObjId(), connParam.getRetry_count(), connParam.getRnr_retry_count());
 //		int ret = nativeDispatcher._connect(idPriv.getObjId(), (long) 0);
 		logger.info("connect, id " + id.getPs());
@@ -198,6 +230,9 @@ public class RdmaCmNat extends RdmaCm {
 	public int accept(RdmaCmId id, RdmaConnParam connParam)
 			throws IOException {
 		NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
+		if (!idPriv.isOpen()) {
+			throw new IOException("Trying to call accept() with closed ID");
+		}
 		int ret = nativeDispatcher._accept(idPriv.getObjId(), connParam.getRetry_count(), connParam.getRnr_retry_count());
 //		int ret = nativeDispatcher._accept(idPriv.getObjId(), (long) 0);
 		logger.info("accept, id " + id.getPs());
@@ -214,6 +249,9 @@ public class RdmaCmNat extends RdmaCm {
 
 	public int disconnect(RdmaCmId id) throws IOException {
 		NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
+		if (!idPriv.isOpen()) {
+			throw new IOException("Trying to disconnect with closed ID");
+		}
 		int ret = nativeDispatcher._disconnect(idPriv.getObjId());
 		logger.info("disconnect, id " + id.getPs());
 		
@@ -223,6 +261,10 @@ public class RdmaCmNat extends RdmaCm {
 	public int destroyEventChannel(RdmaEventChannel cmChannel) throws IOException {
 		logger.info("destroyEventChannel, channel " + cmChannel.getFd());
 		NatRdmaEventChannel channelImpl = (NatRdmaEventChannel) cmChannel;
+		if (!channelImpl.isOpen()) {
+			throw new IOException("Trying to destroy an already destroyed channel.");
+		}
+		channelImpl.close();
 		int ret = nativeDispatcher._destroyEventChannel(channelImpl.getObjId());
 		return ret;
 	}
@@ -230,6 +272,10 @@ public class RdmaCmNat extends RdmaCm {
 	public int destroyCmId(RdmaCmId id) throws IOException {
 		logger.info("destroyCmId, id " + id.getPs());
 		NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
+		if (!idPriv.isOpen()) {
+			throw new IOException("Trying to destroy an already destroyed ID");
+		}
+		idPriv.close();
 		int ret = nativeDispatcher._destroyCmId(idPriv.getObjId());
 		return ret;
 	}
@@ -237,6 +283,13 @@ public class RdmaCmNat extends RdmaCm {
 	public int destroyQP(RdmaCmId id) throws IOException {
 		logger.info("destroyQP, id " + id.getPs());
 		NatCmaIdPrivate idImpl = (NatCmaIdPrivate) id;
+		if (!idImpl.isOpen()) {
+			throw new IOException("Trying to destroy QP with closed ID.");
+		}
+		if (!idImpl.getQp().isOpen()) {
+			throw new IOException("Trying to destroy an already destroyed QP.");
+		}
+		idImpl.getQp().close();
 		int ret = nativeDispatcher._destroyQP(idImpl.getObjId());
 		return ret;
 	}
@@ -245,6 +298,9 @@ public class RdmaCmNat extends RdmaCm {
 		NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
 		SockAddrIn srcAddr = new SockAddrIn();
 		MemBuf sockBuf = memAlloc.allocate(SockAddrIn.CSIZE, MemoryAllocation.MemType.DIRECT, SockAddrIn.class.getCanonicalName());
+		if (!idPriv.isOpen()) {
+			throw new IOException("Trying to get source address with closed ID");
+		}
 		int ret = nativeDispatcher._getSrcAddr(idPriv.getObjId(), sockBuf.address());
 		InetSocketAddress socketAddress = null;
 		if (ret == 0){
@@ -274,6 +330,9 @@ public class RdmaCmNat extends RdmaCm {
 		NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
 		SockAddrIn dstAddr = new SockAddrIn();
 		MemBuf sockBuf = memAlloc.allocate(SockAddrIn.CSIZE, MemoryAllocation.MemType.DIRECT, SockAddrIn.class.getCanonicalName());
+		if (!idPriv.isOpen()) {
+			throw new IOException("Trying to get destination address with closed ID");
+		}
 		int ret = nativeDispatcher._getDstAddr(idPriv.getObjId(), sockBuf.address());
 		InetSocketAddress socketAddress = null;
 		if (ret == 0){
@@ -302,6 +361,9 @@ public class RdmaCmNat extends RdmaCm {
 	public int destroyEp(RdmaCmId id) throws IOException {
 		logger.info("destroyEp, id " + id.getPs());
 		NatCmaIdPrivate idImpl = (NatCmaIdPrivate) id;
+		if (!idImpl.isOpen()) {
+			throw new IOException("Trying to destroy an endpoint with closed ID");
+		}
 		int ret = nativeDispatcher._destroyEp(idImpl.getObjId());
 		return ret;
 	}

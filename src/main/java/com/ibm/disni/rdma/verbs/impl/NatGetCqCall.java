@@ -50,6 +50,9 @@ public class NatGetCqCall extends SVCGetCqEvent {
 
 	@Override
 	public SVCGetCqEvent execute() throws IOException {
+		if (!compChannel.isOpen()) {
+			throw new IOException("Trying to get CQ event on closed completion channel.");
+		}
 		int ret = nativeDispatcher._getCqEvent(compChannel.getObjId(), timeout);
 		if (ret != 0){
 			throw new IOException("GetCQEvent failed");

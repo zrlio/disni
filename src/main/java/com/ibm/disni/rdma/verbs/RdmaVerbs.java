@@ -175,8 +175,9 @@ public abstract class RdmaVerbs {
 	 * @param cq the completion queue that generated the events in the first place.
 	 * @param nevents the number of events to be acknowledged.
 	 * @return returns 0 on success.
+	 * @throws IOException
 	 */
-	public abstract int ackCqEvents(IbvCQ cq, int nevents);
+	public abstract int ackCqEvents(IbvCQ cq, int nevents) throws IOException;
 	
 	/**
 	 * Destroys the completion event channel

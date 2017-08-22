@@ -24,6 +24,7 @@ package com.ibm.disni.rdma.verbs.impl;
 import java.io.IOException;
 
 import com.ibm.disni.rdma.verbs.IbvContext;
+import com.ibm.disni.rdma.verbs.IbvQP;
 import com.ibm.disni.rdma.verbs.RdmaCmId;
 import com.ibm.disni.rdma.verbs.RdmaEventChannel;
 
@@ -50,6 +51,9 @@ public class NatCmaIdPrivate extends RdmaCmId implements NatObject {
 	@Override
 	public IbvContext getVerbs() throws IOException {
 		if (verbs == null){
+			if (!isOpen()) {
+				throw new IOException("Trying to get context on closed ID");
+			}
 			long _obj_id = nativeDispatcher._getContext(objId);
 			if (_obj_id >= 0){
 				NatIbvContext context = new NatIbvContext(_obj_id, nativeDispatcher);
@@ -61,6 +65,10 @@ public class NatCmaIdPrivate extends RdmaCmId implements NatObject {
 	
 	public void setVerbs(IbvContext verbs){
 		super.setVerbs(verbs);
-	}	
+	}
+
+	protected void setQp(IbvQP qpObj) {
+		super.setQp(qpObj);
+	}
 
 }

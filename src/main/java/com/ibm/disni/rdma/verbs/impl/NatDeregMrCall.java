@@ -46,6 +46,10 @@ public class NatDeregMrCall extends SVCDeregMr {
 	}
 
 	public SVCDeregMr execute() throws IOException {
+		if (!mr.isOpen()) {
+			throw new IOException("Trying to deregister closed memory region.");
+		}
+		mr.close();
 		int ret = nativeDispatcher._deregMr(mr.getObjId());
 		if (ret != 0){
 			throw new IOException("Memory de-registration failed, ret " + ret);
