@@ -1022,9 +1022,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
   (JNIEnv *env, jobject obj, jlong obj_id) {
     jint num_comp_vectors = -1;
 
-    pthread_rwlock_rdlock(&mut_context);
-    struct ibv_context *context = map_context[obj_id];
-    pthread_rwlock_unlock(&mut_context);
+    struct ibv_context *context = (struct ibv_context *)obj_id;
     if (context != NULL) {
         num_comp_vectors = context->num_comp_vectors;
         log("j2c::getContextNumCompVectors: obj_id %llu, num_comp_vectors %i\n", obj_id, num_comp_vectors);
