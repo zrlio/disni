@@ -49,6 +49,9 @@ public class NatReqNotifyCall extends SVCReqNotify {
 	}
 
 	public SVCReqNotify execute() throws IOException {
+		if (!cq.isOpen()) {
+			throw new IOException("Trying to execute reqNotifyCQ() on closed CQ.");
+		}
 		int ret = nativeDispatcher._reqNotifyCQ(cq.getObjId(), solicited);
 		if (ret != 0){
 			throw new IOException("Request for Notification failed");

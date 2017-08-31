@@ -40,11 +40,13 @@ import java.io.IOException;
 public class IbvContext  {
 	private RdmaVerbs verbs;
 	protected int cmd_fd;
+	protected boolean isOpen;
 	protected int numCompVectors;
 	
 	protected IbvContext(int cmd_fd, int numCompVectors) throws IOException {
 		this.verbs = RdmaVerbs.open();
 		this.cmd_fd = cmd_fd;
+		this.isOpen = true;
 		this.numCompVectors = numCompVectors;
 	}
 
@@ -52,8 +54,9 @@ public class IbvContext  {
 	 * Retrieves the file descriptor used to implement this device context.
 	 *
 	 * @return the cmd_fd
+	 * @throws IOException
 	 */
-	public int getCmd_fd() {
+	public int getCmd_fd() throws IOException {
 		return cmd_fd;
 	}
 
@@ -61,6 +64,13 @@ public class IbvContext  {
 		return numCompVectors;
 	}
 	
+	public boolean isOpen() {
+		return isOpen;
+	}
+
+	public void close() {
+		isOpen = false;
+	}
 	//---------- oo-verbs
 	
 	public IbvPd allocPd() throws IOException{

@@ -51,12 +51,14 @@ public class IbvCQ {
 	protected IbvCompChannel channel;
 	protected int cqe;
 	protected int handle;
+	protected volatile boolean isOpen;
 
 	public IbvCQ(IbvContext context, IbvCompChannel compChannel, int handle) throws IOException  {
 		this.verbs = RdmaVerbs.open();
 		this.context = context;
 		this.channel = compChannel;
 		this.handle = handle;
+		this.isOpen = true;
 	}
 
 	/**
@@ -95,6 +97,14 @@ public class IbvCQ {
 		return cqe;
 	}
 	
+	public boolean isOpen() {
+		return isOpen;
+	}
+
+	public void close() {
+		isOpen = false;
+	}
+
 	//---------- oo-verbs
 	
 	public SVCPollCq poll(IbvWC[] wcList, int ne) throws IOException {

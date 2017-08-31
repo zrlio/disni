@@ -106,6 +106,9 @@ public class NatPollCqCall extends SVCPollCq {
 	@Override
 	public SVCPollCq execute() throws IOException {
 		this.result = 0;
+		if (!cq.isOpen()) {
+			throw new IOException("Trying to poll closed CQ.");
+		}
 		this.result = nativeDispatcher._pollCQ(cq.getObjId(),  ne, cmd.address());
 		if (result < 0){
 			throw new IOException("Polling CQ failed");

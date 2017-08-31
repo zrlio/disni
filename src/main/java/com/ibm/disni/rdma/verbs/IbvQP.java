@@ -74,10 +74,12 @@ public class IbvQP {
 	protected int qp_num;
 	protected int state;
 	protected int qp_type;
+	protected volatile boolean isOpen;
 
 	public IbvQP(int qpnum) throws IOException {
 		this.verbs = RdmaVerbs.open();
 		this.qp_num = qpnum;
+		this.isOpen = true;
 	}
 
 	/**
@@ -130,7 +132,7 @@ public class IbvQP {
 	 *
 	 * @return the qp_num
 	 */
-	public int getQp_num() {
+	public int getQp_num() throws IOException {
 		return qp_num;
 	}
 
@@ -156,6 +158,14 @@ public class IbvQP {
 		return "handle=" + handle + ",qp_num=" + qp_num + ",state=" + state;
 	}	
 	
+	public boolean isOpen() {
+		return isOpen;
+	}
+
+	public void close() {
+		isOpen = false;
+	}
+
 	//---------- oo-verbs
 	
 	public SVCPostSend postSend(List<IbvSendWR> wrList, List<IbvSendWR> badwrList) throws IOException {

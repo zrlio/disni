@@ -108,6 +108,9 @@ public class NatPostSendCall extends SVCPostSend {
 
 	@Override
 	public SVCPostSend execute() throws IOException {
+		if (!qp.isOpen()) {
+			throw new IOException("Trying to post send on closed QP");
+		}
 		int ret = nativeDispatcher._postSend(qp.getObjId(), cmd.address());
 		if (ret != 0){
 			throw new IOException("Post send failed");

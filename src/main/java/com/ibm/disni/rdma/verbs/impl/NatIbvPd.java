@@ -42,7 +42,10 @@ public class NatIbvPd extends IbvPd implements NatObject{
 	}
 
 	@Override
-	public int getHandle() {
+	public int getHandle() throws IOException {
+		if (!isOpen()) {
+			throw new IOException("Trying to get PD handle of closed PD.");
+		}
 		return nativeDispatcher._getPdHandle(objId);
 	}
 }

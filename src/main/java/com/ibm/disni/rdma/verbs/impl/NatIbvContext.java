@@ -40,8 +40,11 @@ public class NatIbvContext extends IbvContext implements NatObject {
 	}
 
 	@Override
-	public int getCmd_fd() {
+	public int getCmd_fd() throws IOException {
 		if (this.cmd_fd < 0){
+			if (!isOpen()) {
+				throw new IOException("Trying to get context FD while context is already closed.");
+			}
 			this.cmd_fd = nativeDispatcher._getContextFd(objId);
 		}		
 		return super.getCmd_fd();

@@ -76,6 +76,9 @@ public class RdmaVerbsNat extends RdmaVerbs {
 
 	public IbvPd allocPd(IbvContext context) throws IOException {
 		NatIbvContext natContext = (NatIbvContext) context;
+		if (!natContext.isOpen()) {
+			throw new IOException("Trying to allocate PD on closed context.");
+		}
 		long objId = nativeDispatcher._allocPd(natContext.getObjId());
 		logger.info("allocPd, objId " + objId);
 		
@@ -90,6 +93,9 @@ public class RdmaVerbsNat extends RdmaVerbs {
 	public IbvCompChannel createCompChannel(IbvContext context)
 			throws IOException {
 		NatIbvContext natContext = (NatIbvContext) context;
+		if (!natContext.isOpen()) {
+			throw new IOException("Trying to create completion channel with closed channel.");
+		}
 		long objId = nativeDispatcher._createCompChannel(natContext.getObjId());
 		logger.info("createCompChannel, context " + natContext.getObjId());
 		
@@ -105,6 +111,12 @@ public class RdmaVerbsNat extends RdmaVerbs {
 			int ncqe, int comp_vector) throws IOException {
 		NatIbvContext natContext = (NatIbvContext) context;
 		NatIbvCompChannel natCompChannel = (NatIbvCompChannel) compChannel;
+		if (!natContext.isOpen()) {
+			throw new IOException("Trying to create CQ with closed context.");
+		}
+		if (!natCompChannel.isOpen()) {
+			throw new IOException("Trying to create CQ with closed completion channel.");
+		}
 		long objId = nativeDispatcher._createCQ(natContext.getObjId(), natCompChannel.getObjId(), ncqe, comp_vector);
 		logger.info("createCQ, objId " + objId + ", ncqe " + ncqe);
 		
@@ -118,6 +130,9 @@ public class RdmaVerbsNat extends RdmaVerbs {
 	public IbvQP modifyQP(IbvQP qp, IbvQpAttr attr)
 			throws IOException {
 		NatIbvQP natQP = (NatIbvQP) qp;
+		if (!qp.isOpen()) {
+			throw new IOException("Trying to modify closed QP");
+		}
 		int ret = nativeDispatcher._modifyQP(natQP.getObjId(), (long) 0);
 		logger.info("modifyQP, qpnum " + qp.getQp_num());
 		
@@ -177,6 +192,9 @@ public class RdmaVerbsNat extends RdmaVerbs {
 
 	public boolean getCqEvent(IbvCompChannel compChannel, IbvCQ cq, int timeout) throws IOException {
 		NatIbvCompChannel natChannel = (NatIbvCompChannel) compChannel;
+		if (!natChannel.isOpen()) {
+			throw new IOException("Trying to get CQ event on closed completion channel.");
+		}
 		int ret = nativeDispatcher._getCqEvent(natChannel.getObjId(), timeout);
 		return ret >= 0 ? true : false;
 	}
@@ -200,23 +218,34 @@ public class RdmaVerbsNat extends RdmaVerbs {
 		return reqNotifyCall;
 	}
 
-	public int ackCqEvents(IbvCQ cq, int nevents) {
+	public int ackCqEvents(IbvCQ cq, int nevents) throws IOException {
 		NatIbvCQ natCQ = (NatIbvCQ) cq;
+		if (!cq.isOpen()) {
+			throw new IOException("Trying to acknowledge events on closed CQ.");
+		}
 		int ret = nativeDispatcher._ackCqEvent(natCQ.getObjId(), nevents);
 		return ret;
 	}
 
-	public int destroyCompChannel(IbvCompChannel compChannel) {
+	public int destroyCompChannel(IbvCompChannel compChannel) throws IOException {
 		logger.info("destroyCompChannel, compChannel " + compChannel.getFd());
 		NatIbvCompChannel compChannelImpl = (NatIbvCompChannel) compChannel;
+		if (!compChannelImpl.isOpen()) {
+			throw new IOException("Trying to destroy an already destroyed completion channel.");
+		}
+		compChannelImpl.close();
 		int ret = nativeDispatcher._destroyCompChannel(compChannelImpl.getObjId());
 		return ret;
 	}
 
 	@Override
-	public int deallocPd(IbvPd pd) {
+	public int deallocPd(IbvPd pd) throws IOException {
 		logger.info("deallocPd, pd " + pd.getHandle());
 		NatIbvPd pdImpl = (NatIbvPd) pd;
+		if (!pdImpl.isOpen()) {
+			throw new IOException("Trying to deallocate a closed protection domain.");
+		}
+		pdImpl.close();
 		int ret = nativeDispatcher._deallocPd(pdImpl.getObjId());
 		return ret;
 	}
@@ -225,6 +254,10 @@ public class RdmaVerbsNat extends RdmaVerbs {
 	public int destroyCQ(IbvCQ cq) throws IOException {
 		NatIbvCQ cqImpl = (NatIbvCQ) cq;
 		logger.info("destroyCQ, cq " + cqImpl.getObjId());
+		if (!cqImpl.isOpen()) {
+			throw new IOException("Trying to destroy already destroyed CQ.");
+		}
+		cqImpl.close();
 		int ret = nativeDispatcher._destroyCQ(cqImpl.getObjId());
 		return ret;
 	}

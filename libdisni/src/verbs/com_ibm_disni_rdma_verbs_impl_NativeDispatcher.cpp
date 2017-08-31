@@ -28,7 +28,6 @@
 
 #include "com_ibm_disni_rdma_verbs_impl_NativeDispatcher.h"
 #include <rdma/rdma_cma.h>
-#include <map>
 #include <sys/socket.h>
 #include <netinet/in.h>
 #include <arpa/inet.h>
@@ -44,8 +43,6 @@
 #include <inttypes.h>
 #include <stddef.h>
 
-using namespace std;
-
 //#define MAX_WR 200;
 #define MAX_SGE 4;
 //#define N_CQE 200
@@ -53,32 +50,8 @@ using namespace std;
 
 //global resource id counter
 static unsigned long long counter = 0;
-//event channel: system wide
-static map<unsigned long long, struct rdma_event_channel *> map_cm_channel;
-//cm id: device specific
-static map<unsigned long long, struct rdma_cm_id *> map_cm_id;
-//pd: device specific
-static map<unsigned long long, struct ibv_pd *> map_pd;
-//device: system wide
-static map<unsigned long long, struct ibv_context *> map_context;
-//comp_channel: system wide
-static map<unsigned long long, struct ibv_comp_channel *> map_comp_channel;
-//cq: device specific
-static map<unsigned long long, struct ibv_cq *> map_cq;
-//qp: device specific
-static map<unsigned long long, struct ibv_qp *> map_qp;
-//mr: device specific
-static map<unsigned long long, struct ibv_mr *> map_mr;
 
 static pthread_mutex_t mut_counter = PTHREAD_MUTEX_INITIALIZER;
-static pthread_rwlock_t mut_cm_channel = PTHREAD_RWLOCK_INITIALIZER;
-static pthread_rwlock_t mut_cm_id = PTHREAD_RWLOCK_INITIALIZER;
-static pthread_rwlock_t mut_pd = PTHREAD_RWLOCK_INITIALIZER;
-static pthread_rwlock_t mut_context = PTHREAD_RWLOCK_INITIALIZER;
-static pthread_rwlock_t mut_comp_channel = PTHREAD_RWLOCK_INITIALIZER;
-static pthread_rwlock_t mut_cq = PTHREAD_RWLOCK_INITIALIZER;
-static pthread_rwlock_t mut_qp = PTHREAD_RWLOCK_INITIALIZER;
-static pthread_rwlock_t mut_mr = PTHREAD_RWLOCK_INITIALIZER;
 
 #ifdef ENABLE_LOGGING
 #define log(...)\
@@ -121,9 +94,6 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1cr
 		int flags = fcntl(cm_channel->fd, F_GETFL);
 		int rc = fcntl(cm_channel->fd, F_SETFL, flags | O_NONBLOCK);
 		obj_id = createObjectId(cm_channel);
-		pthread_rwlock_wrlock(&mut_cm_channel);
-		map_cm_channel[obj_id] = cm_channel;
-		pthread_rwlock_unlock(&mut_cm_channel);
 		log("j2c::createEventChannel: obj_id %llu\n", obj_id);
 	} else {
 		log("j2c::createEventChannel: rdma_create_event_channel failed\n");
@@ -143,17 +113,12 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1cr
 	struct rdma_event_channel *cm_channel = NULL;
 	unsigned long long obj_id = -1;
 
-	pthread_rwlock_rdlock(&mut_cm_channel);
-	cm_channel = map_cm_channel[channel];
-	pthread_rwlock_unlock(&mut_cm_channel);
+	cm_channel = (struct rdma_event_channel *)channel;
 	if (cm_channel != NULL){
 		int ret = rdma_create_id(cm_channel, &cm_listen_id, NULL, RDMA_PS_TCP);
 		if (ret == 0){
 			obj_id = createObjectId(cm_listen_id);
 			//obj_id = (unsigned long long) cm_listen_id;
-			pthread_rwlock_wrlock(&mut_cm_id);
-			map_cm_id[obj_id] = cm_listen_id;
-			pthread_rwlock_unlock(&mut_cm_id);
 			log("j2c::createId: ret %i, obj_id %p\n", ret, (void *)cm_listen_id);
 		} else {
 			log("j2c::createId: rdma_create_id failed\n");
@@ -182,18 +147,10 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1cr
 	int _maxrecvwr = maxrecvwr;
 	enum ibv_qp_type _qptype = (enum ibv_qp_type) qptype;
 
-	pthread_rwlock_rdlock(&mut_cm_id);
-	cm_listen_id = map_cm_id[id];
-	pthread_rwlock_unlock(&mut_cm_id);
-	pthread_rwlock_rdlock(&mut_pd);
-	protection = map_pd[pd];
-	pthread_rwlock_unlock(&mut_pd);
-	pthread_rwlock_rdlock(&mut_cq);
-	send_cq = map_cq[sendcq];
-	pthread_rwlock_unlock(&mut_cq);
-	pthread_rwlock_rdlock(&mut_cq);
-	recv_cq = map_cq[recvcq];
-	pthread_rwlock_unlock(&mut_cq);
+	cm_listen_id = (struct rdma_cm_id *)id;
+	protection = (struct ibv_pd *)pd;
+	send_cq = (struct ibv_cq *)sendcq;
+	recv_cq = (struct ibv_cq *)recvcq;
 
 	if (cm_listen_id != NULL && protection != NULL && send_cq != NULL && recv_cq != NULL){
 		memset(&qp_init_attr, 0, sizeof qp_init_attr);
@@ -211,9 +168,6 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1cr
 		if (ret == 0){
 			struct ibv_qp *qp = cm_listen_id->qp;
 			obj_id = createObjectId(qp);
-			pthread_rwlock_wrlock(&mut_qp);
-			map_qp[obj_id] = qp;
-			pthread_rwlock_unlock(&mut_qp);
 			log("j2c::createQP: obj_id %llu, qpnum %u, send_wr %u, recv_wr %u \n", obj_id, cm_listen_id->qp->qp_num, qp_init_attr.cap.max_send_wr, qp_init_attr.cap.max_recv_wr);
 
 			struct ibv_qp_attr tmp_attr;
@@ -240,9 +194,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1bin
 	struct sockaddr_in *s_addr = (struct sockaddr_in *) address;	
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_cm_id);
-	cm_listen_id = map_cm_id[id];
-	pthread_rwlock_unlock(&mut_cm_id);
+	cm_listen_id = (struct rdma_cm_id *)id;
 
 	if (cm_listen_id != NULL){
 		ret = rdma_bind_addr(cm_listen_id, (struct sockaddr*) s_addr);
@@ -268,9 +220,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1lis
 	struct rdma_cm_id *cm_listen_id = NULL;
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_cm_id);
-	cm_listen_id = map_cm_id[id];
-	pthread_rwlock_unlock(&mut_cm_id);
+	cm_listen_id = (struct rdma_cm_id *)id;
 	if (cm_listen_id != NULL){
 		ret = rdma_listen(cm_listen_id, backlog);
 		if (ret == 0){
@@ -296,9 +246,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1res
 	struct sockaddr_in *d_addr = (struct sockaddr_in *) dst;
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_cm_id);
-	cm_listen_id = map_cm_id[id];
-	pthread_rwlock_unlock(&mut_cm_id);
+	cm_listen_id = (struct rdma_cm_id *)id;
 	if (cm_listen_id != NULL){
 		ret = rdma_resolve_addr(cm_listen_id, NULL, (struct sockaddr*) d_addr, (int) timeout);
 		if (ret == 0){
@@ -323,9 +271,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1res
 	struct rdma_cm_id *cm_listen_id = NULL;
 	jint ret = -1;
 	
-	pthread_rwlock_rdlock(&mut_cm_id);
-	cm_listen_id = map_cm_id[id];
-	pthread_rwlock_unlock(&mut_cm_id);
+	cm_listen_id = (struct rdma_cm_id *)id;
 	if (cm_listen_id != NULL){
 		ret = rdma_resolve_route(cm_listen_id, (int) timeout);
 		if (ret == 0){
@@ -351,9 +297,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
 	struct rdma_cm_event *cm_event;
 	jint event = -1;
 
-	pthread_rwlock_rdlock(&mut_cm_channel);
-	cm_channel = map_cm_channel[channel];
-	pthread_rwlock_unlock(&mut_cm_channel);
+	cm_channel = (struct rdma_event_channel *)channel;
 	if (cm_channel != NULL){
 		struct pollfd pollfdcm;
 		pollfdcm.fd = cm_channel->fd;
@@ -375,12 +319,6 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
 				unsigned long long *_client_id = (unsigned long long *) client_id;
 				if (cm_event->id != NULL){
 					*_client_id = (unsigned long long) cm_event->id;
-					if (cm_event->event == RDMA_CM_EVENT_CONNECT_REQUEST){
-						unsigned long long obj_id = (unsigned long long) cm_event->id;
-						pthread_rwlock_wrlock(&mut_cm_id);
-						map_cm_id[obj_id] = cm_event->id;
-						pthread_rwlock_unlock(&mut_cm_id);
-					}
 				} else {
 					*_client_id = -1;
 				}
@@ -403,9 +341,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1con
 	struct rdma_conn_param conn_param;
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_cm_id);
-	cm_listen_id = map_cm_id[id];
-	pthread_rwlock_unlock(&mut_cm_id);
+	cm_listen_id = (struct rdma_cm_id *)id;
 	struct ibv_device_attr dev_attr;
 	ibv_query_device(cm_listen_id->verbs, &dev_attr);
 
@@ -439,9 +375,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1acc
 	struct rdma_conn_param conn_param;
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_cm_id);
-	cm_listen_id = map_cm_id[id];
-	pthread_rwlock_unlock(&mut_cm_id);
+	cm_listen_id = (struct rdma_cm_id *)id;
         struct ibv_device_attr dev_attr;
         ibv_query_device(cm_listen_id->verbs, &dev_attr);
 
@@ -484,9 +418,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1dis
 	struct rdma_cm_id *cm_listen_id = NULL;
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_cm_id);
-	cm_listen_id = map_cm_id[id];
-	pthread_rwlock_unlock(&mut_cm_id);
+	cm_listen_id = (struct rdma_cm_id *)id;
 
 	if (cm_listen_id != NULL){
 		ret = rdma_disconnect(cm_listen_id);
@@ -502,15 +434,10 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1des
 	struct rdma_event_channel *cm_channel = NULL;
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_cm_channel);
-	cm_channel = map_cm_channel[channel];
-	pthread_rwlock_unlock(&mut_cm_channel);
+	cm_channel = (struct rdma_event_channel *)channel;
 
 	if (cm_channel != NULL){
 		rdma_destroy_event_channel(cm_channel);
-		pthread_rwlock_wrlock(&mut_cm_channel);
-		map_cm_channel.erase(channel);
-		pthread_rwlock_unlock(&mut_cm_channel);
 		ret = 0;
 	}
 
@@ -527,15 +454,10 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1des
 	struct rdma_cm_id *cm_listen_id = NULL;
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_cm_id);
-	cm_listen_id = map_cm_id[id];
-	pthread_rwlock_unlock(&mut_cm_id);
+	cm_listen_id = (struct rdma_cm_id *)id;
 
 	if (cm_listen_id != NULL){
 		ret = rdma_destroy_id(cm_listen_id);
-		pthread_rwlock_wrlock(&mut_cm_id);
-		map_cm_id.erase(id);
-		pthread_rwlock_unlock(&mut_cm_id);
 	}
 
 	return ret;
@@ -551,15 +473,10 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1des
 	struct rdma_cm_id *cm_listen_id = NULL;
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_cm_id);
-	cm_listen_id = map_cm_id[id];
-	pthread_rwlock_unlock(&mut_cm_id);
+	cm_listen_id = (struct rdma_cm_id *)id;
 
 	if (cm_listen_id != NULL && cm_listen_id->qp != NULL){
 		jlong obj_id = createObjectId(cm_listen_id->qp);
-		pthread_rwlock_wrlock(&mut_qp);
-		map_qp.erase(obj_id);
-		pthread_rwlock_unlock(&mut_qp);
 
 		rdma_destroy_qp(cm_listen_id);
 		ret = 0;
@@ -580,16 +497,11 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1des
 	struct rdma_cm_id *cm_listen_id = NULL;
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_cm_id);
-	cm_listen_id = map_cm_id[id];
-	pthread_rwlock_unlock(&mut_cm_id);
+	cm_listen_id = (struct rdma_cm_id *)id;
 
 	if (cm_listen_id != NULL){
 		log("j2c::destroyEp: id %p\n", (void *)id);
 		rdma_destroy_ep(cm_listen_id);
-		pthread_rwlock_wrlock(&mut_cm_id);
-		map_cm_id.erase(id);
-		pthread_rwlock_unlock(&mut_cm_id);
 		ret = 0;
 	}
 
@@ -606,9 +518,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
         struct rdma_cm_id *cm_listen_id = NULL;
         jint ret = -1;
 
-        pthread_rwlock_rdlock(&mut_cm_id);
-        cm_listen_id = map_cm_id[id];
-        pthread_rwlock_unlock(&mut_cm_id);
+        cm_listen_id = (struct rdma_cm_id *)id;
 
         if (cm_listen_id != NULL){
         	struct sockaddr *sock = rdma_get_local_addr(cm_listen_id);
@@ -632,9 +542,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
         struct rdma_cm_id *cm_listen_id = NULL;
         jint ret = -1;
 
-        pthread_rwlock_rdlock(&mut_cm_id);
-        cm_listen_id = map_cm_id[id];
-        pthread_rwlock_unlock(&mut_cm_id);
+        cm_listen_id = (struct rdma_cm_id *)id;
 
         if (cm_listen_id != NULL){
                 struct sockaddr *sock = rdma_get_peer_addr(cm_listen_id);
@@ -661,17 +569,12 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1ge
 	//jint cmd_fd = -1;
 	unsigned long long obj_id = -1;
 
-	pthread_rwlock_rdlock(&mut_cm_id);
-	cm_listen_id = map_cm_id[id];
-	pthread_rwlock_unlock(&mut_cm_id);
+	cm_listen_id = (struct rdma_cm_id *)id;
 
 	if (cm_listen_id != NULL){
 		struct ibv_context *context = cm_listen_id->verbs;
                 if (context != NULL){
 			obj_id = createObjectId(context);
-                        pthread_rwlock_wrlock(&mut_context);
-                        map_context[obj_id] = context;
-                        pthread_rwlock_unlock(&mut_context);
                         log("j2c::getContext: obj_id %llu\n", obj_id);
                 } else {
                         log("j2c::getContext: context_list empty %p\n", (void *)cm_listen_id);
@@ -693,17 +596,12 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1al
 	struct ibv_context *context = NULL;
 	unsigned long long obj_id = -1;
 
-	pthread_rwlock_rdlock(&mut_context);
-	context = map_context[ctx];
-	pthread_rwlock_unlock(&mut_context);
+	context = (struct ibv_context *)ctx;
 
 	if (context != NULL){
 		struct ibv_pd *pd = ibv_alloc_pd(context);
 		if (pd != NULL){
 			obj_id = createObjectId(pd);
-			pthread_rwlock_wrlock(&mut_pd);
-			map_pd[obj_id] = pd;
-			pthread_rwlock_unlock(&mut_pd);
 			log("j2c::allocPd: obj_id %llu\n", obj_id);
 		} else {
 			log("j2c::allocPd: ibv_alloc_pd failed\n");
@@ -725,18 +623,13 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1cr
 	struct ibv_context *context = NULL;
 	unsigned long long obj_id = -1;
 
-	pthread_rwlock_rdlock(&mut_context);
-	context = map_context[ctx];
-	pthread_rwlock_unlock(&mut_context);
+	context = (struct ibv_context *)ctx;
 	if (context != NULL){
 		struct ibv_comp_channel *comp_channel = ibv_create_comp_channel(context);
 		if (comp_channel != NULL){
 			int flags = fcntl(comp_channel->fd, F_GETFL);
 			int rc = fcntl(comp_channel->fd, F_SETFL, flags | O_NONBLOCK);
 			obj_id = createObjectId(comp_channel);
-			pthread_rwlock_wrlock(&mut_comp_channel);
-			map_comp_channel[obj_id] = comp_channel;
-			pthread_rwlock_unlock(&mut_comp_channel);
 			log("j2c::createCompChannel: obj_id %llu\n", obj_id);
 		} else {
 			log("j2c::createCompChannel: ibv_create_comp_channel failed\n");
@@ -761,20 +654,13 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1cr
 	int _ncqe = ncqe;
 	int _comp_vector = comp_vector;
 	
-	pthread_rwlock_rdlock(&mut_context);
-	context = map_context[ctx];
-	pthread_rwlock_unlock(&mut_context);
-	pthread_rwlock_rdlock(&mut_comp_channel);
-	comp_channel = map_comp_channel[channel];
-	pthread_rwlock_unlock(&mut_comp_channel);
+	context = (struct ibv_context *)ctx;
+	comp_channel = (struct ibv_comp_channel *)channel;
 
 	if (context != NULL && comp_channel != NULL){
 		struct ibv_cq *cq = ibv_create_cq(context, _ncqe, NULL, comp_channel, _comp_vector);
 		if (cq != NULL){
 			obj_id = createObjectId(cq);
-			pthread_rwlock_wrlock(&mut_cq);
-			map_cq[obj_id] = cq;
-			pthread_rwlock_unlock(&mut_cq);
 			log("j2c::createCQ: obj_id %p, cq %p, cqnum %u, size %u\n", (void *)obj_id, (void *)cq, cq->handle, _ncqe);
 		} else {
 			log("j2c::createCQ: ibv_create_cq failed\n");
@@ -799,9 +685,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1mod
 	int attr_mask;	
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_qp);
-	queuepair = map_qp[qp];
-	pthread_rwlock_unlock(&mut_qp);
+	queuepair = (struct ibv_qp *)qp;
 	if (queuepair != NULL){
 		ret = ibv_modify_qp(queuepair, &attr, attr_mask);
 		if (ret == 0){
@@ -828,16 +712,11 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1re
 	//jint ret = -1;
 	unsigned long long obj_id = -1;
 	
-	pthread_rwlock_rdlock(&mut_pd);
-	protection = map_pd[pd];
-	pthread_rwlock_unlock(&mut_pd);
+	protection = (struct ibv_pd *)pd;
 	if (protection != NULL){
 		struct ibv_mr *mr = ibv_reg_mr(protection, addr, len, access);
 		if (mr != NULL){
 			obj_id = createObjectId(mr);
-			pthread_rwlock_wrlock(&mut_mr);
-			map_mr[obj_id] = mr;
-			pthread_rwlock_unlock(&mut_mr);
 
 			int *_lkey = (int *) lkey;
 			int *_rkey = (int *) rkey;
@@ -869,14 +748,9 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1der
 	struct ibv_mr *mr = NULL;
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_mr);
-	mr = map_mr[handle];
-	pthread_rwlock_unlock(&mut_mr);
+	mr = (struct ibv_mr *)handle;
 
 	if (mr != NULL){
-		pthread_rwlock_wrlock(&mut_mr);
-		map_mr.erase(handle);
-		pthread_rwlock_unlock(&mut_mr);
 		ret = ibv_dereg_mr(mr);
 		if (ret == 0){
 			log("j2c::deregMr: ret %i\n", ret);
@@ -902,9 +776,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1pos
 	struct ibv_send_wr *bad_wr;
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_qp);
-	queuepair = map_qp[qp];
-	pthread_rwlock_unlock(&mut_qp);
+	queuepair = (struct ibv_qp *)qp;
 	if (queuepair != NULL){
 		ret = ibv_post_send(queuepair, wr, &bad_wr);
 		if (ret == 0){
@@ -932,9 +804,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1pos
 	struct ibv_recv_wr *bad_wr;
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_qp);
-	queuepair = map_qp[qp];
-	pthread_rwlock_unlock(&mut_qp);
+	queuepair = (struct ibv_qp *)qp;
 	if (queuepair != NULL){
 		//log("j2c::post_recv: sizeof wr %zu, wrid %llu\n", sizeof *wr, wr->wr_id);
 		ret = ibv_post_recv(queuepair, wr, &bad_wr);
@@ -962,9 +832,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
 	void *dst_cq_ctx;
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_comp_channel);
-	comp_channel = map_comp_channel[channel];
-	pthread_rwlock_unlock(&mut_comp_channel);
+	comp_channel = (struct ibv_comp_channel *)channel;
 
 	if (comp_channel != NULL){
 		struct pollfd pollfdcomp;
@@ -996,9 +864,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1pol
 	int num_entries = (int) ne;	
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_cq);
-	completionqueue = map_cq[cq];
-	pthread_rwlock_unlock(&mut_cq);
+	completionqueue = (struct ibv_cq*)cq;
 	if (completionqueue != NULL){
 		ret = ibv_poll_cq(completionqueue, num_entries, wc);
 		//log("j2c::pollCQ: ret %i\n", ret);
@@ -1020,9 +886,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1req
 	int solicited_only = (int) solicited;
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_cq);
-	completionqueue = map_cq[cq];
-	pthread_rwlock_unlock(&mut_cq);
+	completionqueue = (struct ibv_cq*)cq;
 
 	if (completionqueue != NULL){
 		ret = ibv_req_notify_cq(completionqueue, solicited_only);
@@ -1045,9 +909,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1ack
 	unsigned int num_events = (unsigned int) nevents;
 	jint ret = -1;
 	
-	pthread_rwlock_rdlock(&mut_cq);
-	completionqueue = map_cq[cq];
-	pthread_rwlock_unlock(&mut_cq);
+	completionqueue = (struct ibv_cq*)cq;
 
 	if (completionqueue != NULL){
 		ibv_ack_cq_events(completionqueue, num_events);
@@ -1067,14 +929,9 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1des
 	struct ibv_comp_channel *comp_channel = NULL;
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_comp_channel);
-	comp_channel = map_comp_channel[channel];
-	pthread_rwlock_unlock(&mut_comp_channel);
+	comp_channel = (struct ibv_comp_channel *)channel;
 	if (comp_channel != NULL){
 		ret = ibv_destroy_comp_channel(comp_channel);
-		pthread_rwlock_wrlock(&mut_comp_channel);
-		map_comp_channel.erase(channel);
-		pthread_rwlock_unlock(&mut_comp_channel);
 	}
 
 	return ret;
@@ -1090,14 +947,9 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1dea
 	struct ibv_pd *protection = NULL;
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_pd);
-	protection = map_pd[pd];
-	pthread_rwlock_unlock(&mut_pd);
+	protection = (struct ibv_pd *)pd;
 	if (protection != NULL){
 		ret = ibv_dealloc_pd(protection);
-		pthread_rwlock_wrlock(&mut_pd);
-		map_pd.erase(pd);
-		pthread_rwlock_unlock(&mut_pd);
 	}
 
 	return ret;
@@ -1113,14 +965,9 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1des
 	struct ibv_cq *completionqueue = NULL;
 	jint ret = -1;
 
-	pthread_rwlock_rdlock(&mut_cq);
-	completionqueue = map_cq[cq];
-	pthread_rwlock_unlock(&mut_cq);
+	completionqueue = (struct ibv_cq*)cq;
 	if (completionqueue != NULL){
 		ret = ibv_destroy_cq(completionqueue);
-		pthread_rwlock_wrlock(&mut_cq);
-		map_cq.erase(cq);
-		pthread_rwlock_unlock(&mut_cq);
 	}
 
 	return ret;
@@ -1135,9 +982,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
   (JNIEnv *env, jobject obj, jlong obj_id){
 	jint qpnum = -1;
 
-	pthread_rwlock_rdlock(&mut_qp);
-	struct ibv_qp *qp = map_qp[obj_id];
-	pthread_rwlock_unlock(&mut_qp);
+	struct ibv_qp * qp = (struct ibv_qp *)obj_id;
 	if (qp != NULL){
 		qpnum = qp->qp_num;
 		log("j2c::getQpNum: obj_id %p, qpnum %i\n", (void *)obj_id, qpnum);
@@ -1157,9 +1002,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
   (JNIEnv *env, jobject obj, jlong obj_id){
         jint cmd_fd = -1;
 
-        pthread_rwlock_rdlock(&mut_context);
-        struct ibv_context *context = map_context[obj_id];
-        pthread_rwlock_unlock(&mut_context);
+        struct ibv_context *context = (struct ibv_context *)obj_id;
         if (context != NULL){
                 cmd_fd = context->cmd_fd;
                 log("j2c::getContextFd: obj_id %p, fd %i\n", (void *)obj_id, cmd_fd);
@@ -1201,9 +1044,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
   (JNIEnv *env, jobject obj, jlong pd){
 	jint handle = -1;
 
-	pthread_rwlock_rdlock(&mut_pd);
-	struct ibv_pd *protection = map_pd[pd];
-	pthread_rwlock_unlock(&mut_pd);
+	struct ibv_pd *protection = (struct ibv_pd *)pd;
 	if (protection != NULL){
 		handle = protection->handle;
 		log("j2c::getPdHandle: obj_id %p, handle %i\n", (void *)pd, handle);

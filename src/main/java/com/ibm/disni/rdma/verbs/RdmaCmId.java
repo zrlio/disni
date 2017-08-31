@@ -47,12 +47,14 @@ public class RdmaCmId  {
 	protected RdmaEventChannel cmChannel;
 	protected IbvContext verbs;
 	protected IbvQP qpObj;
+	protected volatile boolean isOpen;
 
 	protected RdmaCmId(RdmaEventChannel cmChannel, IbvContext verbs) throws IOException {
 		this.cm = RdmaCm.open();
 		this.cmChannel = cmChannel;
 		this.verbs = verbs;
-		this.qpObj = null; 
+		this.qpObj = null;
+		this.isOpen = true;
 	}
 
 	/**
@@ -115,6 +117,14 @@ public class RdmaCmId  {
 		this.verbs = verbs;
 	}
 	
+	public boolean isOpen() {
+		return isOpen;
+	}
+
+	public void close() {
+		isOpen = false;
+	}
+
 	//---------- oo-verbs
 	
 	public IbvQP createQP(IbvPd pd, IbvQPInitAttr attr) throws IOException{

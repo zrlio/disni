@@ -36,8 +36,11 @@ public class NatIbvQP extends IbvQP implements NatObject {
 	}
 	
 	@Override
-	public int getQp_num() {
+	public int getQp_num() throws IOException {
 		if (this.qp_num < 0){
+			if (!isOpen()) {
+				throw new IOException("Trying to get QP num of closed QP.");
+			}
 			this.qp_num = this.nativeDispatcher._getQpNum(objId);
 		}
 		return qp_num;
