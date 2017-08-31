@@ -46,7 +46,7 @@
 //#define MAX_WR 200;
 #define MAX_SGE 4;
 //#define N_CQE 200
-#define JVERBS_JNI_VERSION 31;
+#define JVERBS_JNI_VERSION 32;
 
 //global resource id counter
 static unsigned long long counter = 0;
@@ -248,7 +248,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1res
 
 	cm_listen_id = (struct rdma_cm_id *)id;
 	if (cm_listen_id != NULL){
-		ret = rdma_resolve_addr(cm_listen_id, NULL, (struct sockaddr*) d_addr, 2000);
+		ret = rdma_resolve_addr(cm_listen_id, NULL, (struct sockaddr*) d_addr, (int) timeout);
 		if (ret == 0){
 			log("j2c::resolveAddr: ret %i\n", ret);
 		} else {
@@ -267,13 +267,13 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1res
  * Signature: (II)V
  */
 JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1resolveRoute
-  (JNIEnv *env, jobject obj, jlong id, jint to){
+  (JNIEnv *env, jobject obj, jlong id, jint timeout){
 	struct rdma_cm_id *cm_listen_id = NULL;
 	jint ret = -1;
 	
 	cm_listen_id = (struct rdma_cm_id *)id;
 	if (cm_listen_id != NULL){
-		ret = rdma_resolve_route(cm_listen_id, 2000);
+		ret = rdma_resolve_route(cm_listen_id, (int) timeout);
 		if (ret == 0){
 			log("j2c::resolveRoute: ret %i\n", ret);
 		} else {
@@ -295,7 +295,6 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
   (JNIEnv *env, jobject obj, jlong channel, jlong listen_id, jlong client_id, jint timeout){
 	struct rdma_event_channel *cm_channel = NULL;
 	struct rdma_cm_event *cm_event;
-	int _timeout = (int) timeout;
 	jint event = -1;
 
 	cm_channel = (struct rdma_event_channel *)channel;
@@ -304,7 +303,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
 		pollfdcm.fd = cm_channel->fd;
 		pollfdcm.events  = POLLIN;
 		pollfdcm.revents = 0;
-		int ret = poll(&pollfdcm, 1, timeout);
+		int ret = poll(&pollfdcm, 1, (int) timeout);
 		if (ret > 0){
 			ret = rdma_get_cm_event(cm_channel, &cm_event);
 			if (ret == 0){
@@ -1012,6 +1011,28 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1get
         }
 
         return cmd_fd;
+}
+
+/*
+ * Class:     com_ibm_disni_rdma_verbs_impl_nat_NativeDispatcher
+ * Method:    _getContextNumCompVectors
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1getContextNumCompVectors
+  (JNIEnv *env, jobject obj, jlong obj_id) {
+    jint num_comp_vectors = -1;
+
+    pthread_rwlock_rdlock(&mut_context);
+    struct ibv_context *context = map_context[obj_id];
+    pthread_rwlock_unlock(&mut_context);
+    if (context != NULL) {
+        num_comp_vectors = context->num_comp_vectors;
+        log("j2c::getContextNumCompVectors: obj_id %llu, num_comp_vectors %i\n", obj_id, num_comp_vectors);
+    } else {
+        log("j2c::getContextNumCompVectors: failed, obj_id %llu\n", obj_id);
+    }
+
+    return num_comp_vectors;
 }
 
 /*

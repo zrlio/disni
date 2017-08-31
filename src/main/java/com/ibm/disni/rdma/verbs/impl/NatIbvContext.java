@@ -30,7 +30,7 @@ public class NatIbvContext extends IbvContext implements NatObject {
 	private NativeDispatcher nativeDispatcher;
 
 	public NatIbvContext(long objId, NativeDispatcher nativeDispatcher) throws IOException{
-		super(-1);
+		super(-1, -1);
 		this.objId = objId;
 		this.nativeDispatcher = nativeDispatcher;
 	}
@@ -48,5 +48,13 @@ public class NatIbvContext extends IbvContext implements NatObject {
 			this.cmd_fd = nativeDispatcher._getContextFd(objId);
 		}		
 		return super.getCmd_fd();
-	}	
+	}
+
+	@Override
+	public int getNumCompVectors() {
+		if (this.numCompVectors < 0){
+			this.numCompVectors = nativeDispatcher._getContextNumCompVectors(objId);
+		}
+		return super.getNumCompVectors();
+	}
 }

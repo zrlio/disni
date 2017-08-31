@@ -41,11 +41,13 @@ public class IbvContext  {
 	private RdmaVerbs verbs;
 	protected int cmd_fd;
 	protected boolean isOpen;
+	protected int numCompVectors;
 	
-	protected IbvContext(int cmd_fd) throws IOException{
+	protected IbvContext(int cmd_fd, int numCompVectors) throws IOException {
 		this.verbs = RdmaVerbs.open();
 		this.cmd_fd = cmd_fd;
 		this.isOpen = true;
+		this.numCompVectors = numCompVectors;
 	}
 
 	/**
@@ -56,6 +58,10 @@ public class IbvContext  {
 	 */
 	public int getCmd_fd() throws IOException {
 		return cmd_fd;
+	}
+
+	public int getNumCompVectors() {
+		return numCompVectors;
 	}
 	
 	public boolean isOpen() {
