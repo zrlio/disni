@@ -1,0 +1,17 @@
+Source: libdisni
+Priority: extra
+Maintainer: Patrick Stuedi <stu@zurich.ibm.com>
+Build-Depends: debhelper (>= 7.0.50~), dpkg-dev (>= 1.13.19)
+Standards-Version: 3.9.2
+Section: java
+Homepage: https://github.com/zrlio/disni
+
+Package: libdisni-java-jni
+Architecture: any
+Depends: ${shlibs:Depends}, ${misc:Depends}, adduser
+Description: Direct Storage and Networking Interface Library
+ libdisni provides a user-space API to direct storage and networking access from
+ userpace. It provides an RDMA interface to access remote memory, and an NVMf
+ interface to access remote NVMe storage.
+ .
+ This package contains the shared library.

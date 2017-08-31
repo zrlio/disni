@@ -1,0 +1,21 @@
+#!/usr/bin/make -f
+# -*- mode: makefile; coding: utf-8 -*-
+#
+
+JDK_HOME ?= $(shell readlink -f /usr/bin/java | sed -e "s@/jre/bin/java@@")
+DEB_HOST_MULTIARCH ?= $(shell dpkg-architecture -qDEB_HOST_MULTIARCH)
+
+%:
+	dh $@
+
+override_dh_install:
+	dh_install
+
+	# install -jni library in multi-arch path
+	mkdir -p debian/libdisni-java-jni/usr/lib/$(DEB_HOST_MULTIARCH)/jni
+	rm -rf debian/libdisni-java-jni/usr/include
+	rm -f  debian/libdisni-java-jni/usr/lib/*a
+	mv -v debian/libdisni-java-jni/usr/lib/*so* debian/libdisni-java-jni/usr/lib/$(DEB_HOST_MULTIARCH)/jni
+
+override_dh_auto_configure:
+	dh_auto_configure -- --with-jdk=$(JDK_HOME)
