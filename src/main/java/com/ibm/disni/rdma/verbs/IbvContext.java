@@ -40,7 +40,7 @@ import java.io.IOException;
 public class IbvContext  {
 	private RdmaVerbs verbs;
 	protected int cmd_fd;
-	protected boolean isOpen;
+	protected volatile boolean isOpen;
 	protected int numCompVectors;
 	
 	protected IbvContext(int cmd_fd, int numCompVectors) throws IOException {
