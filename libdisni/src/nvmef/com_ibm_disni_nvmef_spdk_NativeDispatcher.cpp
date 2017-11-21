@@ -34,8 +34,6 @@ extern "C" {
 #include <spdk/nvmf.h>
 //XXX
 #include <nvme_internal.h>
-#include <env_internal.h>
-#include <spdk_internal/event.h>
 }
 
 
@@ -49,6 +47,7 @@ extern "C" {
 #include <iostream>
 #include <sstream>
 #include <vector>
+#include <limits>
 
 #include <cstdio>
 #include <cstring>
@@ -97,10 +96,10 @@ class JNIString {
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _env_init
- * Signature: (Ljava/lang/String;J[I)I
+ * Signature: (J[I)I
  */
 JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1env_1init
-  (JNIEnv* env, jobject thiz, jstring huge_path, jlong memory_size_MB, jintArray transport_types) {
+  (JNIEnv* env, jobject thiz, jlong memory_size_MB, jintArray transport_types) {
     spdk_env_opts opts;
     spdk_env_opts_init(&opts);
 
@@ -110,46 +109,35 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1env_1ini
     for (jsize i = 0; i < jtransport_types_size; i++) {
         if (jtransport_types[i] == SPDK_NVME_TRANSPORT_PCIE) {
             pcie = true;
+            break;
         }
     }
     env->ReleaseIntArrayElements(transport_types, jtransport_types, 0);
 
-    if (env->IsSameObject(huge_path, NULL)) {
-        return -EFAULT;
+    opts.name = "DiSNI";
+
+    long num_cores = sysconf(_SC_NPROCESSORS_ONLN);
+    std::stringstream ss;
+    ss << std::hex << "0x";
+    while (num_cores != 0) {
+        uint32_t set_bits = std::min(
+                sizeof(long) * std::numeric_limits<unsigned char>::digits,
+                static_cast<size_t>(num_cores));
+        ss << ((1UL << set_bits) - 1);
+        num_cores -= set_bits;
     }
-    JNIString jHugePath(env, huge_path);
-    if (jHugePath.c_str() == NULL) {
-        return -EFAULT;
-    }
-    int args_idx = 0;
-    std::vector<const char*> cargs;
-    cargs.push_back("--huge-dir");
-    cargs.push_back(jHugePath.c_str());
+    opts.core_mask = ss.str().c_str();
 
-    if (!pcie) {
-        cargs.push_back("--no-pci");
-    }
+    opts.mem_size = memory_size_MB;
+    opts.no_pci = !pcie;
 
-    cargs.push_back("--proc");
-    cargs.push_back("primary");
+    /* FIXME: spdk_env_init does not have a return type and just exits
+     * the process if something goes wrong! This is bad design and has been
+     * discussed numerous times with SPDK developers
+     */
+    spdk_env_init(&opts);
 
-    cargs.push_back("--file-prefix");
-    pid_t pid = getpid();
-    std::stringstream prefix;
-    prefix << "rte_" << pid;
-    std::string prefix_str = prefix.str();
-    cargs.push_back(prefix_str.c_str());
-
-    cargs.push_back("-m");
-    std::stringstream memory_size_ss;
-    memory_size_ss << memory_size_MB;
-    std::string memory_size_str = memory_size_ss.str();
-    cargs.push_back(memory_size_str.c_str());
-
-    //XXX we should call spdk_env_init but it does not allow to set --no-pci etc
-    int ret = rte_eal_init(cargs.size(), const_cast<char**>(cargs.data()));
-    spdk_vtophys_register_dpdk_mem();
-    return ret < 0 ? rte_errno : ret;
+    return 0;
 }
 
 /*
@@ -159,7 +147,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1env_1ini
  */
 JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1malloc
   (JNIEnv* env, jobject thiz, jlong size, jlong alignment) {
-    return reinterpret_cast<jlong>(spdk_malloc(size, alignment, NULL));
+    return reinterpret_cast<jlong>(spdk_dma_malloc(size, alignment, NULL));
 }
 
 /*
@@ -169,7 +157,7 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1malloc
  */
 JNIEXPORT void JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1free
   (JNIEnv* env, jobject thiz, jlong address) {
-    spdk_free(reinterpret_cast<void*>(address));
+    spdk_dma_free(reinterpret_cast<void*>(address));
 }
 
 /*
@@ -293,26 +281,44 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1c
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _nvme_ctrlr_get_data
- * Signature: (JJ)V
+ * Signature: (JJI)I
  */
-JNIEXPORT void JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1get_1data
-  (JNIEnv* env, jobject thiz, jlong controller_id, jlong address) {
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1get_1data
+  (JNIEnv* env, jobject thiz, jlong controller_id, jlong address, jint size) {
     spdk_nvme_ctrlr* ctrlr = reinterpret_cast<spdk_nvme_ctrlr*>(controller_id);
     const spdk_nvme_ctrlr_data* ctrlr_data = spdk_nvme_ctrlr_get_data(ctrlr);
     //FIXME: complete data
-    memcpy(reinterpret_cast<void*>(address), ctrlr_data, 1024);
+    size_t copy_size = std::min(static_cast<size_t>(size), sizeof(*ctrlr_data));
+    memcpy(reinterpret_cast<void*>(address), ctrlr_data, copy_size);
+    return 0;
 }
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _nvme_ctrlr_get_opts
- * Signature: (JJ)V
+ * Signature: (JJI)I
  */
-JNIEXPORT void JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1get_1opts
-  (JNIEnv* env, jobject thiz, jlong controller_id, jlong address) {
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1get_1opts
+  (JNIEnv* env, jobject thiz, jlong controller_id, jlong address, jint size) {
     spdk_nvme_ctrlr* ctrlr = reinterpret_cast<spdk_nvme_ctrlr*>(controller_id);
     const spdk_nvme_ctrlr_opts* ctrlr_opts = &ctrlr->opts;
+    if (size != sizeof(*ctrlr_opts)) {
+        return -EFAULT;
+    }
     memcpy(reinterpret_cast<void*>(address), ctrlr_opts, sizeof(*ctrlr_opts));
+    return 0;
+}
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvme_ctrlr_alloc_io_qpair
+ * Signature: (J)J
+ */
+JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1alloc_1io_1qpair__J
+  (JNIEnv* env, jobject thiz, jlong controller_id) {
+    spdk_nvme_ctrlr* ctrlr = reinterpret_cast<spdk_nvme_ctrlr*>(controller_id);
+    spdk_nvme_qpair* qpair = spdk_nvme_ctrlr_alloc_io_qpair(ctrlr, NULL, 0);
+    return reinterpret_cast<jlong>(qpair);
 }
 
 /*
@@ -321,9 +327,13 @@ JNIEXPORT void JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ct
  * Signature: (JI)J
  */
 JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1alloc_1io_1qpair
-  (JNIEnv* env, jobject thiz, jlong controller_id, jint priority) {
+  (JNIEnv* env, jobject thiz, jlong controller_id, jint priority, jint size, jint num_requests) {
+    spdk_nvme_io_qpair_opts opts;
+    opts.qprio = static_cast<spdk_nvme_qprio>(priority);
+    opts.io_queue_size = size;
+    opts.io_queue_requests = num_requests;
     spdk_nvme_ctrlr* ctrlr = reinterpret_cast<spdk_nvme_ctrlr*>(controller_id);
-    spdk_nvme_qpair* qpair = spdk_nvme_ctrlr_alloc_io_qpair(ctrlr, static_cast<spdk_nvme_qprio>(0));
+    spdk_nvme_qpair* qpair = spdk_nvme_ctrlr_alloc_io_qpair(ctrlr, &opts, sizeof(opts));
     return reinterpret_cast<jlong>(qpair);
 }
 

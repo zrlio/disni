@@ -35,7 +35,7 @@ public class NativeDispatcher {
 
 	/* SPDK util */
 
-	public native int _env_init(String hugePath, long memorySizeMB, int[] transportTypes);
+	public native int _env_init(long memorySizeMB, int[] transportTypes);
 
 	public native int _log_set_trace_flag(String name);
 
@@ -56,11 +56,13 @@ public class NativeDispatcher {
 
 	public native long _nvme_ctrlr_get_ns(long controller, int namespaceId);
 
-	public native void _nvme_ctrlr_get_data(long controller, long buffer);
+	public native int _nvme_ctrlr_get_data(long controller, long buffer, int size);
 
-	public native void _nvme_ctrlr_get_opts(long controller, long buffer);
+	public native int _nvme_ctrlr_get_opts(long controller, long buffer, int size);
 
-	public native long _nvme_ctrlr_alloc_io_qpair(long controller, int priority);
+	public native long _nvme_ctrlr_alloc_io_qpair(long controller);
+
+	public native long _nvme_ctrlr_alloc_io_qpair(long controller, int priority, int size, int numRequests);
 
 	public native int _nvme_ctrlr_free_io_qpair(long queuePair);
 

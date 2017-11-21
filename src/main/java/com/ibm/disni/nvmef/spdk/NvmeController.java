@@ -49,8 +49,17 @@ public class NvmeController extends NatObject {
 	}
 
 	public NvmeQueuePair allocQueuePair() throws IOException {
+		long qPair = nativeDispatcher._nvme_ctrlr_alloc_io_qpair(getObjId());
+		if (qPair == 0) {
+			throw new IOException("nvme_ctrlr_alloc_io_qpair failed");
+		}
+		return new NvmeQueuePair(qPair, nativeDispatcher);
+	}
+
+	public NvmeQueuePair allocQueuePair(int size) throws IOException {
 		//TODO: priorities for weighted round-robin scheduling
-		long qPair = nativeDispatcher._nvme_ctrlr_alloc_io_qpair(getObjId(), 0);
+		long qPair = nativeDispatcher._nvme_ctrlr_alloc_io_qpair(getObjId(),
+				0, size, size);
 		if (qPair == 0) {
 			throw new IOException("nvme_ctrlr_alloc_io_qpair failed");
 		}
@@ -76,7 +85,11 @@ public class NvmeController extends NatObject {
 	public NvmeControllerData getData() {
 		if (data == null) {
 			ByteBuffer buffer = ByteBuffer.allocateDirect(NvmeControllerData.CSIZE);
-			nativeDispatcher._nvme_ctrlr_get_data(getObjId(), ((DirectBuffer) buffer).address());
+			int ret = nativeDispatcher._nvme_ctrlr_get_data(getObjId(),
+					((DirectBuffer) buffer).address(), buffer.capacity());
+			if (ret < 0) {
+				throw new IllegalArgumentException("get_data failed with " + ret);
+			}
 			data = new NvmeControllerData();
 			data.update(buffer);
 		}
@@ -86,7 +99,11 @@ public class NvmeController extends NatObject {
 	public NvmeControllerOptions getOptions() {
 		if (options == null) {
 			ByteBuffer buffer = ByteBuffer.allocateDirect(NvmeControllerOptions.CSIZE);
-			nativeDispatcher._nvme_ctrlr_get_opts(getObjId(), ((DirectBuffer) buffer).address());
+			int ret = nativeDispatcher._nvme_ctrlr_get_opts(getObjId(),
+					((DirectBuffer) buffer).address(), buffer.capacity());
+			if (ret < 0) {
+				throw new IllegalArgumentException("get_options failed with " + ret);
+			}
 			options = new NvmeControllerOptions();
 			options.update(buffer);
 		}
