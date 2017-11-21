@@ -66,27 +66,11 @@ To avoid any performance impacts that are associated with passing complex parame
 
 ### Programming NVMf using DiSNI
 
-Let's have a look at a simple client/server application using the DiSNI NVMf API. Here is an example of a simple NVMf server exporting a NVMe device with PCI address 0000:86:00.0. The server is listening on port 5050 and waits for new connections:
+Here is an example of a simple NVMf client. The client issues a 512 byte read operation against a remote NVMf server.
 ```
-NvmeTransportType transports[] = new NvmeTransportType[]{NvmeTransportType.PCIE, NvmeTransportType.RDMA}; 
-String hugePages = "/dev/hugepages";
-long perSocketMemory[] = new long[]{256,256};
-NvmeEndpointGroup group = new NvmeEndpointGroup(transports, hugePages, perSocketMemory);
-NvmeServerEndpoint serverEndpoint = group.createServerEndpoint();
-URI url = new URI("nvmef://192.168.0.1:5050/0/1?subsystem=nqn.2016-06.io.spdk:cnode1&pci=0000:86:00.0");
-serverEndpoint.bind(url);
-		
-while(true){
-	NvmeEndpoint endpoint = serverEndpoint.accept();
-}
-```
-
-Here is an example of a simple NVMf client. The client issues a 512 byte read operation against the remote flash resource exposed by the server above. 
-```
-NvmeTransportType transports[] = new NvmeTransportType[]{NvmeTransportType.RDMA}; 
-String hugePages = "/dev/hugepages";
-long perSocketMemory[] = new long[]{256,256};	
-NvmeEndpointGroup group = new NvmeEndpointGroup(transports, hugePages, perSocketMemory);
+NvmeTransportType transports[] = new NvmeTransportType[]{NvmeTransportType.RDMA};
+long memoryMB = 256;
+NvmeEndpointGroup group = new NvmeEndpointGroup(transports, memoryMB);
 NvmeEndpoint endpoint = group.createEndpoint();
 		
 URI uri = new URI("nvmef://192.168.0.1:5050/0/1?subsystem=nqn.2016-06.io.spdk:cnode1");

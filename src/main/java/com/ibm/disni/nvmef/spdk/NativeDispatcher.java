@@ -77,33 +77,4 @@ public class NativeDispatcher {
 
 	public native int _nvme_qpair_process_completions(long queuePair, int maxCompletions);
 
-	/* NVMf target */
-
-	public native int _subsystem_init();
-
-	public native int _subsystem_fini();
-
-	public native int _reactors_init(int maxDelayUs);
-
-	public native int _reactors_fini();
-
-	public native int _nvmf_tgt_init(short maxQueueDepth, short maxConnectionPerSession, int inCapsuleDataSize, int maxIOSize);
-
-	public native int _nvmf_tgt_listen(String transportName, String address, String serviceId);
-
-	public native long _nvmf_create_subsystem(String nqn, int type, int mode);
-
-	public native void _nvmf_delete_subsystem(long subsystem);
-
-	public native int _nvmf_subsystem_start(long subsystem);
-
-	// polls for IO completions and handles IO requests including connect requests
-	public native int _nvmf_subsystem_poll(long subsystem, long connects[]);
-
-	public native int _nvmf_subsystem_add_ctrlr(long subsystem, long controller, String pciAddress);
-
-	// polls on all transports/listeners for accept events + disconnect events
-	public native int _nvmef_acceptor_poll(long disconnects[]);
-
-	public native int _nvmf_tgt_fini();
 }
