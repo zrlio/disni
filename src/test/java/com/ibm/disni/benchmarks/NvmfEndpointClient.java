@@ -106,7 +106,7 @@ public class NvmfEndpointClient extends NvmfClientBenchmark {
 	}
 
 	void connect(NvmeTransportId tid) throws IOException {
-		this.group = new NvmeEndpointGroup(new NvmeTransportType[]{tid.getType()}, "/dev/hugepages", 256);
+		this.group = new NvmeEndpointGroup(new NvmeTransportType[]{tid.getType()}, 256);
 		this.endpoint = group.createEndpoint();
 
 		URI url;

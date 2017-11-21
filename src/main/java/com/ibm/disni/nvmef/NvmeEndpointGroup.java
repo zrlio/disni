@@ -27,25 +27,25 @@ import java.nio.ByteBuffer;
 import java.util.ArrayList;
 
 import com.ibm.disni.DiSNIGroup;
+import com.ibm.disni.DiSNIServerEndpoint;
 import com.ibm.disni.nvmef.spdk.Nvme;
 import com.ibm.disni.nvmef.spdk.NvmeController;
 import com.ibm.disni.nvmef.spdk.NvmeTransportId;
 import com.ibm.disni.nvmef.spdk.NvmeTransportType;
 import com.ibm.disni.nvmef.spdk.NvmfConnection;
-import com.ibm.disni.nvmef.spdk.NvmfTarget;
+import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class NvmeEndpointGroup implements DiSNIGroup<NvmeEndpoint> {
 	private Nvme nvme;
 	
-	public NvmeEndpointGroup(NvmeTransportType[] transportTypes, String hugePath, long memorySizeMB){
-		this.nvme = new Nvme(transportTypes, hugePath, memorySizeMB);
+	public NvmeEndpointGroup(NvmeTransportType[] transportTypes, long memorySizeMB){
+		this.nvme = new Nvme(transportTypes, memorySizeMB);
 	}
-	
-	//most likely not used
-	public NvmeServerEndpoint createServerEndpoint(){
-		return new NvmeServerEndpoint(this);
+
+	public DiSNIServerEndpoint<NvmeEndpoint> createServerEndpoint() throws Exception {
+		throw new NotImplementedException();
 	}
-	
+
 	public NvmeEndpoint createEndpoint(){
 		return new NvmeEndpoint(this, null);
 	}
@@ -56,14 +56,6 @@ public class NvmeEndpointGroup implements DiSNIGroup<NvmeEndpoint> {
 		ArrayList<NvmeController> controllers = new ArrayList<NvmeController>();
 		nvme.probe(transportId, controllers);
 		return controllers.get(index);
-	}
-
-	NvmfTarget createNvmfTarget() throws Exception {
-		return nvme.createNvmfTarget((short)128, (short)4, 4096, 128*1024 /* 128 KB */);
-	}
-
-	NvmeEndpoint createEndpoint(NvmfConnection newConnection) {
-		return new NvmeEndpoint(this, newConnection);
 	}
 
 	public ByteBuffer allocateBuffer(int size, int alignment) {
