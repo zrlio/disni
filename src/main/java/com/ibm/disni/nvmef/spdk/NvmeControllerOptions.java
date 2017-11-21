@@ -25,7 +25,7 @@ import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 
 public class NvmeControllerOptions {
-	public static int CSIZE = 248;
+	public static int CSIZE = 568;
 
 	private int numberIOQueues;
 	private boolean useControllerMemoryBufferSubmissionQueues;
@@ -35,6 +35,15 @@ public class NvmeControllerOptions {
 	private int ioQueueSize;
 	private String hostNvmeQualifiedName;
 	private static int HOSTNQNSTRSIZE = 224;
+	private int ioQueueRequests;
+	private String sourceAddress;
+	private static int SOURCE_ADDRESS_SIZE = 257;
+	private String sourceServiceId;
+	private static int SOURCE_SERVICE_ID_SIZE = 33;
+	private byte[] hostId;
+	private static int HOST_ID_SIZE = 8;
+	private byte[] extendedHostId;
+	private static int EXTENDED_HOST_ID_SIZE = 16;
 
 	public int getNumberIOQueues() {
 		return numberIOQueues;
@@ -64,6 +73,26 @@ public class NvmeControllerOptions {
 		return hostNvmeQualifiedName;
 	}
 
+	public int getIoQueueRequests() {
+		return ioQueueRequests;
+	}
+
+	public String getSourceAddress() {
+		return sourceAddress;
+	}
+
+	public String getSourceServiceId() {
+		return sourceServiceId;
+	}
+
+	public byte[] getHostId() {
+		return hostId.clone();
+	}
+
+	public byte[] getExtendedHostId() {
+		return extendedHostId.clone();
+	}
+
 
 	public enum NvmeControllerArbitrationMechanism {
 		ROUND_ROBIN(0x0), WEIGHTED_ROUND_ROBIN(0x1), VENDOR_SPECIFIC(0x7);
@@ -89,6 +118,8 @@ public class NvmeControllerOptions {
 	}
 
 	void update(ByteBuffer buffer) {
+		byte[] rawString = new byte[Math.max(HOSTNQNSTRSIZE,
+				Math.max(SOURCE_ADDRESS_SIZE, SOURCE_SERVICE_ID_SIZE))];
 		buffer.order(ByteOrder.nativeOrder());
 		numberIOQueues = buffer.getInt();
 		useControllerMemoryBufferSubmissionQueues = buffer.getInt() != 0;
@@ -96,8 +127,16 @@ public class NvmeControllerOptions {
 		keepAliveTimeoutms = buffer.getInt();
 		transportRetryCount = buffer.getInt();
 		ioQueueSize = buffer.getInt();
-		byte[] rawString = new byte[HOSTNQNSTRSIZE];
-		buffer.get(rawString);
+		buffer.get(rawString, 0, HOSTNQNSTRSIZE);
 		hostNvmeQualifiedName = new String(rawString);
+		ioQueueRequests = buffer.getInt();
+		buffer.get(rawString, 0, SOURCE_ADDRESS_SIZE);
+		sourceAddress = new String(rawString);
+		buffer.get(rawString, 0, SOURCE_SERVICE_ID_SIZE);
+		sourceServiceId = new String(sourceServiceId);
+		hostId = new byte[HOST_ID_SIZE];
+		buffer.get(hostId);
+		extendedHostId = new byte[EXTENDED_HOST_ID_SIZE];
+		buffer.get(extendedHostId);
 	}
 }
