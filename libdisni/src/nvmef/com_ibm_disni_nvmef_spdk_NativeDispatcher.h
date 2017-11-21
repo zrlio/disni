@@ -10,10 +10,10 @@ extern "C" {
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _env_init
- * Signature: (Ljava/lang/String;J[I)I
+ * Signature: (J[I)I
  */
 JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1env_1init
-  (JNIEnv *, jobject, jstring, jlong, jintArray);
+  (JNIEnv *, jobject, jlong, jintArray);
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
@@ -82,26 +82,34 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1c
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _nvme_ctrlr_get_data
- * Signature: (JJ)V
+ * Signature: (JJI)I
  */
-JNIEXPORT void JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1get_1data
-  (JNIEnv *, jobject, jlong, jlong);
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1get_1data
+  (JNIEnv *, jobject, jlong, jlong, jint);
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _nvme_ctrlr_get_opts
- * Signature: (JJ)V
+ * Signature: (JJI)I
  */
-JNIEXPORT void JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1get_1opts
-  (JNIEnv *, jobject, jlong, jlong);
+JNIEXPORT jint JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1get_1opts
+  (JNIEnv *, jobject, jlong, jlong, jint);
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
  * Method:    _nvme_ctrlr_alloc_io_qpair
- * Signature: (JI)J
+ * Signature: (J)J
  */
-JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1alloc_1io_1qpair
-  (JNIEnv *, jobject, jlong, jint);
+JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1alloc_1io_1qpair__J
+  (JNIEnv *, jobject, jlong);
+
+/*
+ * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher
+ * Method:    _nvme_ctrlr_alloc_io_qpair
+ * Signature: (JIII)J
+ */
+JNIEXPORT jlong JNICALL Java_com_ibm_disni_nvmef_spdk_NativeDispatcher__1nvme_1ctrlr_1alloc_1io_1qpair__JIII
+  (JNIEnv *, jobject, jlong, jint, jint, jint);
 
 /*
  * Class:     com_ibm_disni_nvmef_spdk_NativeDispatcher

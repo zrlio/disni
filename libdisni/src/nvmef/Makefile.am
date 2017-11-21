@@ -4,5 +4,5 @@ if SPDK
 AM_CPPFLAGS = -I@jdk@/include -I@jdk@/include/linux -I@spdk@/include -I@dpdk@/include -I@dpdk@/include/dpdk -include @spdk@/config.h -I@spdk@/lib/nvme -I@spdk@/lib/env_dpdk
 include_HEADERS = com_ibm_disni_nvmef_spdk_NativeDispatcher.h
 libnvmef_la_SOURCES = com_ibm_disni_nvmef_spdk_NativeDispatcher.cpp
-libnvmef_la_LIBADD = -L@spdk@/build/lib -lspdk_nvmf -lspdk_nvme -lspdk_env_dpdk -lspdk_log -lspdk_util -lspdk_trace -lspdk_event -L@dpdk@/lib -lrte_eal -lrte_mempool -lrte_ring
+libnvmef_la_LIBADD = -L@spdk@/build/lib -lspdk_nvmf -lspdk_nvme -lspdk_env_dpdk -lspdk_log -lspdk_util -lspdk_trace -lspdk_event -L@dpdk@/lib -lrte_eal -lrte_mempool -lrte_ring -lrte_bus_pci -lrte_pci -lnuma -lrt -luuid
 endif
