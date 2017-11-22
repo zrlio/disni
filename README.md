@@ -174,8 +174,27 @@ As mentioned earlier, EndpointGroups are containers and factories for RDMA conne
 
 ## Contributions
 
-PRs are always welcome. Please fork, and make necessary modifications 
-you propose, and let us know. 
+We welcome contribution to DiSNI. Patches can be submitted and discussed through GerritHub (https://review.gerrithub.io). A patch requires a minimum of 2 plus votes for review and 1 plus vote for verification by our automated testing system. Steps to submit patches to GerritHub:
+
+Go to https://review.gerrithub.io/#/admin/projects/zrlio/disni and clone DiSNI with the command provided with "Clone with commit-msg hook" & "ssh"
+(Note that you will not be able to commit anything without commit-msg hook resp. change ids)
+
+Open .git/config and add the following lines:
+
+```
+[remote "review"]
+  url = <url from origin>
+  push = HEAD:refs/for/master
+```
+To submit new patches we recommend to create a new branch with
+
+```git checkout -b <name_of_branch>```
+
+and make the changes on the branch. Once you are ready to push use
+
+```git push review```
+
+to push the changes for code review to Gerrit.
 
 ## Contact 
 
