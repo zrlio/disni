@@ -1,0 +1,50 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c0da03d0_4df32dff",
+        "filename": "src/main/java/com/ibm/disni/nvmef/spdk/NvmeController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1012961
+      },
+      "writtenOn": "2017-11-23T09:59:20Z",
+      "side": 1,
+      "message": "is there a way we can show error number? or more information why this might have happened?",
+      "range": {
+        "startLine": 54,
+        "startChar": 26,
+        "endLine": 54,
+        "endChar": 51
+      },
+      "revId": "76783db9451c8aa478ba6107aed7f7abc01fdb53",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "2b39fb75_ec3e9ca8",
+        "filename": "src/main/java/com/ibm/disni/nvmef/spdk/NvmeController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1012961
+      },
+      "writtenOn": "2017-11-23T09:59:20Z",
+      "side": 1,
+      "message": "instead of buffer.capacity(), you should call buffer.remaining(), which respects the user limits on the buffer. A user might pass a buffer of 1MB but may be just wanted to read 512 bytes in. Same later - wherever you use buffer.capacity -\u003e buffer.remaining.",
+      "range": {
+        "startLine": 89,
+        "startChar": 1,
+        "endLine": 89,
+        "endChar": 55
+      },
+      "revId": "76783db9451c8aa478ba6107aed7f7abc01fdb53",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
