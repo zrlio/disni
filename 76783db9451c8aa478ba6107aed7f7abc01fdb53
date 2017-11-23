@@ -25,6 +25,30 @@
     },
     {
       "key": {
+        "uuid": "1555a89b_ed1f51a7",
+        "filename": "libdisni/src/nvmef/com_ibm_disni_nvmef_spdk_NativeDispatcher.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2017-11-23T10:37:18Z",
+      "side": 1,
+      "message": "This will change, see get_opts below. The problem is this crtlr_data struct is huge and I\u0027m still trying to find a more sensible way to get this information into Java. Maybe autogenerate some Java code...",
+      "parentUuid": "db74f89e_5ccb15dd",
+      "range": {
+        "startLine": 293,
+        "startChar": 10,
+        "endLine": 293,
+        "endChar": 11
+      },
+      "revId": "76783db9451c8aa478ba6107aed7f7abc01fdb53",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c0da03d0_4df32dff",
         "filename": "src/main/java/com/ibm/disni/nvmef/spdk/NvmeController.java",
         "patchSetId": 2
@@ -48,6 +72,30 @@
     },
     {
       "key": {
+        "uuid": "e2f8a5c8_aac87e2b",
+        "filename": "src/main/java/com/ibm/disni/nvmef/spdk/NvmeController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 54,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2017-11-23T10:37:18Z",
+      "side": 1,
+      "message": "Unfortunately, no. SPDK does not return any error code on alloc_io_qpair: https://github.com/spdk/spdk/blob/master/lib/nvme/nvme_ctrlr.c#L225",
+      "parentUuid": "c0da03d0_4df32dff",
+      "range": {
+        "startLine": 54,
+        "startChar": 26,
+        "endLine": 54,
+        "endChar": 51
+      },
+      "revId": "76783db9451c8aa478ba6107aed7f7abc01fdb53",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "2b39fb75_ec3e9ca8",
         "filename": "src/main/java/com/ibm/disni/nvmef/spdk/NvmeController.java",
         "patchSetId": 2
@@ -59,6 +107,30 @@
       "writtenOn": "2017-11-23T09:59:20Z",
       "side": 1,
       "message": "instead of buffer.capacity(), you should call buffer.remaining(), which respects the user limits on the buffer. A user might pass a buffer of 1MB but may be just wanted to read 512 bytes in. Same later - wherever you use buffer.capacity -\u003e buffer.remaining.",
+      "range": {
+        "startLine": 89,
+        "startChar": 1,
+        "endLine": 89,
+        "endChar": 55
+      },
+      "revId": "76783db9451c8aa478ba6107aed7f7abc01fdb53",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "c2881498_96ab6acf",
+        "filename": "src/main/java/com/ibm/disni/nvmef/spdk/NvmeController.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 89,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2017-11-23T10:37:18Z",
+      "side": 1,
+      "message": ".address() always returns start address of buffer so buffer.remaining() would not make much sense here. Also as you can see the user cannot pass anything here the buffer is allocated right before the call.",
+      "parentUuid": "2b39fb75_ec3e9ca8",
       "range": {
         "startLine": 89,
         "startChar": 1,
