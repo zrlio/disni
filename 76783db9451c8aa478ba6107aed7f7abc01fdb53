@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "db74f89e_5ccb15dd",
+        "filename": "libdisni/src/nvmef/com_ibm_disni_nvmef_spdk_NativeDispatcher.cpp",
+        "patchSetId": 2
+      },
+      "lineNbr": 293,
+      "author": {
+        "id": 1012400
+      },
+      "writtenOn": "2017-11-23T10:11:22Z",
+      "side": 1,
+      "message": "Do you plan to have more return values (change for void to int)? So far it seems to always succeed.",
+      "range": {
+        "startLine": 293,
+        "startChar": 10,
+        "endLine": 293,
+        "endChar": 11
+      },
+      "revId": "76783db9451c8aa478ba6107aed7f7abc01fdb53",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "c0da03d0_4df32dff",
         "filename": "src/main/java/com/ibm/disni/nvmef/spdk/NvmeController.java",
         "patchSetId": 2
