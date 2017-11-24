@@ -21,12 +21,15 @@
 
 #include "com_ibm_disni_nvmef_spdk_NativeDispatcher.h"
 
+/*
+ * SPDK VERSION: v17.10
+ */
+
 #include <spdk/nvme.h>
 #include <spdk/env.h>
 #include <spdk/nvme_intel.h>
 #include <spdk/nvmf_spec.h>
 #include <spdk/pci_ids.h>
-
 
 //FIXME: spdk is missing extern C in some headers
 extern "C" {
@@ -35,7 +38,6 @@ extern "C" {
 //XXX
 #include <nvme_internal.h>
 }
-
 
 #include <rte_config.h>
 #include <rte_lcore.h>
