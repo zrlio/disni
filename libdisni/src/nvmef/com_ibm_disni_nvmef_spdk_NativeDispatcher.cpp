@@ -21,6 +21,10 @@
 
 #include "com_ibm_disni_nvmef_spdk_NativeDispatcher.h"
 
+/*
+ * SPDK VERSION: v17.10
+ */
+
 #include <spdk/nvme.h>
 #include <spdk/env.h>
 #include <spdk/nvme_intel.h>
@@ -35,7 +39,6 @@ extern "C" {
 //XXX
 #include <nvme_internal.h>
 }
-
 
 #include <rte_config.h>
 #include <rte_lcore.h>
