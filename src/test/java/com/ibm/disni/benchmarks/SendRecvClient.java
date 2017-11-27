@@ -25,15 +25,8 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.LinkedList;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
 import org.apache.commons.cli.ParseException;
 
 import com.ibm.disni.rdma.RdmaEndpoint;
@@ -57,7 +50,7 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.SendRe
 	private int size;
 	private int loop;
 	private int recvQueueSize;
-	
+
 	public SendRecvClient(String host, int port, int size, int loop, int recvQueueSize) throws IOException{
 		this.group = new RdmaPassiveEndpointGroup<SendRecvClient.SendRecvEndpoint>(1, recvQueueSize, 1, recvQueueSize*2);
 		this.group.init(this);
@@ -72,15 +65,15 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.SendRe
 			throws IOException {
 		return new SendRecvEndpoint(group, id, serverSide, size, recvQueueSize);
 	}
-	
-	
+
+
 	private void run() throws Exception {
 		System.out.println("SendRecvClient, size " + size + ", loop " + loop + ", recvQueueSize " + recvQueueSize + ", port " + port);
-		
+
 		SendRecvClient.SendRecvEndpoint endpoint = group.createEndpoint();
 		endpoint.connect(URI.create("rdma://" + host + ":" + 1919));
-		System.out.println("SendRecvClient, client connected, address " + host + ", port " + 1919);	
-		
+		System.out.println("SendRecvClient, client connected, address " + host + ", port " + 1919);
+
 		int opCount = 0;
 		long start = System.nanoTime();
 		while (opCount < loop){
@@ -102,60 +95,28 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.SendRe
 		double _seconds = _duration / 1000 / 1000 / 1000;
 		double iops = _ops / _seconds;
 		System.out.println("iops " + iops);
-		
-		
+
+
 		//close everything
 		endpoint.close();
-		group.close();		
+		group.close();
 	}
-	
-	
+
+
 	public static void main(String[] args) throws Exception {
-		String ipAddress = "192.168.0.1";
-		int port = 1919;
-		int size = 32;
-		int loop = 1000;
-		int recvQueueSize = 64;
-		
-		Option addressOption = Option.builder("a").required().desc("address of the server").hasArg().build();
-		Option portOption = Option.builder("p").desc("server port").hasArg().build();
-		Option sizeOption = Option.builder("s").desc("size of the data to exchange").hasArg().build();
-		Option loopOption = Option.builder("k").desc("number of iterations").hasArg().build();
-		Option queueOption = Option.builder("q").desc("queue depth").hasArg().build();
-		Options options = new Options();
-		options.addOption(addressOption);
-		options.addOption(portOption);
-		options.addOption(sizeOption);
-		options.addOption(loopOption);
-		options.addOption(queueOption);
-		CommandLineParser parser = new DefaultParser();
-		
+		SendRecvCmdLine cmdLine = new SendRecvCmdLine("SendRecvClient");
 		try {
-			CommandLine line = parser.parse(options, Arrays.copyOfRange(args, 0, args.length));
-			ipAddress = line.getOptionValue(addressOption.getOpt());
-			
-			if (line.hasOption(portOption.getOpt())) {
-				port = Integer.parseInt(line.getOptionValue(portOption.getOpt()));
-			}				
-			if (line.hasOption(sizeOption.getOpt())) {
-				size = Integer.parseInt(line.getOptionValue(sizeOption.getOpt()));
-			}	
-			if (line.hasOption(sizeOption.getOpt())) {
-				loop = Integer.parseInt(line.getOptionValue(loopOption.getOpt()));
-			}		
-			if (line.hasOption(queueOption.getOpt())) {
-				recvQueueSize = Integer.parseInt(line.getOptionValue(queueOption.getOpt()));
-			}				
+			cmdLine.parse(args);
 		} catch (ParseException e) {
-			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp("SendRecvClient", options);
+			cmdLine.printHelp();
 			System.exit(-1);
 		}
-		
-		SendRecvClient server = new SendRecvClient(ipAddress, port, size, loop, recvQueueSize);
+
+		SendRecvClient server = new SendRecvClient(cmdLine.getIp(), cmdLine.getPort(),
+				cmdLine.getSize(), cmdLine.getLoop(), cmdLine.getQueueDepth());
 		server.run();
 	}
-	
+
 	public static class SendRecvEndpoint extends RdmaEndpoint {
 		private int bufferSize;
 		private int pipelineLength;
@@ -166,14 +127,14 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.SendRe
 		private SVCPostRecv[] recvCall;
 		private SVCPostSend[] sendCall;
 		private IbvWC[] wcList;
-		private SVCPollCq poll;	
+		private SVCPollCq poll;
 		private int recvIndex;
 		private int sendIndex;
 		private int sendBudget;
-		private int recvBudget;	
+		private int recvBudget;
 		private int sendPending;
 		private int recvPending;
-		
+
 		protected SendRecvEndpoint(RdmaPassiveEndpointGroup<? extends RdmaEndpoint> group, RdmaCmId idPriv, boolean serverSide, int bufferSize, int recvQueueSize) throws IOException {
 			super(group, idPriv, serverSide);
 			this.bufferSize = bufferSize;
@@ -217,12 +178,12 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.SendRe
 			}
 			return ready;
 		}
-		
+
 		private int pollRecvs() throws IOException {
 			if (recvPending == 0){
 				return 0;
 			}
-			
+
 			int recvCount = 0;
 			while (recvCount == 0){
 				int res = 0;
@@ -242,8 +203,8 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.SendRe
 				}
 			}
 			return recvCount;
-		}	
-		
+		}
+
 		private void awaitRecvs() throws IOException {
 			while (recvPending > 0) {
 				int res = poll.execute().getPolls();
@@ -256,12 +217,12 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.SendRe
 						} else {
 							sendBudget++;
 							sendPending--;
-						}					
+						}
 					}
 				}
 			}
 		}
-		
+
 		private void awaitSends() throws IOException {
 			while (sendPending > 0) {
 				int res = poll.execute().getPolls();
@@ -274,23 +235,23 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.SendRe
 						} else {
 							sendBudget++;
 							sendPending--;
-						}					
+						}
 					}
 				}
 			}
-		}			
-		
+		}
+
 		@Override
 		protected synchronized void init() throws IOException {
 			super.init();
-			
+
 			IbvCQ cq = getCqProvider().getCQ();
 			this.wcList = new IbvWC[getCqProvider().getCqSize()];
 			for (int i = 0; i < wcList.length; i++){
 				wcList[i] = new IbvWC();
-			}		
-			this.poll = cq.poll(wcList, wcList.length);				
-			
+			}
+			this.poll = cq.poll(wcList, wcList.length);
+
 			for(int i = 0; i < pipelineLength; i++){
 				recvBufs[i] = ByteBuffer.allocateDirect(bufferSize);
 				sendBufs[i] = ByteBuffer.allocateDirect(bufferSize);
@@ -298,19 +259,19 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.SendRe
 				this.sendCall[i] = setupSendTask(sendBufs[i], i);
 			}
 		}
-		
+
 		public synchronized void close() throws IOException, InterruptedException {
 			super.close();
 			for(int i = 0; i < pipelineLength; i++){
 				deregisterMemory(recvMRs[i]);
 				deregisterMemory(sendMRs[i]);
 			}
-		}	
-		
+		}
+
 		private SVCPostSend setupSendTask(ByteBuffer sendBuf, int wrid) throws IOException {
 			ArrayList<IbvSendWR> sendWRs = new ArrayList<IbvSendWR>(1);
 			LinkedList<IbvSge> sgeList = new LinkedList<IbvSge>();
-			
+
 			IbvMr mr = registerMemory(sendBuf).execute().free().getMr();
 			sendMRs[wrid] = mr;
 			IbvSge sge = new IbvSge();
@@ -319,21 +280,21 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.SendRe
 			int lkey = mr.getLkey();
 			sge.setLkey(lkey);
 			sgeList.add(sge);
-		
+
 			IbvSendWR sendWR = new IbvSendWR();
 			sendWR.setSg_list(sgeList);
 			sendWR.setWr_id(wrid);
 			sendWRs.add(sendWR);
 			sendWR.setSend_flags(IbvSendWR.IBV_SEND_SIGNALED);
 			sendWR.setOpcode(IbvSendWR.IbvWrOcode.IBV_WR_SEND.ordinal());
-			
+
 			return postSend(sendWRs);
 		}
 
 		private SVCPostRecv setupRecvTask(ByteBuffer recvBuf, int wrid) throws IOException {
 			ArrayList<IbvRecvWR> recvWRs = new ArrayList<IbvRecvWR>(1);
 			LinkedList<IbvSge> sgeList = new LinkedList<IbvSge>();
-			
+
 			IbvMr mr = registerMemory(recvBuf).execute().free().getMr();
 			recvMRs[wrid] = mr;
 			IbvSge sge = new IbvSge();
@@ -342,13 +303,13 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.SendRe
 			int lkey = mr.getLkey();
 			sge.setLkey(lkey);
 			sgeList.add(sge);
-			
+
 			IbvRecvWR recvWR = new IbvRecvWR();
 			recvWR.setWr_id(wrid);
 			recvWR.setSg_list(sgeList);
 			recvWRs.add(recvWR);
-		
+
 			return postRecv(recvWRs);
-		}	
-	}		
+		}
+	}
 }

@@ -24,15 +24,9 @@ package com.ibm.disni.examples;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
-import java.util.Arrays;
 import java.util.LinkedList;
 
-import org.apache.commons.cli.CommandLine;
-import org.apache.commons.cli.CommandLineParser;
-import org.apache.commons.cli.DefaultParser;
-import org.apache.commons.cli.HelpFormatter;
-import org.apache.commons.cli.Option;
-import org.apache.commons.cli.Options;
+import com.ibm.disni.CmdLineCommon;
 import org.apache.commons.cli.ParseException;
 
 import com.ibm.disni.rdma.verbs.IbvCQ;
@@ -54,31 +48,31 @@ import com.ibm.disni.rdma.verbs.RdmaEventChannel;
 public class VerbsServer {
 	private String ipAddress;
 	private int port;
-	
+
 	public void run() throws Exception {
 		System.out.println("VerbsServer::starting...");
-		
-		//create a communication channel for receiving CM events 
+
+		//create a communication channel for receiving CM events
 		RdmaEventChannel cmChannel = RdmaEventChannel.createEventChannel();
 		if (cmChannel == null){
 			System.out.println("VerbsServer::CM channel null");
 			return;
 		}
-		
+
 		//create a RdmaCmId for the server
 		RdmaCmId idPriv = cmChannel.createId(RdmaCm.RDMA_PS_TCP);
 		if (idPriv == null){
 			System.out.println("idPriv null");
 			return;
 		}
-		
+
 		InetAddress _src = InetAddress.getByName(ipAddress);
-		InetSocketAddress src = new InetSocketAddress(_src, port);	
+		InetSocketAddress src = new InetSocketAddress(_src, port);
 		int ret = idPriv.bindAddr(src);
 		if (ret < 0){
 			System.out.println("VerbsServer::binding not sucessfull");
 		}
-		
+
 		//listen on the id
 		ret = idPriv.listen(10);
 		if (ret < 0){
@@ -95,38 +89,38 @@ public class VerbsServer {
 				.ordinal()) {
 			System.out.println("VerbsServer::wrong event received: " + cmEvent.getEvent());
 			return;
-		} 
-		//always acknowledge CM events 
+		}
+		//always acknowledge CM events
 		cmEvent.ackEvent();
-		
+
 		//get the id of the newly connection
 		RdmaCmId connId = cmEvent.getConnIdPriv();
 		if (connId == null){
 			System.out.println("VerbsServer::connId null");
 			return;
 		}
-		
+
 		//get the device context of the new connection, typically the same as with the server id
 		IbvContext context = connId.getVerbs();
 		if (context == null){
 			System.out.println("VerbsServer::context null");
 			return;
 		}
-		
+
 		//create a new protection domain, we will use the pd later when registering memory
 		IbvPd pd = context.allocPd();
 		if (pd == null){
 			System.out.println("VerbsServer::pd null");
 			return;
 		}
-		
+
 		//the comp channel is used to get CQ notifications
 		IbvCompChannel compChannel = context.createCompChannel();
 		if (compChannel == null){
 			System.out.println("VerbsServer::compChannel null");
 			return;
 		}
-		
+
 		//create a completion queue
 		IbvCQ cq = context.createCQ(compChannel, 50, 0);
 		if (cq == null){
@@ -150,14 +144,14 @@ public class VerbsServer {
 		if (qp == null){
 			System.out.println("VerbsServer::qp null");
 			return;
-		}	
-		
+		}
+
 		int buffercount = 3;
 		int buffersize = 100;
 		ByteBuffer buffers[] = new ByteBuffer[buffercount];
 		IbvMr mrlist[] = new IbvMr[buffercount];
-		int access = IbvMr.IBV_ACCESS_LOCAL_WRITE | IbvMr.IBV_ACCESS_REMOTE_WRITE | IbvMr.IBV_ACCESS_REMOTE_READ; 
-		
+		int access = IbvMr.IBV_ACCESS_LOCAL_WRITE | IbvMr.IBV_ACCESS_REMOTE_WRITE | IbvMr.IBV_ACCESS_REMOTE_READ;
+
 		RdmaConnParam connParam = new RdmaConnParam();
 		connParam.setInitiator_depth((byte) 5);
 		connParam.setResponder_resources((byte) 5);
@@ -177,21 +171,21 @@ public class VerbsServer {
 		}
 		//always ack CM events
 		cmEvent.ackEvent();
-		
+
 		//register some buffers to be used later
 		for (int i = 0; i < buffercount; i++){
 			buffers[i] = ByteBuffer.allocateDirect(buffersize);
 			mrlist[i] = pd.regMr(buffers[i], access).execute().free().getMr();
 		}
-		
+
 		ByteBuffer dataBuf = buffers[0];
 		IbvMr dataMr = mrlist[0];
 		ByteBuffer sendBuf = buffers[1];
 		IbvMr sendMr = mrlist[1];
 		IbvMr recvMr = mrlist[2];
-		
+
 		dataBuf.asCharBuffer().put("This is a RDMA/read on stag " + dataMr.getLkey() + " !");
-		dataBuf.clear();		
+		dataBuf.clear();
 
 		sendBuf.putLong(dataMr.getAddr());
 		sendBuf.putInt(dataMr.getLength());
@@ -201,8 +195,8 @@ public class VerbsServer {
 		//this class is a thin wrapper over some of the data operations in jverbs
 		//we use it to issue data transfer operations
 		VerbsTools commRdma = new VerbsTools(context, compChannel, qp, cq);
-		LinkedList<IbvSendWR> wrList_send = new LinkedList<IbvSendWR>();	
-		
+		LinkedList<IbvSendWR> wrList_send = new LinkedList<IbvSendWR>();
+
 		//let's preopare some work requests for sending
 		IbvSge sgeSend = new IbvSge();
 		sgeSend.setAddr(sendMr.getAddr());
@@ -217,8 +211,8 @@ public class VerbsServer {
 		sendWR.setSend_flags(IbvSendWR.IBV_SEND_SIGNALED);
 		wrList_send.add(sendWR);
 
-		LinkedList<IbvRecvWR> wrList_recv = new LinkedList<IbvRecvWR>();	
-		
+		LinkedList<IbvRecvWR> wrList_recv = new LinkedList<IbvRecvWR>();
+
 		//let's preopare some work requests for receiving
 		IbvSge sgeRecv = new IbvSge();
 		sgeRecv.setAddr(recvMr.getAddr());
@@ -226,54 +220,43 @@ public class VerbsServer {
 		int lkey = recvMr.getLkey();
 		sgeRecv.setLkey(lkey);
 		LinkedList<IbvSge> sgeListRecv = new LinkedList<IbvSge>();
-		sgeListRecv.add(sgeRecv);	
+		sgeListRecv.add(sgeRecv);
 		IbvRecvWR recvWR = new IbvRecvWR();
 		recvWR.setSg_list(sgeListRecv);
 		recvWR.setWr_id(2001);
-		wrList_recv.add(recvWR);		
-		
+		wrList_recv.add(recvWR);
+
 		//post a receive call
-		commRdma.initSGRecv(wrList_recv);		
+		commRdma.initSGRecv(wrList_recv);
 		System.out.println("VerbsServer::initiated recv, about to send stag info");
 		//post a send call, here we send a message which include the RDMA information of a data buffer
 		commRdma.send(buffers, wrList_send, true, false);
 		System.out.println("VerbsServer::stag info sent");
-		
+
 		//wait for the final message from the server
 		commRdma.completeSGRecv(wrList_recv, false);
-		
+
 		System.out.println("VerbsServer::done");
 	}
 
 	public void launch(String[] args) throws Exception {
-		if (args != null) {
-			Option addressOption = Option.builder("a").desc("address of the server").hasArg().build();
-			Option portOption = Option.builder("p").desc("server port").hasArg().build();
-			Options options = new Options();
-			options.addOption(addressOption);
-			options.addOption(portOption);
-			CommandLineParser parser = new DefaultParser();
-			
-			try {
-				CommandLine line = parser.parse(options, Arrays.copyOfRange(args, 0, args.length));
-				if (line.hasOption(addressOption.getOpt())) {
-					ipAddress = line.getOptionValue(addressOption.getOpt());
-				}
-				if (line.hasOption(portOption.getOpt())) {
-					port = Integer.parseInt(line.getOptionValue(portOption.getOpt()));
-				}				
-			} catch (ParseException e) {
-				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp("VerbsServer", options);
-				System.exit(-1);
-			}
-		}			
+		CmdLineCommon cmdLine = new CmdLineCommon("VerbsServer");
+
+		try {
+			cmdLine.parse(args);
+		} catch (ParseException e) {
+			cmdLine.printHelp();
+			System.exit(-1);
+		}
+		ipAddress = cmdLine.getIp();
+		port = cmdLine.getPort();
+
 		this.run();
 	}
-	
-	public static void main(String[] args) throws Exception { 
+
+	public static void main(String[] args) throws Exception {
 		VerbsServer verbsServer = new VerbsServer();
-		verbsServer.launch(args);		
-	}		
+		verbsServer.launch(args);
+	}
 }
 
