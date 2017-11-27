@@ -25,7 +25,16 @@ import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
+import java.util.Arrays;
 import java.util.LinkedList;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import com.ibm.disni.rdma.RdmaEndpoint;
 import com.ibm.disni.rdma.RdmaEndpointFactory;
@@ -40,24 +49,23 @@ import com.ibm.disni.rdma.verbs.RdmaCmId;
 import com.ibm.disni.rdma.verbs.SVCPollCq;
 import com.ibm.disni.rdma.verbs.SVCPostRecv;
 import com.ibm.disni.rdma.verbs.SVCPostSend;
-import com.ibm.disni.util.GetOpt;
 
 public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.SendRecvEndpoint> {
 	private RdmaPassiveEndpointGroup<SendRecvEndpoint> group;
 	private String host;
+	private int port;
 	private int size;
 	private int loop;
 	private int recvQueueSize;
-	private int port;
 	
-	public SendRecvClient(String host, int size, int loop, int recvQueueSize, int port) throws IOException{
+	public SendRecvClient(String host, int port, int size, int loop, int recvQueueSize) throws IOException{
 		this.group = new RdmaPassiveEndpointGroup<SendRecvClient.SendRecvEndpoint>(1, recvQueueSize, 1, recvQueueSize*2);
 		this.group.init(this);
 		this.host = host;
+		this.port = port;
 		this.size = size;
 		this.loop = loop;
 		this.recvQueueSize = recvQueueSize;
-		this.port = port;
 	}
 
 	public SendRecvClient.SendRecvEndpoint createEndpoint(RdmaCmId id, boolean serverSide)
@@ -103,40 +111,48 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.SendRe
 	
 	
 	public static void main(String[] args) throws Exception {
-		String[] _args = args;
-		if (args.length < 1) {
-			System.exit(0);
-		} else if (args[0].equals(ReadServer.class.getCanonicalName())) {
-			_args = new String[args.length - 1];
-			for (int i = 0; i < _args.length; i++) {
-				_args[i] = args[i + 1];
-			}
-		}
-		
-		GetOpt go = new GetOpt(_args, "a:s:k:r:p:");
-		go.optErr = true;
-		int ch = -1;
-		
 		String ipAddress = "192.168.0.1";
+		int port = 1919;
 		int size = 32;
 		int loop = 1000;
 		int recvQueueSize = 64;
-		int port = 1919;
-		while ((ch = go.getopt()) != GetOpt.optEOF) {
-			if ((char) ch == 'a') {
-				ipAddress = go.optArgGet();
-			} else if ((char) ch == 's') {
-				size = Integer.parseInt(go.optArgGet());
-			} else if ((char) ch == 'k') {
-				loop = Integer.parseInt(go.optArgGet());
-			} else if ((char) ch == 'r') {
-				recvQueueSize = Integer.parseInt(go.optArgGet());
-			} else if ((char) ch == 'p') {
-				port = Integer.parseInt(go.optArgGet());
-			} 
-		}		
 		
-		SendRecvClient server = new SendRecvClient(ipAddress, size, loop, recvQueueSize, port);
+		Option addressOption = Option.builder("a").required().desc("address of the server").hasArg().build();
+		Option portOption = Option.builder("p").desc("server port").hasArg().build();
+		Option sizeOption = Option.builder("s").desc("size of the data to exchange").hasArg().build();
+		Option loopOption = Option.builder("k").desc("number of iterations").hasArg().build();
+		Option queueOption = Option.builder("q").desc("queue depth").hasArg().build();
+		Options options = new Options();
+		options.addOption(addressOption);
+		options.addOption(portOption);
+		options.addOption(sizeOption);
+		options.addOption(loopOption);
+		options.addOption(queueOption);
+		CommandLineParser parser = new DefaultParser();
+		
+		try {
+			CommandLine line = parser.parse(options, Arrays.copyOfRange(args, 0, args.length));
+			ipAddress = line.getOptionValue(addressOption.getOpt());
+			
+			if (line.hasOption(portOption.getOpt())) {
+				port = Integer.parseInt(line.getOptionValue(portOption.getOpt()));
+			}				
+			if (line.hasOption(sizeOption.getOpt())) {
+				size = Integer.parseInt(line.getOptionValue(sizeOption.getOpt()));
+			}	
+			if (line.hasOption(sizeOption.getOpt())) {
+				loop = Integer.parseInt(line.getOptionValue(loopOption.getOpt()));
+			}		
+			if (line.hasOption(queueOption.getOpt())) {
+				recvQueueSize = Integer.parseInt(line.getOptionValue(queueOption.getOpt()));
+			}				
+		} catch (ParseException e) {
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("SendRecvClient", options);
+			System.exit(-1);
+		}
+		
+		SendRecvClient server = new SendRecvClient(ipAddress, port, size, loop, recvQueueSize);
 		server.run();
 	}
 	

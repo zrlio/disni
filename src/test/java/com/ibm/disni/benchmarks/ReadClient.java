@@ -24,8 +24,17 @@ package com.ibm.disni.benchmarks;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.LinkedList;
-import com.ibm.disni.examples.ReadServer;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
+
 import com.ibm.disni.rdma.RdmaEndpoint;
 import com.ibm.disni.rdma.RdmaEndpointFactory;
 import com.ibm.disni.rdma.RdmaEndpointGroup;
@@ -39,18 +48,19 @@ import com.ibm.disni.rdma.verbs.IbvWC;
 import com.ibm.disni.rdma.verbs.RdmaCmId;
 import com.ibm.disni.rdma.verbs.SVCPollCq;
 import com.ibm.disni.rdma.verbs.SVCPostSend;
-import com.ibm.disni.util.GetOpt;
 
 public class ReadClient implements RdmaEndpointFactory<ReadClient.ReadClientEndpoint> {
 	private RdmaPassiveEndpointGroup<ReadClientEndpoint> group;
 	private String host;
+	private int port;
 	private int size;
 	private int loop;
 	
-	public ReadClient(String host, int size, int loop) throws IOException{
+	public ReadClient(String host, int port, int size, int loop) throws IOException{
 		this.group = new RdmaPassiveEndpointGroup<ReadClient.ReadClientEndpoint>(1, 10, 4, 40);
 		this.group.init(this);
 		this.host = host;
+		this.port = port;
 		this.size = size;
 		this.loop = loop;
 	}
@@ -64,8 +74,8 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.ReadClientEndp
 		System.out.println("ReadClient, size " + size + ", loop " + loop);
 		
 		ReadClient.ReadClientEndpoint endpoint = group.createEndpoint();
-		endpoint.connect(URI.create("rdma://" + host + ":" + 1919));
-		System.out.println("ReadClient, client connected, address " + host + ", port " + 1919);	
+		endpoint.connect(URI.create("rdma://" + host + ":" + port));
+		System.out.println("ReadClient, client connected, address " + host + ", port " + port);	
 		
 		//in our custom endpoints we make sure CQ events get stored in a queue, we now query that queue for new CQ events.
 		//in this case a new CQ event means we have received some data, i.e., a message from the server
@@ -122,34 +132,42 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.ReadClientEndp
 	}	
 	
 	public static void main(String[] args) throws Exception {
-		String[] _args = args;
-		if (args.length < 1) {
-			System.exit(0);
-		} else if (args[0].equals(ReadServer.class.getCanonicalName())) {
-			_args = new String[args.length - 1];
-			for (int i = 0; i < _args.length; i++) {
-				_args[i] = args[i + 1];
-			}
+		String ipAddress = "192.168.0.1";
+		int port = 1919;
+		int size = 32;
+		int loop = 1000;		
+		
+		Option addressOption = Option.builder("a").required().desc("address of the server").hasArg().build();
+		Option portOption = Option.builder("p").desc("server port").hasArg().build();
+		Option sizeOption = Option.builder("s").desc("size of the data to exchange").hasArg().build();
+		Option loopOption = Option.builder("k").desc("number of iterations").hasArg().build();
+		Options options = new Options();
+		options.addOption(addressOption);
+		options.addOption(portOption);
+		options.addOption(sizeOption);
+		options.addOption(loopOption);
+		CommandLineParser parser = new DefaultParser();
+		
+		try {
+			CommandLine line = parser.parse(options, Arrays.copyOfRange(args, 0, args.length));
+			ipAddress = line.getOptionValue(addressOption.getOpt());
+			
+			if (line.hasOption(portOption.getOpt())) {
+				port = Integer.parseInt(line.getOptionValue(portOption.getOpt()));
+			}				
+			if (line.hasOption(sizeOption.getOpt())) {
+				size = Integer.parseInt(line.getOptionValue(sizeOption.getOpt()));
+			}	
+			if (line.hasOption(sizeOption.getOpt())) {
+				loop = Integer.parseInt(line.getOptionValue(loopOption.getOpt()));
+			}				
+		} catch (ParseException e) {
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("ReadClient", options);
+			System.exit(-1);
 		}
 		
-		GetOpt go = new GetOpt(_args, "a:s:k:");
-		go.optErr = true;
-		int ch = -1;
-		
-		String ipAddress = "192.168.0.1";
-		int size = 32;
-		int loop = 1000;
-		while ((ch = go.getopt()) != GetOpt.optEOF) {
-			if ((char) ch == 'a') {
-				ipAddress = go.optArgGet();
-			} else if ((char) ch == 's') {
-				size = Integer.parseInt(go.optArgGet());
-			} else if ((char) ch == 'k') {
-				loop = Integer.parseInt(go.optArgGet());
-			} 
-		}		
-		
-		ReadClient client = new ReadClient(ipAddress, size, loop);
+		ReadClient client = new ReadClient(ipAddress, port, size, loop);
 		client.run();
 	}
 

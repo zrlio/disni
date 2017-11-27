@@ -24,7 +24,16 @@ package com.ibm.disni.examples;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.LinkedList;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import com.ibm.disni.rdma.verbs.IbvCQ;
 import com.ibm.disni.rdma.verbs.IbvCompChannel;
@@ -41,10 +50,10 @@ import com.ibm.disni.rdma.verbs.RdmaCmEvent;
 import com.ibm.disni.rdma.verbs.RdmaCmId;
 import com.ibm.disni.rdma.verbs.RdmaConnParam;
 import com.ibm.disni.rdma.verbs.RdmaEventChannel;
-import com.ibm.disni.util.GetOpt;
 
 public class VerbsServer {
 	private String ipAddress;
+	private int port;
 	
 	public void run() throws Exception {
 		System.out.println("VerbsServer::starting...");
@@ -64,7 +73,7 @@ public class VerbsServer {
 		}
 		
 		InetAddress _src = InetAddress.getByName(ipAddress);
-		InetSocketAddress src = new InetSocketAddress(_src, 1919);	
+		InetSocketAddress src = new InetSocketAddress(_src, port);	
 		int ret = idPriv.bindAddr(src);
 		if (ret < 0){
 			System.out.println("VerbsServer::binding not sucessfull");
@@ -237,47 +246,28 @@ public class VerbsServer {
 	}
 
 	public void launch(String[] args) throws Exception {
-		String _userDriver = "siw";
-		String _provider = "nat";
-
-		String[] _args = args;
-		if (args.length < 1) {
-			System.exit(0);
-		} else if (args[0].equals(VerbsServer.class.getCanonicalName())) {
-			_args = new String[args.length - 1];
-			for (int i = 0; i < _args.length; i++) {
-				_args[i] = args[i + 1];
-			}
-		}
-
-		GetOpt go = new GetOpt(_args, "t:a:f:s:l:k:m:b:go:x:u:pr:x:c:e:i:");
-		go.optErr = true;
-		int ch = -1;
-
-		while ((ch = go.getopt()) != GetOpt.optEOF) {
-			if ((char) ch == 'a') {
-				ipAddress = go.optArgGet();
-			} else if ((char) ch == 'u') {
-				_userDriver = go.optArgGet();
-				if (_userDriver.equalsIgnoreCase("siw")) {
-					System.setProperty("com.ibm.jverbs.driver", "siw");
-				} else if (_userDriver.equalsIgnoreCase("cxgb3")) {
-					System.setProperty("com.ibm.jverbs.driver", "cxgb3");
-				} else if (_userDriver.equalsIgnoreCase("mlx4")){
-					System.setProperty("com.ibm.jverbs.driver", "mlx4");
+		if (args != null) {
+			Option addressOption = Option.builder("a").desc("address of the server").hasArg().build();
+			Option portOption = Option.builder("p").desc("server port").hasArg().build();
+			Options options = new Options();
+			options.addOption(addressOption);
+			options.addOption(portOption);
+			CommandLineParser parser = new DefaultParser();
+			
+			try {
+				CommandLine line = parser.parse(options, Arrays.copyOfRange(args, 0, args.length));
+				if (line.hasOption(addressOption.getOpt())) {
+					ipAddress = line.getOptionValue(addressOption.getOpt());
 				}
-			} else if ((char) ch == 'e') {
-				_provider = go.optArgGet();
-				if (_provider.equalsIgnoreCase("mem")) {
-					System.setProperty("com.ibm.jverbs.provider", "mem");
-				} else if (_provider.equalsIgnoreCase("nat")) {
-					System.setProperty("com.ibm.jverbs.provider", "nat");
-				}
-			} else {
-				System.exit(1); // undefined option
+				if (line.hasOption(portOption.getOpt())) {
+					port = Integer.parseInt(line.getOptionValue(portOption.getOpt()));
+				}				
+			} catch (ParseException e) {
+				HelpFormatter formatter = new HelpFormatter();
+				formatter.printHelp("VerbsServer", options);
+				System.exit(-1);
 			}
-		}	
-		
+		}			
 		this.run();
 	}
 	
