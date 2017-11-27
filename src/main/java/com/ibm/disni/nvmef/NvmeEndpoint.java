@@ -33,9 +33,10 @@ public class NvmeEndpoint implements DiSNIEndpoint {
 	private final NvmeEndpointGroup group;
     private NvmeQueuePair queuePair;
 	private NvmeNamespace namespace;
+	private NvmeController controller;
 	private volatile boolean open;
 	private NvmeControllerOptions controllerOptions;
-	
+
 	public NvmeEndpoint(NvmeEndpointGroup group, NvmfConnection newConnection) {
 		this.group = group;
 		this.queuePair = null;
@@ -46,16 +47,16 @@ public class NvmeEndpoint implements DiSNIEndpoint {
 	//rdma://<host>:<port>
 	//nvmef:://<host>:<port>/controller/namespace"
 	public synchronized void connect(URI uri) throws IOException {
-		if (open){
+		if (open) {
 			return;
 		}
 		NvmeResourceIdentifier nvmeResource = NvmeResourceIdentifier.parse(uri);
 		NvmeTransportId transportId = nvmeResource.toTransportId();
-		NvmeController nvmecontroller = group.probe(transportId, nvmeResource.getController());
-		this.namespace = nvmecontroller.getNamespace(nvmeResource.getNamespace());
-		this.queuePair = nvmecontroller.allocQueuePair();	
+		this.controller = group.probe(transportId, nvmeResource.getController());
+		this.namespace = controller.getNamespace(nvmeResource.getNamespace());
+		this.queuePair = controller.allocQueuePair();
 		this.open = true;
-		this.controllerOptions = nvmecontroller.getOptions();
+		this.controllerOptions = controller.getOptions();
 	}
 
 	private enum Operation {
@@ -77,7 +78,7 @@ public class NvmeEndpoint implements DiSNIEndpoint {
 	public NvmeCommand write(ByteBuffer buffer, long linearBlockAddress) throws IOException{
 		return Op(Operation.WRITE, buffer, linearBlockAddress);
 	}
-	
+
 	public NvmeCommand read(ByteBuffer buffer, long linearBlockAddress) throws IOException {
 		return Op(Operation.READ, buffer, linearBlockAddress);
 	}
@@ -97,29 +98,33 @@ public class NvmeEndpoint implements DiSNIEndpoint {
 	public boolean isOpen() {
 		return open;
 	}
-	
+
 	public synchronized void close() throws IOException, InterruptedException {
 		queuePair.free();
 		open = false;
 	}
-	
+
 	public synchronized int processCompletions(long[] completed) throws IOException {
 		return queuePair.processCompletions(completed);
 	}
-	
-	public int getSectorSize() { 
+
+	public int getSectorSize() {
 		return namespace.getSectorSize();
 	}
 
 	public long getNamespaceSize() {
 		return namespace.getSize();
 	}
-	
+
 	public int getMaxTransferSize() {
 		return namespace.getMaxIOTransferSize();
 	}
 
 	public int getIOQueueSize() {
 		return controllerOptions.getIOQueueSize();
+	}
+
+	public void keepAlive() throws IOException {
+		controller.keepAlive();
 	}
 }
