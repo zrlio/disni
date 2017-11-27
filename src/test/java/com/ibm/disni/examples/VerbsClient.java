@@ -27,6 +27,7 @@ import java.nio.ByteBuffer;
 import java.util.Arrays;
 import java.util.LinkedList;
 
+import com.ibm.disni.CmdLineCommon;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -51,37 +52,37 @@ import com.ibm.disni.rdma.verbs.RdmaCmId;
 import com.ibm.disni.rdma.verbs.RdmaConnParam;
 import com.ibm.disni.rdma.verbs.RdmaEventChannel;
 
-public class VerbsClient { 
+public class VerbsClient {
 	private String ipAddress;
 	private int port;
-	
+
 	public void run() throws Exception {
 		System.out.println("VerbsClient::starting...");
 		//open the CM and the verbs interfaces
-		
-		//create a communication channel for receiving CM events 
+
+		//create a communication channel for receiving CM events
 		RdmaEventChannel cmChannel = RdmaEventChannel.createEventChannel();
 		if (cmChannel == null){
 			System.out.println("VerbsClient::cmChannel null");
 			return;
 		}
-		
+
 		//create a RdmaCmId for this client
 		RdmaCmId idPriv = cmChannel.createId(RdmaCm.RDMA_PS_TCP);
 		if (idPriv == null){
 			System.out.println("VerbsClient::id null");
 			return;
 		}
-		
+
 		//before connecting, we have to resolve addresses
 		InetAddress _dst = InetAddress.getByName(ipAddress);
-		InetSocketAddress dst = new InetSocketAddress(_dst, port);			
+		InetSocketAddress dst = new InetSocketAddress(_dst, port);
 		int ret = idPriv.resolveAddr(null, dst, 2000);
 		if (ret < 0){
 			System.out.println("VerbsClient::resolveAddr failed");
 			return;
 		}
-		
+
 		//resolve addr returns an event, we have to catch that event
 		RdmaCmEvent cmEvent = cmChannel.getCmEvent(-1);
 		if (cmEvent == null){
@@ -91,16 +92,16 @@ public class VerbsClient {
 				.ordinal()) {
 			System.out.println("VerbsClient::wrong event received: " + cmEvent.getEvent());
 			return;
-		} 
+		}
 		cmEvent.ackEvent();
-		
+
 		//we also have to resolve the route
 		ret = idPriv.resolveRoute(2000);
 		if (ret < 0){
 			System.out.println("VerbsClient::resolveRoute failed");
 			return;
 		}
-		
+
 		//and catch that event too
 		cmEvent = cmChannel.getCmEvent(-1);
 		if (cmEvent == null){
@@ -110,26 +111,26 @@ public class VerbsClient {
 				.ordinal()) {
 			System.out.println("VerbsClient::wrong event received: " + cmEvent.getEvent());
 			return;
-		} 
+		}
 		cmEvent.ackEvent();
-		
+
 		//let's create a device context
 		IbvContext context = idPriv.getVerbs();
-		
+
 		//and a protection domain, we use that one later for registering memory
 		IbvPd pd = context.allocPd();
 		if (pd == null){
 			System.out.println("VerbsClient::pd null");
 			return;
 		}
-		
+
 		//the comp channel is used for getting CQ events
 		IbvCompChannel compChannel = context.createCompChannel();
 		if (compChannel == null){
 			System.out.println("VerbsClient::compChannel null");
 			return;
 		}
-		
+
 		//let's create a completion queue
 		IbvCQ cq = context.createCQ(compChannel, 50, 0);
 		if (cq == null){
@@ -154,44 +155,44 @@ public class VerbsClient {
 			System.out.println("VerbsClient::qp null");
 			return;
 		}
-		
+
 		int buffercount = 3;
 		int buffersize = 100;
 		ByteBuffer buffers[] = new ByteBuffer[buffercount];
 		IbvMr mrlist[] = new IbvMr[buffercount];
-		int access = IbvMr.IBV_ACCESS_LOCAL_WRITE | IbvMr.IBV_ACCESS_REMOTE_WRITE | IbvMr.IBV_ACCESS_REMOTE_READ; 
+		int access = IbvMr.IBV_ACCESS_LOCAL_WRITE | IbvMr.IBV_ACCESS_REMOTE_WRITE | IbvMr.IBV_ACCESS_REMOTE_READ;
 
 		//before we connect we also want to register some buffers
 		for (int i = 0; i < buffercount; i++){
 			buffers[i] = ByteBuffer.allocateDirect(buffersize);
 			mrlist[i] = pd.regMr(buffers[i], access).execute().free().getMr();
 		}
-		
+
 		ByteBuffer dataBuf = buffers[0];
 		IbvMr dataMr = mrlist[0];
 		IbvMr sendMr = mrlist[1];
 		ByteBuffer recvBuf = buffers[2];
 		IbvMr recvMr = mrlist[2];
-		
-		LinkedList<IbvRecvWR> wrList_recv = new LinkedList<IbvRecvWR>();	
-		
+
+		LinkedList<IbvRecvWR> wrList_recv = new LinkedList<IbvRecvWR>();
+
 		IbvSge sgeRecv = new IbvSge();
 		sgeRecv.setAddr(recvMr.getAddr());
 		sgeRecv.setLength(recvMr.getLength());
 		sgeRecv.setLkey(recvMr.getLkey());
 		LinkedList<IbvSge> sgeListRecv = new LinkedList<IbvSge>();
-		sgeListRecv.add(sgeRecv);	
+		sgeListRecv.add(sgeRecv);
 		IbvRecvWR recvWR = new IbvRecvWR();
 		recvWR.setSg_list(sgeListRecv);
 		recvWR.setWr_id(1000);
 		wrList_recv.add(recvWR);
-		
+
 		//it's important to post those receive operations before connecting
 		//otherwise the server may issue a send operation and which cannot be received
 		//this class wraps soem of the RDMA data operations
 		VerbsTools commRdma = new VerbsTools(context, compChannel, qp, cq);
 		commRdma.initSGRecv(wrList_recv);
-		
+
 		//now let's connect to the server
 		RdmaConnParam connParam = new RdmaConnParam();
 		connParam.setInitiator_depth((byte) 5);
@@ -202,7 +203,7 @@ public class VerbsClient {
 			System.out.println("VerbsClient::connect failed");
 			return;
 		}
-		
+
 		//wait until we are really connected
 		cmEvent = cmChannel.getCmEvent(-1);
 		if (cmEvent == null){
@@ -214,7 +215,7 @@ public class VerbsClient {
 			return;
 		}
 		cmEvent.ackEvent();
-		
+
 		//let's wait for the first message to be received from the server
 		commRdma.completeSGRecv(wrList_recv, false);
 
@@ -223,12 +224,12 @@ public class VerbsClient {
 		long addr = recvBuf.getLong();
 		int length = recvBuf.getInt();
 		int lkey = recvBuf.getInt();
-		recvBuf.clear();		
+		recvBuf.clear();
 		System.out.println("VerbsClient::receiving rdma information, addr " + addr + ", length " + length + ", key " + lkey);
 		System.out.println("VerbsClient::preparing read operation...");
 
 		//let's prepare a one-sided RDMA read operation to fetch the content of that remote buffer
-		LinkedList<IbvSendWR> wrList_send = new LinkedList<IbvSendWR>();	
+		LinkedList<IbvSendWR> wrList_send = new LinkedList<IbvSendWR>();
 		IbvSge sgeSend = new IbvSge();
 		sgeSend.setAddr(dataMr.getAddr());
 		sgeSend.setLength(dataMr.getLength());
@@ -243,16 +244,16 @@ public class VerbsClient {
 		sendWR.getRdma().setRemote_addr(addr);
 		sendWR.getRdma().setRkey(lkey);
 		wrList_send.add(sendWR);
-		
+
 		//now we post the operation, the RDMA/read operation will take off
 		//the wrapper class will also wait of the CQ event
 		//once the CQ event is received we know the RDMA/read operation has completed
 		//we should have the content of the remote buffer stored in our own local buffer
-		//let's print it 
+		//let's print it
 		commRdma.send(buffers, wrList_send, true, false);
 		dataBuf.clear();
 		System.out.println("VerbsClient::read memory from server: " + dataBuf.asCharBuffer().toString());
-		
+
 		//now we send a final message to signal everything went fine
 		sgeSend = new IbvSge();
 		sgeSend.setAddr(sendMr.getAddr());
@@ -266,43 +267,31 @@ public class VerbsClient {
 		sendWR.setOpcode(IbvSendWR.IBV_WR_SEND);
 		sendWR.setSend_flags(IbvSendWR.IBV_SEND_SIGNALED);
 		wrList_send.clear();
-		wrList_send.add(sendWR);		
-		
+		wrList_send.add(sendWR);
+
 		//let's post the final message
 		commRdma.send(buffers, wrList_send, true, false);
 	}
-	
+
 
 	public void launch(String[] args) throws Exception {
-		if (args != null) {
-			Option addressOption = Option.builder("a").desc("address of the server").hasArg().build();
-			Option portOption = Option.builder("p").desc("server port").hasArg().build();
-			Options options = new Options();
-			options.addOption(addressOption);
-			options.addOption(portOption);
-			CommandLineParser parser = new DefaultParser();
-			
-			try {
-				CommandLine line = parser.parse(options, Arrays.copyOfRange(args, 0, args.length));
-				if (line.hasOption(addressOption.getOpt())) {
-					ipAddress = line.getOptionValue(addressOption.getOpt());
-				}
-				if (line.hasOption(portOption.getOpt())) {
-					port = Integer.parseInt(line.getOptionValue(portOption.getOpt()));
-				}				
-			} catch (ParseException e) {
-				HelpFormatter formatter = new HelpFormatter();
-				formatter.printHelp("VerbsClient", options);
-				System.exit(-1);
-			}
-		}		
-		
+		CmdLineCommon cmdLine = new CmdLineCommon("VerbsClient");
+
+		try {
+			cmdLine.parse(args);
+		} catch (ParseException e) {
+			cmdLine.printHelp();
+			System.exit(-1);
+		}
+		ipAddress = cmdLine.getIp();
+		port = cmdLine.getPort();
+
 		this.run();
 	}
-	
-	public static void main(String[] args) throws Exception { 
+
+	public static void main(String[] args) throws Exception {
 		VerbsClient verbsClient = new VerbsClient();
-		verbsClient.launch(args);		
-	}		
+		verbsClient.launch(args);
+	}
 }
 
