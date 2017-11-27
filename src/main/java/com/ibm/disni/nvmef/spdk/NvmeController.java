@@ -116,4 +116,11 @@ public class NvmeController extends NatObject {
 			throw new IOException("spdk_nvme_detach failed with " + ret);
 		}
 	}
+
+	public void keepAlive() throws IOException {
+		int ret = nativeDispatcher._nvme_ctrlr_process_admin_completions(getObjId());
+		if (ret < 0) {
+			throw new IOException("Keep alive failed with " + ret);
+		}
+	}
 }
