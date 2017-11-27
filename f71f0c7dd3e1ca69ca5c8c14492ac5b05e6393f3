@@ -1,0 +1,157 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "17a4f097_c796453a",
+        "filename": "src/test/java/com/ibm/disni/benchmarks/ReadClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 138,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2017-11-27T13:04:39Z",
+      "side": 1,
+      "message": "Trailing whitespaces (also in multiple other locations)",
+      "revId": "f71f0c7dd3e1ca69ca5c8c14492ac5b05e6393f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "0a48b91d_f41b95db",
+        "filename": "src/test/java/com/ibm/disni/benchmarks/ReadServer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2017-11-27T13:04:39Z",
+      "side": 1,
+      "message": "Almost identical to ReadClient. Can we put the command line parsing in one parent benchmark/test class?",
+      "revId": "f71f0c7dd3e1ca69ca5c8c14492ac5b05e6393f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "61a2506b_230f7f67",
+        "filename": "src/test/java/com/ibm/disni/benchmarks/SendRecvClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 131,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2017-11-27T13:04:39Z",
+      "side": 1,
+      "message": "Again there seems to be at least a few common cmdline options. Let\u0027s try to not duplicate all this code.",
+      "revId": "f71f0c7dd3e1ca69ca5c8c14492ac5b05e6393f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "1f194fa6_6ded3508",
+        "filename": "src/test/java/com/ibm/disni/benchmarks/SendRecvServer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 127,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2017-11-27T13:04:39Z",
+      "side": 1,
+      "message": "Same here.",
+      "revId": "f71f0c7dd3e1ca69ca5c8c14492ac5b05e6393f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "9f742a07_6d830ca5",
+        "filename": "src/test/java/com/ibm/disni/examples/ReadServer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 118,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2017-11-27T13:04:39Z",
+      "side": 1,
+      "message": "Merge this code with Client",
+      "revId": "f71f0c7dd3e1ca69ca5c8c14492ac5b05e6393f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ee96f97d_0e3c971c",
+        "filename": "src/test/java/com/ibm/disni/examples/SendRecvClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 113,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2017-11-27T13:04:39Z",
+      "side": 1,
+      "message": "Similar to other example. Please merge.",
+      "revId": "f71f0c7dd3e1ca69ca5c8c14492ac5b05e6393f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "985bec01_e13cf166",
+        "filename": "src/test/java/com/ibm/disni/examples/SendRecvServer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 115,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2017-11-27T13:04:39Z",
+      "side": 1,
+      "message": "same",
+      "revId": "f71f0c7dd3e1ca69ca5c8c14492ac5b05e6393f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "b14a5a32_febe9c4b",
+        "filename": "src/test/java/com/ibm/disni/examples/VerbsClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 283,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2017-11-27T13:04:39Z",
+      "side": 1,
+      "message": "same",
+      "revId": "f71f0c7dd3e1ca69ca5c8c14492ac5b05e6393f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "80f5c321_731ecae6",
+        "filename": "src/test/java/com/ibm/disni/examples/VerbsServer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 255,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2017-11-27T13:04:39Z",
+      "side": 1,
+      "message": "same",
+      "revId": "f71f0c7dd3e1ca69ca5c8c14492ac5b05e6393f3",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
