@@ -22,6 +22,12 @@ public abstract class NvmfClientBenchmark {
 
 	void start(String[] args) throws IOException {
 		Options options = new Options();
+		/*
+		 * Port and Address are used differently compared to other benchmarks
+		 * i.e. address can be PCIe or IP address and port is optional (PCIe address does not need a port)
+		 * that is why we do not use CmdLineCommon here.
+		 */
+
 		Option address = Option.builder("a").required().desc("ip address or PCIe address").hasArg().build();
 		Option port = Option.builder("p").desc("port").hasArg().build();
 		Option subsystemNQN = Option.builder("nqn").desc("subsystem NVMe qualified name").hasArg().build();

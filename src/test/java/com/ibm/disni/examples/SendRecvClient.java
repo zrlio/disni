@@ -28,6 +28,7 @@ import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
 
+import com.ibm.disni.CmdLineCommon;
 import org.apache.commons.cli.CommandLine;
 import org.apache.commons.cli.CommandLineParser;
 import org.apache.commons.cli.DefaultParser;
@@ -48,20 +49,15 @@ import com.ibm.disni.rdma.verbs.RdmaCmId;
 import com.ibm.disni.rdma.verbs.SVCPostSend;
 
 
-public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.CustomClientEndpoint> { 
+public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.CustomClientEndpoint> {
 	RdmaActiveEndpointGroup<SendRecvClient.CustomClientEndpoint> endpointGroup;
 	private String ipAddress;
 	private int port;
-	
-	public SendRecvClient(){
-		this.ipAddress = "";
-		this.port = 1919;
-	}
-	
+
 	public SendRecvClient.CustomClientEndpoint createEndpoint(RdmaCmId idPriv, boolean serverSide) throws IOException {
 		return new CustomClientEndpoint(endpointGroup, idPriv, serverSide);
-	}	
-	
+	}
+
 	public void run() throws Exception {
 		//create a EndpointGroup. The RdmaActiveEndpointGroup contains CQ processing and delivers CQ event to the endpoint.dispatchCqEvent() method.
 		endpointGroup = new RdmaActiveEndpointGroup<SendRecvClient.CustomClientEndpoint>(1000, false, 128, 4, 128);
@@ -69,17 +65,17 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.Custom
 		//we have passed our own endpoint factory to the group, therefore new endpoints will be of type CustomClientEndpoint
 		//let's create a new client endpoint
 		SendRecvClient.CustomClientEndpoint endpoint = endpointGroup.createEndpoint();
-		
+
 		//connect to the server
 		endpoint.connect(URI.create("rdma://" + ipAddress + ":" + port));
 		System.out.println("SimpleClient::client channel set up ");
-		
-		//in our custom endpoints we have prepared (memory registration and work request creation) some memory 
+
+		//in our custom endpoints we have prepared (memory registration and work request creation) some memory
 		//buffers beforehand.
 		//let's send one of those buffers out using a send operation
 		ByteBuffer sendBuf = endpoint.getSendBuf();
 		sendBuf.asCharBuffer().put("Hello from the client");
-		sendBuf.clear();			
+		sendBuf.clear();
 		SVCPostSend postSend = endpoint.postSend(endpoint.getWrList_send());
 		postSend.getWrMod(0).setWr_id(4444);
 		postSend.execute().free();
@@ -90,12 +86,12 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.Custom
 		//in this case a new CQ event means we have received data
 		endpoint.getWcEvents().take();
 		System.out.println("SimpleClient::message received");
-		
+
 		//the response should be received in this buffer, let's print it
 		ByteBuffer recvBuf = endpoint.getRecvBuf();
 		recvBuf.clear();
-		System.out.println("Message from the server: " + recvBuf.asCharBuffer().toString());		
-		
+		System.out.println("Message from the server: " + recvBuf.asCharBuffer().toString());
+
 		//close everything
 		endpoint.close();
 		System.out.println("endpoint closed");
@@ -103,102 +99,93 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.Custom
 		System.out.println("group closed");
 //		System.exit(0);
 	}
-	
+
 	public void launch(String[] args) throws Exception {
-		Option addressOption = Option.builder("a").required().desc("address of the server").hasArg().build();
-		Option portOption = Option.builder("p").desc("server port").hasArg().build();
-		Options options = new Options();
-		options.addOption(addressOption);
-		options.addOption(portOption);
-		CommandLineParser parser = new DefaultParser();
-		
+		CmdLineCommon cmdLine = new CmdLineCommon("SendRecvClient");
+
 		try {
-			CommandLine line = parser.parse(options, Arrays.copyOfRange(args, 0, args.length));
-			ipAddress = line.getOptionValue(addressOption.getOpt());
-			
-			if (line.hasOption(portOption.getOpt())) {
-				port = Integer.parseInt(line.getOptionValue(portOption.getOpt()));
-			}				
+			cmdLine.parse(args);
 		} catch (ParseException e) {
-			HelpFormatter formatter = new HelpFormatter();
-			formatter.printHelp("SendRecvClient", options);
+			cmdLine.printHelp();
 			System.exit(-1);
 		}
-		
+		ipAddress = cmdLine.getIp();
+		port = cmdLine.getPort();
+
 		this.run();
 	}
-	
-	public static void main(String[] args) throws Exception { 
+
+	public static void main(String[] args) throws Exception {
 		SendRecvClient simpleClient = new SendRecvClient();
-		simpleClient.launch(args);		
-	}		
-	
+		simpleClient.launch(args);
+	}
+
 	public static class CustomClientEndpoint extends RdmaActiveEndpoint {
 		private ByteBuffer buffers[];
 		private IbvMr mrlist[];
 		private int buffercount = 3;
 		private int buffersize = 100;
-		
+
 		private ByteBuffer dataBuf;
 		private IbvMr dataMr;
 		private ByteBuffer sendBuf;
 		private IbvMr sendMr;
 		private ByteBuffer recvBuf;
-		private IbvMr recvMr;	
-		
+		private IbvMr recvMr;
+
 		private LinkedList<IbvSendWR> wrList_send;
 		private IbvSge sgeSend;
 		private LinkedList<IbvSge> sgeList;
 		private IbvSendWR sendWR;
-		
+
 		private LinkedList<IbvRecvWR> wrList_recv;
 		private IbvSge sgeRecv;
 		private LinkedList<IbvSge> sgeListRecv;
 		private IbvRecvWR recvWR;
-		
+
 		private ArrayBlockingQueue<IbvWC> wcEvents;
 
-		public CustomClientEndpoint(RdmaActiveEndpointGroup<CustomClientEndpoint> endpointGroup, RdmaCmId idPriv, boolean serverSide) throws IOException {	
+		public CustomClientEndpoint(RdmaActiveEndpointGroup<CustomClientEndpoint> endpointGroup, RdmaCmId idPriv, boolean serverSide) throws IOException {
 			super(endpointGroup, idPriv, serverSide);
 			this.buffercount = 3;
 			this.buffersize = 100;
 			buffers = new ByteBuffer[buffercount];
 			this.mrlist = new IbvMr[buffercount];
-			
+
 			for (int i = 0; i < buffercount; i++){
 				buffers[i] = ByteBuffer.allocateDirect(buffersize);
 			}
-			
-			this.wrList_send = new LinkedList<IbvSendWR>();	
+
+			this.wrList_send = new LinkedList<IbvSendWR>();
 			this.sgeSend = new IbvSge();
 			this.sgeList = new LinkedList<IbvSge>();
 			this.sendWR = new IbvSendWR();
-			
-			this.wrList_recv = new LinkedList<IbvRecvWR>();	
+
+			this.wrList_recv = new LinkedList<IbvRecvWR>();
 			this.sgeRecv = new IbvSge();
 			this.sgeListRecv = new LinkedList<IbvSge>();
-			this.recvWR = new IbvRecvWR();	
-			
+			this.recvWR = new IbvRecvWR();
+
 			this.wcEvents = new ArrayBlockingQueue<IbvWC>(10);
 		}
-		
-		//important: we override the init method to prepare some buffers (memory registration, post recv, etc). 
-		//This guarantees that at least one recv operation will be posted at the moment this endpoint is connected. 	
+
+		//important: we override the init method to prepare some buffers (memory registration, post recv, etc).
+		//This guarantees that at least one recv operation will be posted at the moment this endpoint is connected.
 		public void init() throws IOException{
 			super.init();
-			
+
 			for (int i = 0; i < buffercount; i++){
 				mrlist[i] = registerMemory(buffers[i]).execute().free().getMr();
 			}
-			
+
 			this.dataBuf = buffers[0];
 			this.dataMr = mrlist[0];
 			this.sendBuf = buffers[1];
 			this.sendMr = mrlist[1];
 			this.recvBuf = buffers[2];
 			this.recvMr = mrlist[2];
-			
-			dataBuf.clear();		
+
+			dataBuf.clear();
 
 			sendBuf.putLong(dataMr.getAddr());
 			sendBuf.putInt(dataMr.getLength());
@@ -215,27 +202,27 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.Custom
 			sendWR.setSend_flags(IbvSendWR.IBV_SEND_SIGNALED);
 			wrList_send.add(sendWR);
 
-			
+
 			sgeRecv.setAddr(recvMr.getAddr());
 			sgeRecv.setLength(recvMr.getLength());
 			int lkey = recvMr.getLkey();
 			sgeRecv.setLkey(lkey);
-			sgeListRecv.add(sgeRecv);	
+			sgeListRecv.add(sgeRecv);
 			recvWR.setSg_list(sgeListRecv);
 			recvWR.setWr_id(2001);
 			wrList_recv.add(recvWR);
-			
+
 			System.out.println("SimpleClient::initiated recv");
-			this.postRecv(wrList_recv).execute().free();		
+			this.postRecv(wrList_recv).execute().free();
 		}
-		
+
 		public void dispatchCqEvent(IbvWC wc) throws IOException {
 			wcEvents.add(wc);
 		}
-		
+
 		public ArrayBlockingQueue<IbvWC> getWcEvents() {
 			return wcEvents;
-		}	
+		}
 
 		public LinkedList<IbvSendWR> getWrList_send() {
 			return wrList_send;
@@ -263,8 +250,8 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.Custom
 
 		public IbvRecvWR getRecvWR() {
 			return recvWR;
-		}		
+		}
 	}
-	
+
 }
 
