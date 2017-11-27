@@ -66,6 +66,8 @@ public class NativeDispatcher {
 
 	public native int _nvme_ctrlr_free_io_qpair(long queuePair);
 
+	public native int _nvme_ctrlr_process_admin_completions(long controller);
+
 	public native boolean _nvme_ns_is_active(long namespace);
 
 	public native long _nvme_ns_get_size(long namespace);
