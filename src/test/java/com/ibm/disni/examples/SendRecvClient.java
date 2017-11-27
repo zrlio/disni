@@ -24,8 +24,17 @@ package com.ibm.disni.examples;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import com.ibm.disni.rdma.RdmaActiveEndpoint;
 import com.ibm.disni.rdma.RdmaActiveEndpointGroup;
@@ -37,12 +46,17 @@ import com.ibm.disni.rdma.verbs.IbvSge;
 import com.ibm.disni.rdma.verbs.IbvWC;
 import com.ibm.disni.rdma.verbs.RdmaCmId;
 import com.ibm.disni.rdma.verbs.SVCPostSend;
-import com.ibm.disni.util.GetOpt;
 
 
 public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.CustomClientEndpoint> { 
-	private String ipAddress;
 	RdmaActiveEndpointGroup<SendRecvClient.CustomClientEndpoint> endpointGroup;
+	private String ipAddress;
+	private int port;
+	
+	public SendRecvClient(){
+		this.ipAddress = "";
+		this.port = 1919;
+	}
 	
 	public SendRecvClient.CustomClientEndpoint createEndpoint(RdmaCmId idPriv, boolean serverSide) throws IOException {
 		return new CustomClientEndpoint(endpointGroup, idPriv, serverSide);
@@ -57,7 +71,7 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.Custom
 		SendRecvClient.CustomClientEndpoint endpoint = endpointGroup.createEndpoint();
 		
 		//connect to the server
-		endpoint.connect(URI.create("rdma://" + ipAddress + ":" + 1919));
+		endpoint.connect(URI.create("rdma://" + ipAddress + ":" + port));
 		System.out.println("SimpleClient::client channel set up ");
 		
 		//in our custom endpoints we have prepared (memory registration and work request creation) some memory 
@@ -91,25 +105,25 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.Custom
 	}
 	
 	public void launch(String[] args) throws Exception {
-		String[] _args = args;
-		if (args.length < 1) {
-			System.exit(0);
-		} else if (args[0].equals(SendRecvClient.class.getCanonicalName())) {
-			_args = new String[args.length - 1];
-			for (int i = 0; i < _args.length; i++) {
-				_args[i] = args[i + 1];
-			}
+		Option addressOption = Option.builder("a").required().desc("address of the server").hasArg().build();
+		Option portOption = Option.builder("p").desc("server port").hasArg().build();
+		Options options = new Options();
+		options.addOption(addressOption);
+		options.addOption(portOption);
+		CommandLineParser parser = new DefaultParser();
+		
+		try {
+			CommandLine line = parser.parse(options, Arrays.copyOfRange(args, 0, args.length));
+			ipAddress = line.getOptionValue(addressOption.getOpt());
+			
+			if (line.hasOption(portOption.getOpt())) {
+				port = Integer.parseInt(line.getOptionValue(portOption.getOpt()));
+			}				
+		} catch (ParseException e) {
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("SendRecvClient", options);
+			System.exit(-1);
 		}
-
-		GetOpt go = new GetOpt(_args, "a:");
-		go.optErr = true;
-		int ch = -1;
-
-		while ((ch = go.getopt()) != GetOpt.optEOF) {
-			if ((char) ch == 'a') {
-				ipAddress = go.optArgGet();
-			} 
-		}	
 		
 		this.run();
 	}

@@ -24,8 +24,17 @@ package com.ibm.disni.benchmarks;
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
+import java.util.Arrays;
 import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
+
+import org.apache.commons.cli.CommandLine;
+import org.apache.commons.cli.CommandLineParser;
+import org.apache.commons.cli.DefaultParser;
+import org.apache.commons.cli.HelpFormatter;
+import org.apache.commons.cli.Option;
+import org.apache.commons.cli.Options;
+import org.apache.commons.cli.ParseException;
 
 import com.ibm.disni.rdma.RdmaActiveEndpoint;
 import com.ibm.disni.rdma.RdmaActiveEndpointGroup;
@@ -38,18 +47,19 @@ import com.ibm.disni.rdma.verbs.IbvSendWR;
 import com.ibm.disni.rdma.verbs.IbvSge;
 import com.ibm.disni.rdma.verbs.IbvWC;
 import com.ibm.disni.rdma.verbs.RdmaCmId;
-import com.ibm.disni.util.GetOpt;
 
 public class ReadServer implements RdmaEndpointFactory<ReadServer.ReadServerEndpoint> {
 	private RdmaActiveEndpointGroup<ReadServerEndpoint> group;
 	private String host;
+	private int port;
 	private int size;
 	private int loop;
 	
-	public ReadServer(String host, int size, int loop) throws IOException{
+	public ReadServer(String host, int port, int size, int loop) throws IOException{
 		this.group = new RdmaActiveEndpointGroup<ReadServer.ReadServerEndpoint>(1, false, 128, 4, 128);
 		this.group.init(this);
 		this.host = host;
+		this.port = port;
 		this.size = size;
 		this.loop = loop;
 	}
@@ -64,7 +74,7 @@ public class ReadServer implements RdmaEndpointFactory<ReadServer.ReadServerEndp
 		System.out.println("ReadServer, size " + size + ", loop " + loop);
 		
 		RdmaServerEndpoint<ReadServer.ReadServerEndpoint> serverEndpoint = group.createServerEndpoint();
-		URI uri = URI.create("rdma://" + host + ":" + 1919);
+		URI uri = URI.create("rdma://" + host + ":" + port);
 		serverEndpoint.bind(uri);
 		ReadServer.ReadServerEndpoint endpoint = serverEndpoint.accept();
 		System.out.println("ReadServer, client connected, address " + uri.toString());	
@@ -88,34 +98,42 @@ public class ReadServer implements RdmaEndpointFactory<ReadServer.ReadServerEndp
 	
 	
 	public static void main(String[] args) throws Exception {
-		String[] _args = args;
-		if (args.length < 1) {
-			System.exit(0);
-		} else if (args[0].equals(ReadServer.class.getCanonicalName())) {
-			_args = new String[args.length - 1];
-			for (int i = 0; i < _args.length; i++) {
-				_args[i] = args[i + 1];
+		String ipAddress = "192.168.0.1";
+		int port = 1919;
+		int size = 32;
+		int loop = 1000;		
+		
+		Option addressOption = Option.builder("a").required().desc("address of the server").hasArg().build();
+		Option portOption = Option.builder("p").desc("server port").hasArg().build();
+		Option sizeOption = Option.builder("s").desc("size of the data to exchange").hasArg().build();
+		Option loopOption = Option.builder("k").desc("number of iterations").hasArg().build();
+		Options options = new Options();
+		options.addOption(addressOption);
+		options.addOption(portOption);
+		options.addOption(sizeOption);
+		options.addOption(loopOption);
+		CommandLineParser parser = new DefaultParser();
+		
+		try {
+			CommandLine line = parser.parse(options, Arrays.copyOfRange(args, 0, args.length));
+			ipAddress = line.getOptionValue(addressOption.getOpt());
+			
+			if (line.hasOption(portOption.getOpt())) {
+				port = Integer.parseInt(line.getOptionValue(portOption.getOpt()));
 			}
+			if (line.hasOption(sizeOption.getOpt())) {
+				size = Integer.parseInt(line.getOptionValue(sizeOption.getOpt()));
+			}	
+			if (line.hasOption(sizeOption.getOpt())) {
+				loop = Integer.parseInt(line.getOptionValue(loopOption.getOpt()));
+			}				
+		} catch (ParseException e) {
+			HelpFormatter formatter = new HelpFormatter();
+			formatter.printHelp("ReadServer", options);
+			System.exit(-1);
 		}
 		
-		GetOpt go = new GetOpt(_args, "a:s:k:");
-		go.optErr = true;
-		int ch = -1;
-		
-		String ipAddress = "192.168.0.1";
-		int size = 32;
-		int loop = 1000;
-		while ((ch = go.getopt()) != GetOpt.optEOF) {
-			if ((char) ch == 'a') {
-				ipAddress = go.optArgGet();
-			} else if ((char) ch == 's') {
-				size = Integer.parseInt(go.optArgGet());
-			} else if ((char) ch == 'k') {
-				loop = Integer.parseInt(go.optArgGet());
-			} 
-		}		
-		
-		ReadServer server = new ReadServer(ipAddress, size, loop);
+		ReadServer server = new ReadServer(ipAddress, port, size, loop);
 		server.run();
 	}
 	

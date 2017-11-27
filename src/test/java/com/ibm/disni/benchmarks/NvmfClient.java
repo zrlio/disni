@@ -22,7 +22,6 @@
 package com.ibm.disni.benchmarks;
 
 import com.ibm.disni.nvmef.spdk.*;
-import org.apache.commons.cli.*;
 import sun.nio.ch.DirectBuffer;
 
 import java.io.IOException;
