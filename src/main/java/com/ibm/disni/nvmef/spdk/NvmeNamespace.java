@@ -55,7 +55,7 @@ public class NvmeNamespace extends NatObject {
 
 	public int getMaxIOTransferSize() { return nativeDispatcher._nvme_ns_get_max_io_xfer_size(getObjId()); }
 
-	public void Op(NvmeQueuePair queuePair, long address, long linearBlockAddress, int count, IOCompletion completion, boolean write) throws IOException {
+	private void op(NvmeQueuePair queuePair, long address, long linearBlockAddress, int count, IOCompletion completion, boolean write) throws IOException {
 		try {
 			completion.reset();
 		} catch (PendingOperationException e) {
@@ -70,10 +70,10 @@ public class NvmeNamespace extends NatObject {
 	}
 
 	public void read(NvmeQueuePair queuePair, long address, long linearBlockAddress, int count, IOCompletion completion) throws IOException {
-		Op(queuePair, address, linearBlockAddress, count, completion, false);
+		op(queuePair, address, linearBlockAddress, count, completion, false);
 	}
 
 	public void write(NvmeQueuePair queuePair, long address, long linearBlockAddress, int count, IOCompletion completion) throws IOException {
-		Op(queuePair, address, linearBlockAddress, count, completion, true);
+		op(queuePair, address, linearBlockAddress, count, completion, true);
 	}
 }

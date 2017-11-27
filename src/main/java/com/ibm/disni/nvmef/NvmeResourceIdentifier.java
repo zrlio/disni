@@ -42,18 +42,14 @@ class NvmeResourceIdentifier {
 		String path = uri.getPath();
 		if (path != null){
 			StringTokenizer pathTokenizer = new StringTokenizer(path, "/");
-			if (pathTokenizer.countTokens() > 2){
+			if (pathTokenizer.countTokens() > 2) {
 				throw new IOException("URL format error, too many elements in path");
 			}
-			for (int i = 0; pathTokenizer.hasMoreTokens(); i++){
-				switch(i) {
-				case 0:
-					controller = Integer.parseInt(pathTokenizer.nextToken());
-					break;
-				case 1:
-					namespace = Integer.parseInt(pathTokenizer.nextToken());
-					break;
-				}
+			if (pathTokenizer.hasMoreTokens()) {
+				controller = Integer.parseInt(pathTokenizer.nextToken());
+			}
+			if (pathTokenizer.hasMoreTokens()) {
+				namespace = Integer.parseInt(pathTokenizer.nextToken());
 			}
 		}
 		

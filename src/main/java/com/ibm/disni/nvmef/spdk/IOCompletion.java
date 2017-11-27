@@ -23,7 +23,7 @@ package com.ibm.disni.nvmef.spdk;
 
 import com.ibm.disni.util.MemBuf;
 import com.ibm.disni.util.MemoryAllocation;
-import sun.nio.ch.DirectBuffer;
+import com.ibm.disni.util.MemoryUtils;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
@@ -52,7 +52,7 @@ public class IOCompletion {
 				IOCompletion.class.getCanonicalName());
 		buffer = memBuf.getBuffer();
 		buffer.order(ByteOrder.nativeOrder());
-		address = ((DirectBuffer)buffer).address();
+		address = MemoryUtils.getAddress(buffer);
 		pending = false;
 	}
 

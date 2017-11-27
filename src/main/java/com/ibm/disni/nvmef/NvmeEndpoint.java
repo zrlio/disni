@@ -37,11 +37,11 @@ public class NvmeEndpoint implements DiSNIEndpoint {
 	private volatile boolean open;
 	private NvmeControllerOptions controllerOptions;
 
-	public NvmeEndpoint(NvmeEndpointGroup group, NvmfConnection newConnection) {
+	public NvmeEndpoint(NvmeEndpointGroup group) {
 		this.group = group;
 		this.queuePair = null;
 		this.namespace = null;
-		this.open = newConnection != null;
+		this.open = false;
 	}
 
 	//rdma://<host>:<port>
@@ -64,7 +64,7 @@ public class NvmeEndpoint implements DiSNIEndpoint {
 		WRITE
 	}
 
-	public NvmeCommand Op(Operation op, ByteBuffer buffer, long linearBlockAddress) throws IOException {
+	private NvmeCommand op(Operation op, ByteBuffer buffer, long linearBlockAddress) throws IOException {
 		if (open){
 			throw new IOException("endpoint is closed");
 		}
@@ -76,11 +76,11 @@ public class NvmeEndpoint implements DiSNIEndpoint {
 	}
 
 	public NvmeCommand write(ByteBuffer buffer, long linearBlockAddress) throws IOException{
-		return Op(Operation.WRITE, buffer, linearBlockAddress);
+		return op(Operation.WRITE, buffer, linearBlockAddress);
 	}
 
 	public NvmeCommand read(ByteBuffer buffer, long linearBlockAddress) throws IOException {
-		return Op(Operation.READ, buffer, linearBlockAddress);
+		return op(Operation.READ, buffer, linearBlockAddress);
 	}
 
 	public NvmeCommand newCommand() {
