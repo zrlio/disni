@@ -28,6 +28,7 @@ import java.nio.ByteBuffer;
 import com.ibm.disni.nvmef.spdk.IOCompletion;
 import com.ibm.disni.nvmef.spdk.NvmeNamespace;
 import com.ibm.disni.nvmef.spdk.NvmeQueuePair;
+import com.ibm.disni.util.MemoryUtils;
 import sun.nio.ch.DirectBuffer;
 
 public class NvmeCommand {
@@ -90,9 +91,13 @@ public class NvmeCommand {
 
 	public NvmeCommand setBuffer(ByteBuffer buffer) {
 		this.sectorCount = buffer.remaining() / namespace.getSectorSize();
-		this.bufferAddress = ((DirectBuffer) buffer).address() + buffer.position();
+		this.bufferAddress = MemoryUtils.getAddress(buffer) + buffer.position();
 		this.buffer = buffer;
 		return this;
+	}
+
+	public ByteBuffer getBuffer() {
+		return buffer;
 	}
 
 	public NvmeCommand read() {

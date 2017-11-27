@@ -32,7 +32,6 @@ import com.ibm.disni.nvmef.spdk.Nvme;
 import com.ibm.disni.nvmef.spdk.NvmeController;
 import com.ibm.disni.nvmef.spdk.NvmeTransportId;
 import com.ibm.disni.nvmef.spdk.NvmeTransportType;
-import com.ibm.disni.nvmef.spdk.NvmfConnection;
 import sun.reflect.generics.reflectiveObjects.NotImplementedException;
 
 public class NvmeEndpointGroup implements DiSNIGroup<NvmeEndpoint> {
@@ -47,7 +46,7 @@ public class NvmeEndpointGroup implements DiSNIGroup<NvmeEndpoint> {
 	}
 
 	public NvmeEndpoint createEndpoint(){
-		return new NvmeEndpoint(this, null);
+		return new NvmeEndpoint(this);
 	}
 	
 	//--------------- internal ------------------

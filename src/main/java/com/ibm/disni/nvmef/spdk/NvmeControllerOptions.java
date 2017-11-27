@@ -23,9 +23,10 @@ package com.ibm.disni.nvmef.spdk;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
+import java.nio.charset.StandardCharsets;
 
 public class NvmeControllerOptions {
-	public static int CSIZE = 568;
+	public static final int CSIZE = 568;
 
 	private int numberIOQueues;
 	private boolean useControllerMemoryBufferSubmissionQueues;
@@ -128,12 +129,12 @@ public class NvmeControllerOptions {
 		transportRetryCount = buffer.getInt();
 		ioQueueSize = buffer.getInt();
 		buffer.get(rawString, 0, HOSTNQNSTRSIZE);
-		hostNvmeQualifiedName = new String(rawString);
+		hostNvmeQualifiedName = new String(rawString, StandardCharsets.US_ASCII);
 		ioQueueRequests = buffer.getInt();
 		buffer.get(rawString, 0, SOURCE_ADDRESS_SIZE);
-		sourceAddress = new String(rawString);
+		sourceAddress = new String(rawString, StandardCharsets.US_ASCII);
 		buffer.get(rawString, 0, SOURCE_SERVICE_ID_SIZE);
-		sourceServiceId = new String(sourceServiceId);
+		sourceServiceId = new String(rawString, StandardCharsets.US_ASCII);
 		hostId = new byte[HOST_ID_SIZE];
 		buffer.get(hostId);
 		extendedHostId = new byte[EXTENDED_HOST_ID_SIZE];
