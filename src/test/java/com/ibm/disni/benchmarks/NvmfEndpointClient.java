@@ -33,7 +33,6 @@ import com.ibm.disni.nvmef.NvmeEndpoint;
 import com.ibm.disni.nvmef.NvmeEndpointGroup;
 import com.ibm.disni.nvmef.spdk.NvmeTransportId;
 import com.ibm.disni.nvmef.spdk.NvmeTransportType;
-import sun.nio.ch.DirectBuffer;
 
 public class NvmfEndpointClient extends NvmfClientBenchmark {
 	private final ThreadLocalRandom random;
