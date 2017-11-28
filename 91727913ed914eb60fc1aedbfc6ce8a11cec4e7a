@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "4eccedcb_ed6452a6",
+        "filename": "src/main/java/com/ibm/disni/nvmef/NvmeEndpoint.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2017-11-28T14:58:29Z",
+      "side": 1,
+      "message": "Thx. Will fix.",
+      "parentUuid": "d2e5ae9e_31768827",
+      "revId": "91727913ed914eb60fc1aedbfc6ce8a11cec4e7a",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "01c4bd54_ecefed7b",
         "filename": "src/main/java/com/ibm/disni/nvmef/NvmeEndpoint.java",
         "patchSetId": 2
