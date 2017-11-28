@@ -71,6 +71,24 @@
     },
     {
       "key": {
+        "uuid": "fc91281e_8d498830",
+        "filename": "src/main/java/com/ibm/disni/nvmef/NvmeEndpoint.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2017-11-28T15:27:03Z",
+      "side": 1,
+      "message": "This is wrong, but I did not catch it while testing because this method is never called. All our tests use the newCommand/NvmeCommand method to do IO with the Endpoint. Let me fix this in a separate commit once the rest is in.",
+      "parentUuid": "76472f83_11ffb3d7",
+      "revId": "16b94510a186ae78c56ea2a62915aa4c23370725",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7cd7654d_82d6aa49",
         "filename": "src/main/java/com/ibm/disni/nvmef/NvmeEndpointGroup.java",
         "patchSetId": 1
