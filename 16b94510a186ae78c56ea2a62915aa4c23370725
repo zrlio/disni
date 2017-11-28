@@ -53,6 +53,24 @@
     },
     {
       "key": {
+        "uuid": "76472f83_11ffb3d7",
+        "filename": "src/main/java/com/ibm/disni/nvmef/NvmeEndpoint.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2017-11-28T14:57:27Z",
+      "side": 1,
+      "message": "I agree this looks odd, but i did not change this logic with this commit. Let me check if this was broken in previous commits.",
+      "parentUuid": "f1e7a47c_de9fc9ab",
+      "revId": "16b94510a186ae78c56ea2a62915aa4c23370725",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "7cd7654d_82d6aa49",
         "filename": "src/main/java/com/ibm/disni/nvmef/NvmeEndpointGroup.java",
         "patchSetId": 1
@@ -70,6 +88,24 @@
     },
     {
       "key": {
+        "uuid": "c2cab3d9_e5aaa062",
+        "filename": "src/main/java/com/ibm/disni/nvmef/NvmeEndpointGroup.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2017-11-28T14:57:27Z",
+      "side": 1,
+      "message": "Thx. I changed my IDE settings to automatically remove all trailing whitespaces on save. So this should not happen again.",
+      "parentUuid": "7cd7654d_82d6aa49",
+      "revId": "16b94510a186ae78c56ea2a62915aa4c23370725",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a90a8645_6fbe4c85",
         "filename": "src/main/java/com/ibm/disni/nvmef/NvmeResourceIdentifier.java",
         "patchSetId": 1
@@ -81,6 +117,30 @@
       "writtenOn": "2017-11-28T13:30:02Z",
       "side": 1,
       "message": "Just to be sure, if you want to specify a namespace, you need to specify a controller before?\n\nAnd if none are given then it defaults to 0 and 1?",
+      "range": {
+        "startLine": 51,
+        "startChar": 7,
+        "endLine": 51,
+        "endChar": 20
+      },
+      "revId": "16b94510a186ae78c56ea2a62915aa4c23370725",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "5306b440_768ca193",
+        "filename": "src/main/java/com/ibm/disni/nvmef/NvmeResourceIdentifier.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2017-11-28T14:57:27Z",
+      "side": 1,
+      "message": "Yes, basically I thought about changing it to both being mandatory. I guess that makes more sense?",
+      "parentUuid": "a90a8645_6fbe4c85",
       "range": {
         "startLine": 51,
         "startChar": 7,
