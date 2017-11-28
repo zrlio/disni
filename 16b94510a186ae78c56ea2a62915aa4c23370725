@@ -1,0 +1,95 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "c348d680_af4cc1e4",
+        "filename": "src/main/java/com/ibm/disni/nvmef/NvmeCommand.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 94,
+      "author": {
+        "id": 1012400
+      },
+      "writtenOn": "2017-11-28T13:30:02Z",
+      "side": 1,
+      "message": "I like this",
+      "revId": "16b94510a186ae78c56ea2a62915aa4c23370725",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "278bfb70_eaa18b00",
+        "filename": "src/main/java/com/ibm/disni/nvmef/NvmeEndpoint.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1012400
+      },
+      "writtenOn": "2017-11-28T13:30:02Z",
+      "side": 1,
+      "message": "Trailing whitespaces (also at other palces)",
+      "revId": "16b94510a186ae78c56ea2a62915aa4c23370725",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "f1e7a47c_de9fc9ab",
+        "filename": "src/main/java/com/ibm/disni/nvmef/NvmeEndpoint.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1012400
+      },
+      "writtenOn": "2017-11-28T13:30:02Z",
+      "side": 1,
+      "message": "This seems not intuitive. If it is open then throw an exception saying that it is closed?",
+      "revId": "16b94510a186ae78c56ea2a62915aa4c23370725",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "7cd7654d_82d6aa49",
+        "filename": "src/main/java/com/ibm/disni/nvmef/NvmeEndpointGroup.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 39,
+      "author": {
+        "id": 1012400
+      },
+      "writtenOn": "2017-11-28T13:30:02Z",
+      "side": 1,
+      "message": "whitespaces",
+      "revId": "16b94510a186ae78c56ea2a62915aa4c23370725",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "a90a8645_6fbe4c85",
+        "filename": "src/main/java/com/ibm/disni/nvmef/NvmeResourceIdentifier.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 51,
+      "author": {
+        "id": 1012400
+      },
+      "writtenOn": "2017-11-28T13:30:02Z",
+      "side": 1,
+      "message": "Just to be sure, if you want to specify a namespace, you need to specify a controller before?\n\nAnd if none are given then it defaults to 0 and 1?",
+      "range": {
+        "startLine": 51,
+        "startChar": 7,
+        "endLine": 51,
+        "endChar": 20
+      },
+      "revId": "16b94510a186ae78c56ea2a62915aa4c23370725",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
