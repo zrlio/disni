@@ -24,7 +24,6 @@ package com.ibm.disni.nvmef;
 
 import java.io.IOException;
 import java.net.URI;
-import java.nio.ByteBuffer;
 
 import com.ibm.disni.DiSNIEndpoint;
 import com.ibm.disni.nvmef.spdk.*;
@@ -57,30 +56,6 @@ public class NvmeEndpoint implements DiSNIEndpoint {
 		this.queuePair = controller.allocQueuePair();
 		this.open = true;
 		this.controllerOptions = controller.getOptions();
-	}
-
-	private enum Operation {
-		READ,
-		WRITE
-	}
-
-	private NvmeCommand op(Operation op, ByteBuffer buffer, long linearBlockAddress) throws IOException {
-		if (open){
-			throw new IOException("endpoint is closed");
-		}
-		if (buffer.remaining() % namespace.getSectorSize() != 0){
-			throw new IOException("Remaining buffer a multiple of sector size");
-		}
-		IOCompletion completion = new IOCompletion();
-		return new NvmeCommand(this, buffer, linearBlockAddress, completion, op == Operation.WRITE);
-	}
-
-	public NvmeCommand write(ByteBuffer buffer, long linearBlockAddress) throws IOException{
-		return op(Operation.WRITE, buffer, linearBlockAddress);
-	}
-
-	public NvmeCommand read(ByteBuffer buffer, long linearBlockAddress) throws IOException {
-		return op(Operation.READ, buffer, linearBlockAddress);
 	}
 
 	public NvmeCommand newCommand() {

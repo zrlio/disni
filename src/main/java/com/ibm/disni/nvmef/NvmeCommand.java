@@ -29,7 +29,6 @@ import com.ibm.disni.nvmef.spdk.IOCompletion;
 import com.ibm.disni.nvmef.spdk.NvmeNamespace;
 import com.ibm.disni.nvmef.spdk.NvmeQueuePair;
 import com.ibm.disni.util.MemoryUtils;
-import sun.nio.ch.DirectBuffer;
 
 public class NvmeCommand {
 	private final NvmeEndpoint endpoint;
@@ -41,7 +40,7 @@ public class NvmeCommand {
 	private int sectorCount;
 	private final IOCompletion completion;
 	private boolean isWrite;
-	
+
 	NvmeCommand(NvmeEndpoint endpoint, ByteBuffer buffer, long linearBlockAddress,
 				IOCompletion completion, boolean isWrite) {
 		this(endpoint, completion);
@@ -56,7 +55,7 @@ public class NvmeCommand {
 		this.queuePair = endpoint.getQueuePair();
 		this.completion = completion;
 	}
-	
+
 	public void execute() throws IOException {
 		if (bufferAddress == 0) {
 			throw new IllegalArgumentException("Buffer not set");
@@ -73,13 +72,13 @@ public class NvmeCommand {
 			}
 		}
 	}
-	
+
 	public boolean isDone(){
 		return completion.done();
 	}
 
 	public boolean isPending() {  return completion.isPending(); }
-	
+
 	public void free() {
 		completion.free();
 	}
