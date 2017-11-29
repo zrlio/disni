@@ -89,6 +89,24 @@
     },
     {
       "key": {
+        "uuid": "f0685191_bb44acfb",
+        "filename": "src/main/java/com/ibm/disni/nvmef/NvmeEndpoint.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 67,
+      "author": {
+        "id": 1012400
+      },
+      "writtenOn": "2017-11-29T08:52:08Z",
+      "side": 1,
+      "message": "Will the method be called by other code paths (other than testing)? If the method is not called at all, I would prefer to remove it. Otherwise I am fine to fix it in a separate commit.",
+      "parentUuid": "fc91281e_8d498830",
+      "revId": "16b94510a186ae78c56ea2a62915aa4c23370725",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "7cd7654d_82d6aa49",
         "filename": "src/main/java/com/ibm/disni/nvmef/NvmeEndpointGroup.java",
         "patchSetId": 1
