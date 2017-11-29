@@ -201,6 +201,30 @@
     },
     {
       "key": {
+        "uuid": "df7dac8e_4449b58c",
+        "filename": "src/main/java/com/ibm/disni/nvmef/NvmeResourceIdentifier.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 46,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2017-11-29T09:25:28Z",
+      "side": 1,
+      "message": "Yes, I agree. Let me address this in a new commit together with the changes proposed by Adrian.",
+      "parentUuid": "ca539df9_3b46a19f",
+      "range": {
+        "startLine": 46,
+        "startChar": 0,
+        "endLine": 46,
+        "endChar": 73
+      },
+      "revId": "16b94510a186ae78c56ea2a62915aa4c23370725",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "a90a8645_6fbe4c85",
         "filename": "src/main/java/com/ibm/disni/nvmef/NvmeResourceIdentifier.java",
         "patchSetId": 1
