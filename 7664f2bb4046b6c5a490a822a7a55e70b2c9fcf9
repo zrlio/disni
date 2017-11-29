@@ -16,6 +16,24 @@
       "revId": "7664f2bb4046b6c5a490a822a7a55e70b2c9fcf9",
       "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
       "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "ab86cb86_f29aca92",
+        "filename": "src/test/java/com/ibm/disni/benchmarks/RdmaBenchmarkCmdLine.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 21,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2017-11-29T09:32:07Z",
+      "side": 1,
+      "message": "I think this API is much clearer since you can see directly what you set. Anyway the problem with the other API is that you cannot set Options required and add types (see below).",
+      "parentUuid": "58a1f7f0_9589aaac",
+      "revId": "7664f2bb4046b6c5a490a822a7a55e70b2c9fcf9",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
     }
   ]
 }
