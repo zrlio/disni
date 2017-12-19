@@ -219,7 +219,8 @@ public class RdmaCmNat extends RdmaCm {
 		if (!idPriv.isOpen()) {
 			throw new IOException("Trying to call connect() with closed ID");
 		}
-		int ret = nativeDispatcher._connect(idPriv.getObjId(), connParam.getRetry_count(), connParam.getRnr_retry_count());
+		int ret = nativeDispatcher._connect(idPriv.getObjId(), connParam.getRetry_count(),
+				connParam.getRnr_retry_count(), connParam.getPrivate_data(), connParam.getPrivate_data_len());
 //		int ret = nativeDispatcher._connect(idPriv.getObjId(), (long) 0);
 		logger.info("connect, id " + id.getPs());
 		

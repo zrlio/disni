@@ -34,7 +34,7 @@ public class NativeDispatcher {
 
 	static {
 	    System.loadLibrary("disni");
-	}	
+	}
 
 	NativeDispatcher() throws IOException{
 		logger.info("jverbs jni version " + _getVersion());
@@ -65,14 +65,14 @@ public class NativeDispatcher {
 			IbvWC.CSIZE = _getIbvWCSize();
 		} else {
 			logger.info("IbvWC size match, jverbs size " + IbvWC.CSIZE + ", native size " +_getIbvWCSize());
-		}		
+		}
 		if (_getIbvSgeSize() != NatIbvSge.CSIZE){
 			logger.info("IbvSge size mismatch, jverbs size " + NatIbvSge.CSIZE + ", native size " +_getIbvSgeSize());
 			NatIbvSge.CSIZE = _getIbvSgeSize();
 		} else {
 			logger.info("IbvSge size match, jverbs size " + NatIbvSge.CSIZE + ", native size " +_getIbvSgeSize());
 		}
-		
+
 		if (_getRemoteAddressOffset() != NatIbvSendWR.REMOTEADDR_OFFSET){
 			logger.info("Remote addr offset mismatch, jverbs size " + NatIbvSendWR.REMOTEADDR_OFFSET + ", native size " +_getRemoteAddressOffset());
 			NatIbvSendWR.REMOTEADDR_OFFSET = _getRemoteAddressOffset();
@@ -84,9 +84,9 @@ public class NativeDispatcher {
 			NatIbvSendWR.RKEY_OFFSET = _getRKeyOffset();
 		} else {
 			logger.info("Rkey offset match, jverbs size " + NatIbvSendWR.RKEY_OFFSET + ", native size " +_getRKeyOffset());
-		}		
+		}
 	}
-	
+
 	//rdmacm
 	public native long _createEventChannel();
 	public native long _createId(long channel, short rdma_ps);
@@ -96,21 +96,21 @@ public class NativeDispatcher {
 	public native int _resolveAddr(long id, long src, long dst, int timeout);
 	public native int _resolveRoute(long id, int timeout);
 	public native int _getCmEvent(long channel, long listenid, long clientid, int timeout);
-	public native int _connect(long id, int retrycount, int rnrretrycount);
+	public native int _connect(long id, int retrycount, int rnrretrycount, long privdataaddr, byte privdatalen);
 	public native int _accept(long id, int retrycount, int rnrretrycount);
 	public native int _ackCmEvent(int cmEvent);
-	public native int _disconnect(long id);	
+	public native int _disconnect(long id);
 	public native int _destroyEventChannel(long fd);
 	public native int _destroyCmId(long natid);
 	public native int _destroyQP(long id);
 	public native int _getSrcAddr(long id, long address);
 	public native int _getDstAddr(long id, long address);
 	public native int _destroyEp(long natid);
-	
+
 	//ibverbs
-	public native long _allocPd(long context);	
-	public native long _createCompChannel(long context);	
-	public native long _createCQ(long context, long compChannel, int ncqe, int comp_vector);	
+	public native long _allocPd(long context);
+	public native long _createCompChannel(long context);
+	public native long _createCQ(long context, long compChannel, int ncqe, int comp_vector);
 	public native int _modifyQP(long qp, long attr);
 	public native long _regMr(long pd, long addr, int len, int access, long lkey, long rkey, long handle);
 	public native int _queryOdpSupport(long context);
@@ -125,14 +125,14 @@ public class NativeDispatcher {
 	public native int _destroyCompChannel(long fd);
 	public native int _deallocPd(long handle);
 	public native int _destroyCQ(long handle);
-	
+
 	//field lookup
 	public native long _getContext(long id);
 	public native int _getQpNum(long id);
 	public native int _getContextFd(long objId);
 	public native int _getContextNumCompVectors(long objId);
 	public native int _getPdHandle(long objId);
-	
+
 	//struct verification
 	public native int _getSockAddrInSize();
 	public native int _getIbvRecvWRSize();
@@ -141,7 +141,7 @@ public class NativeDispatcher {
 	public native int _getIbvWCSize();
 	public native int _getRemoteAddressOffset();
 	public native int _getRKeyOffset();
-	
+
 	//version
 	public native int _getVersion();
 
