@@ -38,10 +38,10 @@ import java.io.IOException;
 //};
 
 /**
- * RDMA connection properties. Used when establishing an RDMA connection. 
+ * RDMA connection properties. Used when establishing an RDMA connection.
  */
 public class RdmaConnParam {
-	protected byte[] private_data;
+	protected long private_data_addr;
 	protected byte private_data_len;
 	protected byte responder_resources;
 	protected byte initiator_depth;
@@ -52,7 +52,7 @@ public class RdmaConnParam {
 	protected int qp_num;
 
 	public RdmaConnParam() {
-		this.private_data = null;
+		this.private_data_addr = 0;
 		this.private_data_len = 0;
 		this.responder_resources = 0;
 		this.initiator_depth = 0;
@@ -62,34 +62,38 @@ public class RdmaConnParam {
 		this.srq = 0;
 		this.qp_num = 0;
 	}
-	
+
 	/**
 	 * Gets the private_data.
 	 *
 	 * @return the private data
 	 */
-	public byte[] getPrivate_data() {
-		return private_data;
+	public long getPrivate_data() {
+		return private_data_addr;
 	}
 
 	/**
 	 * Sets the private_data.
-	 * 
+	 *
 	 * The private data passed will be copied into the connection request message.
 	 *
-	 * @param private_data the new private data. 
+	 * @param private_data_addr the new private data.
 	 */
-	public void setPrivate_data(byte[] private_data) throws IOException {
-		throw new IOException("Operation currently not supported");
+	public void setPrivate_data(long private_data_addr) throws IOException {
+		this.private_data_addr = private_data_addr;
 	}
 
 	/**
-	 * Gets the length of the private data. 
+	 * Gets the length of the private data.
 	 *
 	 * @return the lenght of the private data.
 	 */
 	public byte getPrivate_data_len() {
 		return private_data_len;
+	}
+
+	public void setPrivate_data_len(byte private_data_len) {
+		this.private_data_len = private_data_len;
 	}
 
 	/**
@@ -122,7 +126,7 @@ public class RdmaConnParam {
 	/**
 	 * Sets the initiator depth.
 	 *
-	 * @param initiator_depth the new initiater depth. 
+	 * @param initiator_depth the new initiater depth.
 	 */
 	public void setInitiator_depth(byte initiator_depth) throws IOException {
 		throw new IOException("Operation currently not supported");
@@ -140,14 +144,14 @@ public class RdmaConnParam {
 	/**
 	 * Sets the flow control.
 	 *
-	 * @param flow_control the new flow control. 
+	 * @param flow_control the new flow control.
 	 */
 	public void setFlow_control(byte flow_control) throws IOException {
 		throw new IOException("Operation currently not supported");
 	}
 
 	/**
-	 * The number of times a data operation will be re-tried. 
+	 * The number of times a data operation will be re-tried.
 	 *
 	 * @return the retry count.
 	 */
