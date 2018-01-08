@@ -21,6 +21,20 @@ AC_CHECK_LIB([ibverbs], [ibv_get_device_list], [],
 AC_CHECK_LIB([rdmacm], [rdma_create_id], [],
 	     [AC_MSG_ERROR(disni requires librdmacm)])
 
+#ODP experimental verbs
+AC_COMPILE_IFELSE([AC_LANG_PROGRAM(
+		    [
+		  	#include <infiniband/verbs_exp.h>
+		    ],
+		    [
+		        struct ibv_exp_prefetch_attr prefetch_attr;
+		        return (IBV_EXP_DEVICE_ATTR_ODP | IBV_EXP_DEVICE_ODP | IBV_EXP_PREFETCH_WRITE_ACCESS);
+		    ])
+                  ],
+		  [AC_DEFINE([HAVE_ODP_MR_PREFETCH], [1], [On demand paging memory prefecth supported])
+		   have_odp_mr_prefetch=yes],
+		  [have_odp_mr_prefetch=no])
+
 AC_ARG_WITH([jdk],
             [AS_HELP_STRING([--with-jdk],[jdk base directory])],
             [jdk=$withval],
@@ -75,6 +89,7 @@ jdk base directory: ${jdk}
 SPDK base directory: ${spdk}
 DPDK base directory: ${dpdk}
 Enable logging: ${enable_logging}
+ODP prefetch support: ${have_odp_mr_prefetch}
 
 You can now run 'make' to build and 'make install' to install.
 -----------------------------------------------------------------------

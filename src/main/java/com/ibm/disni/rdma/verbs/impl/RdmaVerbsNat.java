@@ -160,6 +160,16 @@ public class RdmaVerbsNat extends RdmaVerbs {
 		return regMrCall;
 
 	}
+
+	public int queryOdpSupport(IbvContext context){
+		NatIbvContext natContext = (NatIbvContext) context;
+		return nativeDispatcher._queryOdpSupport(natContext.getObjId());
+	}
+
+	public int expPrefetchMr(IbvMr ibvMr, long address, int length){
+		return nativeDispatcher._expPrefetchMr(((NatIbvMr)ibvMr).getObjId(), address, length);
+	}
+
 	public SVCDeregMr deregMr(IbvMr mr)
 			throws IOException {
 		NatDeregMrCall deregMrCall = deregList.poll();

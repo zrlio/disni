@@ -117,6 +117,30 @@ public abstract class RdmaVerbs {
 	public abstract SVCRegMr regMr(IbvPd pd, long address, int length, int access) throws IOException;
 
 	/**
+	 * Query device RC capability for on demand paging support
+	 *
+	 * @param context the device context.
+	 * @return odp_caps.per_transport_caps.rc_odp_caps property if ODP is supported, -1 otherwise.
+	 * @throws Exception on failure.
+	 */
+	public abstract int queryOdpSupport(IbvContext context) throws IOException;
+
+	/**
+	 * Prefetch part of a memory region.
+	 * Can be used only with MRs registered with IBV_EXP_ACCESS_ON_DEMAND
+	 *
+	 * @param  address address of the area to prefetch the device context.
+	 * @param  length length of the area to prefetch.
+	 * @return return 0 on success.
+	 * ENOSYS libibverbs or provider driver doesn't support the prefetching verb.
+	 * EFAULT when the range requested is out of the memory region bounds, or when
+	 *   parts of it are not part of the process address space.
+	 * EINVAL when the MR is invalid.
+	 * @throws Exception on failure.
+	 */
+	public abstract int expPrefetchMr(IbvMr ibvMr, long address, int length) throws IOException;
+
+	/**
 	 * Deregister memory.
 	 *
 	 * @param mr the memory region to be de-registered.
