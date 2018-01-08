@@ -43,6 +43,10 @@
 #include <inttypes.h>
 #include <stddef.h>
 
+#ifdef HAVE_ODP_MR_PREFETCH
+#include <infiniband/verbs_exp.h>
+#endif
+
 //#define MAX_WR 200;
 #define MAX_SGE 4;
 //#define N_CQE 200
@@ -698,6 +702,65 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1mod
 	}
 
 	return ret;
+}
+
+/*
+ * Class:     com_ibm_jverbs_nat_NativeDispatcher
+ * Method:    _queryOdpSupport
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1queryOdpSupport
+  (JNIEnv *env, jobject obj, jlong id){
+       jint ret = -1;
+       #ifdef HAVE_ODP_MR_PREFETCH
+           struct rdma_cm_id *cm_listen_id = (struct rdma_cm_id *)id;
+           struct ibv_device_attr_ex dev_attr;
+           ret = ibv_query_device_ex(cm_listen_id->verbs, NULL, &dev_attr);
+           if (ret == 0) {
+            if (dev_attr.odp_caps.general_caps & IBV_ODP_SUPPORT) {
+                ret = dev_attr.odp_caps.per_transport_caps.rc_odp_caps;
+                log("j2c::queryOdpSupport: supported");
+            } else {
+                ret = -1;
+                log("j2c::queryOdpSupport: not supported");
+            }
+           }
+       #endif
+       return ret;
+}
+
+/*
+ * Class:     com_ibm_jverbs_nat_NativeDispatcher
+ * Method:    _expPrefetchMr
+ * Signature: (JJI)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1expPrefetchMr
+  (JNIEnv *env, jobject obj, jlong handle, jlong addr, jint length){
+       jint ret = -1;
+
+       #ifdef HAVE_ODP_MR_PREFETCH
+           struct ibv_mr *mr = NULL;
+           mr = (struct ibv_mr *)handle;
+           struct ibv_exp_prefetch_attr prefetch_attr;
+           prefetch_attr.flags = IBV_EXP_PREFETCH_WRITE_ACCESS;
+           prefetch_attr.addr = (void *)addr;
+           prefetch_attr.length = (size_t)length;
+           prefetch_attr.comp_mask = 0;
+
+           if (mr != NULL){
+                   ret = ibv_exp_prefetch_mr(mr, &prefetch_attr);
+                   if (ret == 0){
+                           log("j2c::expPrefetchMr: ret %i\n", ret);
+                   } else {
+                           log("j2c::expPrefetchMr:  ibv_exp_prefetch_mr failed, error %s\n", strerror(errno));
+                   }
+           } else {
+                   log("j2c::expPrefetchMr: mr null\n");
+           }
+       #else
+            log("j2c::expPrefetchMr: ODP not supported\n");
+       #endif
+       return ret;
 }
 
 /*
