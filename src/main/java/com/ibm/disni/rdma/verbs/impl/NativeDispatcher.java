@@ -113,6 +113,8 @@ public class NativeDispatcher {
 	public native long _createCQ(long context, long compChannel, int ncqe, int comp_vector);	
 	public native int _modifyQP(long qp, long attr);
 	public native long _regMr(long pd, long addr, int len, int access, long lkey, long rkey, long handle);
+	public native int _queryOdpSupport(long context);
+	public native int _expPrefetchMr(long handle, long addr, int len);
 	public native int _deregMr(long handle);
 	public native int _postSend(long qp, long wrList);
 	public native int _postRecv(long qp, long wrList);

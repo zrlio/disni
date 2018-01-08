@@ -45,7 +45,8 @@ public class IbvMr {
 	public static int IBV_ACCESS_REMOTE_WRITE = (1 << 1);
 	public static int IBV_ACCESS_REMOTE_READ = (1 << 2);
 	public static int IBV_ACCESS_REMOTE_ATOMIC = (1 << 3);
-	public static int IBV_ACCESS_MW_BIND = (1 << 4);	
+	public static int IBV_ACCESS_MW_BIND = (1 << 4);
+	public static int IBV_ACCESS_ON_DEMAND = (1 << 6);
 	
 	private RdmaVerbs verbs;
 	protected IbvContext context;
@@ -182,5 +183,8 @@ public class IbvMr {
 	public SVCDeregMr deregMr() throws IOException {
 		return verbs.deregMr(this);
 	}
-	
+
+	public int expPrefetchMr(long address, int length) throws IOException {
+		return verbs.expPrefetchMr(this, address, length);
+	}
 }

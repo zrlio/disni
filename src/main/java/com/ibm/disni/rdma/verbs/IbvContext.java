@@ -34,6 +34,14 @@ import java.io.IOException;
 //        void                   *abi_compat;
 //};
 
+//enum ibv_odp_transport_cap_bits {
+//        IBV_ODP_SUPPORT_SEND     = 1 << 0, /* Send operations support on-demand paging */
+//        IBV_ODP_SUPPORT_RECV     = 1 << 1, /* Receive operations support on-demand paging */
+//        IBV_ODP_SUPPORT_WRITE    = 1 << 2, /* RDMA-Write operations support on-demand paging */
+//        IBV_ODP_SUPPORT_READ     = 1 << 3, /* RDMA-Read operations support on-demand paging */
+//        IBV_ODP_SUPPORT_ATOMIC   = 1 << 4, /* RDMA-Atomic operations support on-demand paging */
+//};
+
 /**
  * Represents a RDMA device context.
  */
@@ -42,6 +50,13 @@ public class IbvContext  {
 	protected int cmd_fd;
 	protected volatile boolean isOpen;
 	protected int numCompVectors;
+
+	//ODP capabilities
+	public static int IBV_ODP_SUPPORT_SEND     = 1 << 0;
+	public static int IBV_ODP_SUPPORT_RECV     = 1 << 1;
+	public static int IBV_ODP_SUPPORT_WRITE    = 1 << 2;
+	public static int IBV_ODP_SUPPORT_READ     = 1 << 3;
+	public static int IBV_ODP_SUPPORT_ATOMIC   = 1 << 4;
 	
 	protected IbvContext(int cmd_fd, int numCompVectors) throws IOException {
 		this.verbs = RdmaVerbs.open();
@@ -84,4 +99,6 @@ public class IbvContext  {
 	public IbvCQ createCQ(IbvCompChannel compChannel, int ncqe, int comp_vector) throws IOException {
 		return verbs.createCQ(this, compChannel, ncqe, comp_vector);
 	}
+
+	public int queryOdpSupport() throws IOException { return verbs.queryOdpSupport(this); }
 }

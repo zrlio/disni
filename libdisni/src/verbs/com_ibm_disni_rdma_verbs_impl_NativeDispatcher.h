@@ -184,6 +184,22 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1mod
   (JNIEnv *, jobject, jlong, jlong);
 
 /*
+ * Class:     com_ibm_jverbs_nat_NativeDispatcher
+ * Method:    _queryOdpSupport
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1queryOdpSupport
+  (JNIEnv *env, jobject, jlong);
+
+/*
+ * Class:     com_ibm_jverbs_nat_NativeDispatcher
+ * Method:    _expPrefetchMr
+ * Signature: (JJI)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1expPrefetchMr
+  (JNIEnv *env, jobject, jlong, jlong, jint);
+
+/*
  * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
  * Method:    _regMr
  * Signature: (JJIIJJJ)J
