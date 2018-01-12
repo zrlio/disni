@@ -5,10 +5,7 @@ DiSNI is a Java library for direct storage and networking access from userpace. 
 ## Building DiSNI
 
 Building the source requires [Apache Maven](http://maven.apache.org/) and [GNU/autotools](http://www.gnu.org/software/autoconf/autoconf.html) and Java version 8 or higher.
-To build DiSNI and its example programs, obtain a copy of DiSNI from [Github](https://github.com/zrlio/disni) and execute the following steps:
-
-1. Compile the Java sources using: mvn -DskipTests install
-2. Compile libdisni using: cd libdisni; ./autoprepare.sh; ./configure --with-jdk=\<path\>; make install
+To build DiSNI and its example programs, obtain a copy of DiSNI from [Github](https://github.com/zrlio/disni) and execute `mvn -DskipTests install`.
 
 By default DiSNI will only build with RDMA support. To enable NVMf you will need to install DPDK and SPDK using following steps. Below, \<target\> refers to the DPDK 4-tuple for your platform, which would be `x86_64-native-linuxapp-gcc` for Intel/AMD processors and `ppc_64-power8-linuxapp-gcc` for Power (run `make help` in the DPDK top source directory for a list of 4-tuples supported by DPDK):
 
@@ -16,16 +13,14 @@ By default DiSNI will only build with RDMA support. To enable NVMf you will need
 3. Build dpdk using: make install T=\<target\> DESTDIR=. EXTRA_CFLAGS="-fPIC"
 4. Obtain spdk from [Github](https://github.com/spdk/spdk) (version 17.10)
 5. Build spdk using: make DPDK_DIR=\<dpdk-path/x86_64-native-linuxapp-gcc\> CONFIG_RDMA=y
-6. Configure libdisni for NVMf: ./configure --with-jdk=\<path\> --with-spdk=\<path\> --with-dpdk=\<path\>/\<target\>
-7. Build libdisni: make install
-8. Make sure shared libraries of DPDK are in the LD_LIBRARY_PATH
+6. Build Disni for NVMf: `mvn -DskipTests -Dexec.args="--with-spdk=<path> --with-dpdk=<path>/<target>" install`
+7. Make sure shared libraries of DPDK are in the LD_LIBRARY_PATH
 
 ## How to Run the Examples
 
 Common steps:
 
 1. After building DiSNI, make sure DiSNI and its dependencies are in the classpath (e.g., disni-1.3-jar-with-dependencies.jar). Also add the DiSNI test jar (disni-1.3-tests.jar) which includes the examples.<br/>
-2. Make sure libdisni is part of the LD_LIBRARY_PATH
 
 ### RDMA example
 1. Make sure the RDMA network interface is configured and up on the test machines (run ibv\_devices to see the list of RDMA NICs). If your machine does not have RDMA hardware, you can also use SoftiWARP from [Github](https://github.com/zrlio/softiwarp). 
