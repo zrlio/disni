@@ -713,9 +713,9 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_rdma_verbs_impl_NativeDispatcher__1que
   (JNIEnv *env, jobject obj, jlong id){
        jint ret = -1;
        #ifdef HAVE_ODP_MR_PREFETCH
-           struct rdma_cm_id *cm_listen_id = (struct rdma_cm_id *)id;
+           struct ibv_context *context = (struct ibv_context *)id;
            struct ibv_device_attr_ex dev_attr;
-           ret = ibv_query_device_ex(cm_listen_id->verbs, NULL, &dev_attr);
+           ret = ibv_query_device_ex(context, NULL, &dev_attr);
            if (ret == 0) {
             if (dev_attr.odp_caps.general_caps & IBV_ODP_SUPPORT) {
                 ret = dev_attr.odp_caps.per_transport_caps.rc_odp_caps;

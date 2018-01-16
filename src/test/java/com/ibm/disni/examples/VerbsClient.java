@@ -188,8 +188,6 @@ public class VerbsClient {
 
 		//now let's connect to the server
 		RdmaConnParam connParam = new RdmaConnParam();
-		connParam.setInitiator_depth((byte) 5);
-		connParam.setResponder_resources((byte) 5);
 		connParam.setRetry_count((byte) 2);
 		ret = idPriv.connect(connParam);
 		if (ret < 0){
