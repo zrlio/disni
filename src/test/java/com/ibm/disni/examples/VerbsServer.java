@@ -107,6 +107,12 @@ public class VerbsServer {
 			return;
 		}
 
+		// Query for on demand paging memory prefecth support
+		int rcOdpCaps = context.queryOdpSupport();
+		if (rcOdpCaps == -1){
+			System.out.println("VerbsServer::On demand paging is not supported for this device");
+		}
+
 		//create a new protection domain, we will use the pd later when registering memory
 		IbvPd pd = context.allocPd();
 		if (pd == null){
@@ -153,8 +159,6 @@ public class VerbsServer {
 		int access = IbvMr.IBV_ACCESS_LOCAL_WRITE | IbvMr.IBV_ACCESS_REMOTE_WRITE | IbvMr.IBV_ACCESS_REMOTE_READ;
 
 		RdmaConnParam connParam = new RdmaConnParam();
-		connParam.setInitiator_depth((byte) 5);
-		connParam.setResponder_resources((byte) 5);
 		connParam.setRetry_count((byte) 2);
 		//once the client id is set up, accept the connection
 		ret = connId.accept(connParam);
