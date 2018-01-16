@@ -1,0 +1,55 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "5494b57c_24f126ba",
+        "filename": "src/test/java/com/ibm/disni/examples/VerbsClient.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 191,
+      "author": {
+        "id": 1012400
+      },
+      "writtenOn": "2018-01-16T22:40:37Z",
+      "side": 1,
+      "message": "Are these lines not needed anymore?\n\nWould you please remove them in that case?",
+      "revId": "35c461fe5636d84073c27e8abaffcdc9ebea7b3d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "22469f2d_ddac561a",
+        "filename": "src/test/java/com/ibm/disni/examples/VerbsServer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 111,
+      "author": {
+        "id": 1012400
+      },
+      "writtenOn": "2018-01-16T22:40:37Z",
+      "side": 1,
+      "message": "Will you take an action based on the outcome of the query?",
+      "revId": "35c461fe5636d84073c27e8abaffcdc9ebea7b3d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
+        "uuid": "d0b5be3d_23212dac",
+        "filename": "src/test/java/com/ibm/disni/examples/VerbsServer.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 162,
+      "author": {
+        "id": 1012400
+      },
+      "writtenOn": "2018-01-16T22:40:37Z",
+      "side": 1,
+      "message": "Same here",
+      "revId": "35c461fe5636d84073c27e8abaffcdc9ebea7b3d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
