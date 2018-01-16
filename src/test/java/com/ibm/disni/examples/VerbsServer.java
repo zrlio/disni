@@ -153,8 +153,6 @@ public class VerbsServer {
 		int access = IbvMr.IBV_ACCESS_LOCAL_WRITE | IbvMr.IBV_ACCESS_REMOTE_WRITE | IbvMr.IBV_ACCESS_REMOTE_READ;
 
 		RdmaConnParam connParam = new RdmaConnParam();
-		connParam.setInitiator_depth((byte) 5);
-		connParam.setResponder_resources((byte) 5);
 		connParam.setRetry_count((byte) 2);
 		//once the client id is set up, accept the connection
 		ret = connId.accept(connParam);
