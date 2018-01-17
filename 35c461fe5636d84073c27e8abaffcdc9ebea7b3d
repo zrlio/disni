@@ -2,6 +2,29 @@
   "comments": [
     {
       "key": {
+        "uuid": "1b192ec5_7e3fe8ec",
+        "filename": "libdisni/src/verbs/com_ibm_disni_rdma_verbs_impl_NativeDispatcher.cpp",
+        "patchSetId": 1
+      },
+      "lineNbr": 716,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2018-01-17T08:52:15Z",
+      "side": 1,
+      "message": "Please also change the variable name accordingly.",
+      "range": {
+        "startLine": 716,
+        "startChar": 18,
+        "endLine": 716,
+        "endChar": 29
+      },
+      "revId": "35c461fe5636d84073c27e8abaffcdc9ebea7b3d",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "5494b57c_24f126ba",
         "filename": "src/test/java/com/ibm/disni/examples/VerbsClient.java",
         "patchSetId": 1
