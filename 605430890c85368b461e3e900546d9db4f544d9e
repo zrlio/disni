@@ -1,0 +1,21 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "afd46cf5_42d564a3",
+        "filename": "src/test/java/com/ibm/disni/examples/VerbsServer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1012400
+      },
+      "writtenOn": "2018-01-17T14:31:10Z",
+      "side": 1,
+      "message": "I assume that this is just an example of how to query for odp support and you want to keep it in this server.",
+      "revId": "605430890c85368b461e3e900546d9db4f544d9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    }
+  ]
+}
