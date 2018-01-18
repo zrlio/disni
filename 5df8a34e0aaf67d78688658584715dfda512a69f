@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "8adf7727_bbf1c4f1",
+        "filename": "src/test/java/com/ibm/disni/examples/VerbsClient.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 1012966
+      },
+      "writtenOn": "2018-01-18T16:22:07Z",
+      "side": 1,
+      "message": "It throws UnsupportedException: https://github.com/zrlio/disni/blob/master/src/main/java/com/ibm/disni/rdma/verbs/RdmaConnParam.java#L128\n\nI can remove it from this PR, and make another one with ODP example + Vers examples code refactoring.",
+      "parentUuid": "0962c11a_9afa5b1c",
+      "revId": "5df8a34e0aaf67d78688658584715dfda512a69f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
         "uuid": "85465af2_24d77ea3",
         "filename": "src/test/java/com/ibm/disni/examples/VerbsServer.java",
         "patchSetId": 3
