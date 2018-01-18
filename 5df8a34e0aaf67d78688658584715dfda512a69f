@@ -1,0 +1,38 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "0962c11a_9afa5b1c",
+        "filename": "src/test/java/com/ibm/disni/examples/VerbsClient.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 190,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2018-01-18T09:55:39Z",
+      "side": 1,
+      "message": "any reason we remove the initiator depth and responder resources here?",
+      "revId": "5df8a34e0aaf67d78688658584715dfda512a69f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "85465af2_24d77ea3",
+        "filename": "src/test/java/com/ibm/disni/examples/VerbsServer.java",
+        "patchSetId": 3
+      },
+      "lineNbr": 155,
+      "author": {
+        "id": 1012121
+      },
+      "writtenOn": "2018-01-18T09:55:39Z",
+      "side": 1,
+      "message": "Same here.",
+      "revId": "5df8a34e0aaf67d78688658584715dfda512a69f",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
