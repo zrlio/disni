@@ -19,6 +19,24 @@
     },
     {
       "key": {
+        "uuid": "151f9488_b0a9c2bd",
+        "filename": "src/test/java/com/ibm/disni/examples/VerbsServer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 112,
+      "author": {
+        "id": 1012966
+      },
+      "writtenOn": "2018-01-18T16:22:07Z",
+      "side": 1,
+      "message": "Yes, just added to catch an issue with structure casting.",
+      "parentUuid": "afd46cf5_42d564a3",
+      "revId": "605430890c85368b461e3e900546d9db4f544d9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": true
+    },
+    {
+      "key": {
         "uuid": "a6147465_5685f118",
         "filename": "src/test/java/com/ibm/disni/examples/VerbsServer.java",
         "patchSetId": 2
@@ -30,6 +48,30 @@
       "writtenOn": "2018-01-17T17:42:26Z",
       "side": 1,
       "message": "Peter, I think that if we would like to demonstrate how to use ODP, we should implement it all the way - e.g. register the entire process address space, avoid per buffer registrations and use prefetches instead.",
+      "range": {
+        "startLine": 110,
+        "startChar": 0,
+        "endLine": 114,
+        "endChar": 3
+      },
+      "revId": "605430890c85368b461e3e900546d9db4f544d9e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    },
+    {
+      "key": {
+        "uuid": "e172408e_3edf9f90",
+        "filename": "src/test/java/com/ibm/disni/examples/VerbsServer.java",
+        "patchSetId": 2
+      },
+      "lineNbr": 114,
+      "author": {
+        "id": 1012966
+      },
+      "writtenOn": "2018-01-18T16:22:07Z",
+      "side": 1,
+      "message": "Yeah i answered before: https://review.gerrithub.io/#/c/395003/1/src/test/java/com/ibm/disni/examples/VerbsServer.java - that this would require to refactor bunch of code here. So probably would be easier to make a separate example.",
+      "parentUuid": "a6147465_5685f118",
       "range": {
         "startLine": 110,
         "startChar": 0,
