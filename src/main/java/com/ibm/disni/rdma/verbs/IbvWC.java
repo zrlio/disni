@@ -42,12 +42,22 @@ package com.ibm.disni.rdma.verbs;
  * Represents a work completion event. Application will use the pollCQ verbs call to query for completion events.
  */
 public class IbvWC {
-	public static int CSIZE = 48; 
+	public static int CSIZE = 48;
 
 	public enum IbvWcStatus {
-		IBV_WC_SUCCESS, IBV_WC_LOC_LEN_ERR, IBV_WC_LOC_QP_OP_ERR, IBV_WC_LOC_EEC_OP_ERR, IBV_WC_LOC_PROT_ERR, IBV_WC_WR_FLUSH_ERR, IBV_WC_MW_BIND_ERR, IBV_WC_BAD_RESP_ERR, IBV_WC_LOC_ACCESS_ERR, IBV_WC_REM_INV_REQ_ERR, IBV_WC_REM_ACCESS_ERR, IBV_WC_REM_OP_ERR, IBV_WC_RETRY_EXC_ERR, IBV_WC_RNR_RETRY_EXC_ERR, IBV_WC_LOC_RDD_VIOL_ERR, IBV_WC_REM_INV_RD_REQ_ERR, IBV_WC_REM_ABORT_ERR, IBV_WC_INV_EECN_ERR, IBV_WC_INV_EEC_STATE_ERR, IBV_WC_FATAL_ERR, IBV_WC_RESP_TIMEOUT_ERR, IBV_WC_GENERAL_ERR
+		IBV_WC_SUCCESS, IBV_WC_LOC_LEN_ERR, IBV_WC_LOC_QP_OP_ERR, IBV_WC_LOC_EEC_OP_ERR, IBV_WC_LOC_PROT_ERR, IBV_WC_WR_FLUSH_ERR, IBV_WC_MW_BIND_ERR, IBV_WC_BAD_RESP_ERR, IBV_WC_LOC_ACCESS_ERR, IBV_WC_REM_INV_REQ_ERR, IBV_WC_REM_ACCESS_ERR, IBV_WC_REM_OP_ERR, IBV_WC_RETRY_EXC_ERR, IBV_WC_RNR_RETRY_EXC_ERR, IBV_WC_LOC_RDD_VIOL_ERR, IBV_WC_REM_INV_RD_REQ_ERR, IBV_WC_REM_ABORT_ERR, IBV_WC_INV_EECN_ERR, IBV_WC_INV_EEC_STATE_ERR, IBV_WC_FATAL_ERR, IBV_WC_RESP_TIMEOUT_ERR, IBV_WC_GENERAL_ERR;
+
+		public static IbvWcStatus valueOf(int value) {
+			/* this is slow but ok for debugging purposes */
+			for (IbvWcStatus status : values()) {
+				if (status.ordinal() == value) {
+					return status;
+				}
+			}
+			throw new IllegalArgumentException();
+		}
 	};
-	
+
 	public enum IbvWcOpcode {
 		IBV_WC_SEND(0),
 		IBV_WC_RDMA_WRITE(1),
@@ -62,11 +72,20 @@ public class IbvWC {
 		IbvWcOpcode(int opcode) { this.opcode = opcode; }
 
 		public int getOpcode() { return opcode; }
+
+		public static IbvWcOpcode valueOf(int value) {
+			for (IbvWcOpcode opcode : values()) {
+				if (opcode.getOpcode() == value) {
+					return opcode;
+				}
+			}
+			throw new IllegalArgumentException();
+		}
 	}
 
     public static int CQ_OK =  0;
     public static int CQ_EMPTY = -1;
-    public static int CQ_POLL_ERR = -2;		
+    public static int CQ_POLL_ERR = -2;
 
 	protected long wr_id;
 	protected int status;
@@ -81,7 +100,7 @@ public class IbvWC {
 	protected short slid;
 	protected short sl;
 	protected short dlid_path_bits;
-	
+
 	protected int err;
 	protected boolean isSend;
 	protected short wqIndex;
@@ -97,7 +116,7 @@ public class IbvWC {
 		isSend = false;
 		wqIndex = -1;
 	}
-	
+
 	public IbvWC clone(){
 		IbvWC wc = new IbvWC();
 		wc.byte_len = this.byte_len;
@@ -115,7 +134,7 @@ public class IbvWC {
 		wc.status = this.status;
 		wc.wqIndex = this.wqIndex;
 		wc.wr_id = this.wr_id;
-		
+
 		return wc;
 	}
 
@@ -156,7 +175,7 @@ public class IbvWC {
 	}
 
 	/**
-	 * Represents the opcode of the original operation for this completion event. 
+	 * Represents the opcode of the original operation for this completion event.
 	 *
 	 * @return the opcode
 	 */
@@ -356,7 +375,7 @@ public class IbvWC {
 	public String getClassName() {
 		return IbvWC.class.getCanonicalName();
 	}
-	
+
 	/**
 	 * Unsupported.
 	 *
@@ -473,7 +492,7 @@ public class IbvWC {
 	public void setDiff(short diff) {
 		this.diff = diff;
 	}
-	
+
 	/**
 	 * Unsupported.
 	 *
