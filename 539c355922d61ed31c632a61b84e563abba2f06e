@@ -1,0 +1,27 @@
+{
+  "comments": [
+    {
+      "key": {
+        "uuid": "7a857502_86fb6cf3",
+        "filename": "src/main/java/com/ibm/disni/rdma/verbs/IbvWC.java",
+        "patchSetId": 1
+      },
+      "lineNbr": 56,
+      "author": {
+        "id": 1013003
+      },
+      "writtenOn": "2018-02-15T18:35:16Z",
+      "side": 1,
+      "message": "Hi Jonas,\nThe traditional way to implement a valueOf(int val) is with switch-case, manually providing all of the values. Although much less elegant than your implementation, this way the overhead is very minimal compared to traversing the list, which implies the creation of interim objects (iterator...) and requires a significantly higher number of iterations. As this function will mostly be used in the data-path CQ processing, I think it will be better to use the traditional method.",
+      "range": {
+        "startLine": 52,
+        "startChar": 0,
+        "endLine": 56,
+        "endChar": 4
+      },
+      "revId": "539c355922d61ed31c632a61b84e563abba2f06e",
+      "serverId": "d5d70762-12d0-45a1-890d-524b12d3f735",
+      "unresolved": false
+    }
+  ]
+}
