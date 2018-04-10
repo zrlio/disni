@@ -24,7 +24,7 @@ By default DiSNI will only build with RDMA support. To enable NVMf you will need
 
 Common steps:
 
-1. After building DiSNI, make sure DiSNI and its dependencies are in the classpath (e.g., disni-1.4-jar-with-dependencies.jar). Also add the DiSNI test jar (disni-1.4-tests.jar) which includes the examples.<br/>
+1. After building DiSNI, make sure DiSNI and its dependencies are in the classpath (e.g., disni-1.5-jar-with-dependencies.jar). Also add the DiSNI test jar (disni-1.5-tests.jar) which includes the examples.<br/>
 2. Make sure libdisni is part of the LD_LIBRARY_PATH
 
 ### RDMA example
@@ -44,7 +44,7 @@ DiSNI is part of maven central, therefore the simplest way to use DiSNI in your 
     <dependency>
       <groupId>com.ibm.disni</groupId>
       <artifactId>disni</artifactId>
-      <version>1.4</version>
+      <version>1.5</version>
     </dependency>
     
 The RDMA and NVMf APIs in DiSNI are both following the Group/Endpoint model which is based on three key data types (interfaces):
