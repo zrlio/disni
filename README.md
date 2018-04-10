@@ -1,6 +1,10 @@
 # DiSNI: Direct Storage and Networking Interface
 
-DiSNI is a Java library for direct storage and networking access from userpace. It currently provides an RDMA interface to access remote memory, and an NVMf interface to access remote NVMe storage. DiSNI enables the development of Java applications for high performance RDMA networks, such as InfiniBand, iWARP, or RoCE. The RDMA API is implemented based on the Open Fabrics Enterprise Distribution (OFED) RDMA user libraries. The NVMf APIs are implemented on top of the Storage Performance Development Kit ([SPDK](http://www.spdk.io)). Both APIs provide RDMA semantics including asynchronous operations, zero-copy transmission and direct data placement. 
+DiSNI is a Java library for direct storage and networking access from userpace. It provides an RDMA interface to access remote memory. DiSNI enables the development of Java applications for high performance RDMA networks, such as InfiniBand, iWARP, or RoCE. The RDMA API is implemented based on the Open Fabrics Enterprise Distribution (OFED) RDMA user libraries. It provides RDMA semantics including asynchronous operations, zero-copy transmission and direct data placement.
+
+## Changelog
+
+* Version 1.5 removes NVMf/SPDK code. For user of the DiSNI NVMf API we provide a new NVMf library called [jNVMf](https://github.com/zrlio/jnvmf) 
 
 ## Building DiSNI
 
@@ -9,16 +13,6 @@ To build DiSNI and its example programs, obtain a copy of DiSNI from [Github](ht
 
 1. Compile the Java sources using: mvn -DskipTests install
 2. Compile libdisni using: cd libdisni; ./autoprepare.sh; ./configure --with-jdk=\<path\>; make install
-
-By default DiSNI will only build with RDMA support. To enable NVMf you will need to install DPDK and SPDK using following steps. Below, \<target\> refers to the DPDK 4-tuple for your platform, which would be `x86_64-native-linuxapp-gcc` for Intel/AMD processors and `ppc_64-power8-linuxapp-gcc` for Power (run `make help` in the DPDK top source directory for a list of 4-tuples supported by DPDK):
-
-2. Obtain dpdk from [dpdk.org](http://dpdk.org/download) (version 17.11)\
-3. Build dpdk using: make install T=\<target\> DESTDIR=. EXTRA_CFLAGS="-fPIC"
-4. Obtain spdk from [Github](https://github.com/spdk/spdk) (version 17.10)
-5. Build spdk using: make DPDK_DIR=\<dpdk-path/x86_64-native-linuxapp-gcc\> CONFIG_RDMA=y
-6. Configure libdisni for NVMf: ./configure --with-jdk=\<path\> --with-spdk=\<path\> --with-dpdk=\<path\>/\<target\>
-7. Build libdisni: make install
-8. Make sure shared libraries of DPDK are in the LD_LIBRARY_PATH
 
 ## How to Run the Examples
 
@@ -32,11 +26,6 @@ Common steps:
 2. Run the server\: java com.ibm.disni.examples.ReadServer -a \<server IP\>
 3. Run the client\: java com.ibm.disni.examples.ReadClient -a \<server IP\>
 
-### NVMf example
-1. Include DPDK library dependencies in LD_LIBRARY_PATH (\*.so files are required)
-2. Run the server\: java com.ibm.disni.benchmarks.NvmfEndpointServer \<local NVMe PCI address\> \<NVMe qualified name\> \<server ip\> \<port\>
-3. Run the client\: java.com.ibm.disni.benchmarks.NvmfEndpointClient \<server ip\> \<port\> \<NVMe qualified name\>
-
 ## Programming with DiSNI
 
 DiSNI is part of maven central, therefore the simplest way to use DiSNI in your maven application is to add the following snippet to your application pom.xml file.
@@ -47,38 +36,22 @@ DiSNI is part of maven central, therefore the simplest way to use DiSNI in your 
       <version>1.5</version>
     </dependency>
     
-The RDMA and NVMf APIs in DiSNI are both following the Group/Endpoint model which is based on three key data types (interfaces):
+The DiSNI API follows a Group/Endpoint model which is based on three key data types (interfaces):
 
 * DiSNIServerEndpoint: 
   * represents a listerning server waiting for new connections
   * contains methods to bind() to a specific port and to accept() new connections 
 * DiSNIEndpoint: 
-  * represents a connection to a remote (or local) resource (e.g., RDMA or NVMf) 
+  * represents a connection to a remote (or local) resource (e.g., RDMA) 
   * offers non-blocking methods to read() or write() the resource
 * DiSNIGroup: 
   * a container and a factory for both client and server endpoints 
   
-Specific implementations of these interface in DiSNI/RDMA and DiSNI/NVMf are offering extra functionality tailored to their purpose. 
+Specific implementations of these interface like DiSNI/RDMA offers extra functionality tailored to their purpose.
 
 ### Stateful Operations
 
 To avoid any performance impacts that are associated with passing complex parameters and arrays through the JNI interface, the DiSNI library implements stateful method calls (SMC). With this approach, the JNI serialization state for a particular call is cached in the context of an SMC object and can be reused many times. SMC objects can also be modified, for instance when transmitting data at different offsets. Modifications to SMC objects are efficient as they do not require serialization. It is key that SMC objecs are re-used whenever possible to avoid garbage collection overheads. 
-
-### Programming NVMf using DiSNI
-
-Here is an example of a simple NVMf client. The client issues a 512 byte read operation against a remote NVMf server.
-```
-NvmeTransportType transports[] = new NvmeTransportType[]{NvmeTransportType.RDMA};
-long memoryMB = 256;
-NvmeEndpointGroup group = new NvmeEndpointGroup(transports, memoryMB);
-NvmeEndpoint endpoint = group.createEndpoint();
-		
-URI uri = new URI("nvmef://192.168.0.1:5050/0/1?subsystem=nqn.2016-06.io.spdk:cnode1");
-endpoint.connect(uri);
-ByteBuffer buffer = ByteBuffer.allocateDirect(512);
-NvmeCommand command = endpoint.read(buffer, 0);
-command.execute();
-```
 
 ### Programming RDMA using DiSNI
     
