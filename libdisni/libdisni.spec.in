@@ -14,8 +14,7 @@ BuildRoot: %{_tmppath}/%{name}-%{version}-%{release}-root-%(%{__id_u} -n)
 
 %description
 libdisni provides a user-space API to direct storage and networking access from
-userpace. It provides an RDMA interface to access remote memory, and an NVMf
-interface to access remote NVMe storage.
+userpace. It provides an RDMA interface to access remote memory.
 
 %package devel
 Summary: Development files for the libdisni library

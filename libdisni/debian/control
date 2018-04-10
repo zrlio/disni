@@ -11,7 +11,6 @@ Architecture: any
 Depends: ${shlibs:Depends}, ${misc:Depends}, adduser
 Description: Direct Storage and Networking Interface Library
  libdisni provides a user-space API to direct storage and networking access from
- userpace. It provides an RDMA interface to access remote memory, and an NVMf
- interface to access remote NVMe storage.
+ userpace. It provides an RDMA interface to access remote memory.
  .
  This package contains the shared library.
