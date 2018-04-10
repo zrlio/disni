@@ -21,25 +21,19 @@
 
 package com.ibm.disni.examples;
 
+import com.ibm.disni.CmdLineCommon;
+import com.ibm.disni.rdma.RdmaActiveEndpoint;
+import com.ibm.disni.rdma.RdmaActiveEndpointGroup;
+import com.ibm.disni.rdma.RdmaEndpointFactory;
+import com.ibm.disni.rdma.RdmaServerEndpoint;
+import com.ibm.disni.rdma.verbs.*;
+import org.apache.commons.cli.ParseException;
+
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
-
-import com.ibm.disni.CmdLineCommon;
-import org.apache.commons.cli.ParseException;
-
-import com.ibm.disni.rdma.RdmaActiveEndpoint;
-import com.ibm.disni.rdma.RdmaActiveEndpointGroup;
-import com.ibm.disni.rdma.RdmaEndpointFactory;
-import com.ibm.disni.rdma.RdmaServerEndpoint;
-import com.ibm.disni.rdma.verbs.IbvMr;
-import com.ibm.disni.rdma.verbs.IbvRecvWR;
-import com.ibm.disni.rdma.verbs.IbvSendWR;
-import com.ibm.disni.rdma.verbs.IbvSge;
-import com.ibm.disni.rdma.verbs.IbvWC;
-import com.ibm.disni.rdma.verbs.RdmaCmId;
 
 public class SendRecvServer implements RdmaEndpointFactory<SendRecvServer.CustomServerEndpoint> {
 	RdmaActiveEndpointGroup<SendRecvServer.CustomServerEndpoint> endpointGroup;

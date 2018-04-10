@@ -21,24 +21,14 @@
 
 package com.ibm.disni.examples;
 
+import com.ibm.disni.rdma.verbs.*;
+
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
-import com.ibm.disni.rdma.verbs.IbvCQ;
-import com.ibm.disni.rdma.verbs.IbvCompChannel;
-import com.ibm.disni.rdma.verbs.IbvContext;
-import com.ibm.disni.rdma.verbs.IbvQP;
-import com.ibm.disni.rdma.verbs.IbvRecvWR;
-import com.ibm.disni.rdma.verbs.IbvSendWR;
-import com.ibm.disni.rdma.verbs.IbvWC;
-import com.ibm.disni.rdma.verbs.SVCPollCq;
-import com.ibm.disni.rdma.verbs.SVCPostRecv;
-import com.ibm.disni.rdma.verbs.SVCPostSend;
-import com.ibm.disni.rdma.verbs.SVCReqNotify;
-
 public class VerbsTools {
 	public static boolean CachingON = false;
-	
+
 	public static int MAX_SGE = 1;
 	public static int MAX_WR = 100;
 
@@ -51,7 +41,7 @@ public class VerbsTools {
 	private IbvQP qp;
 	private IbvCompChannel compChannel;
 	private IbvCQ cq;
-	
+
 	public VerbsTools(IbvContext context, IbvCompChannel compChannel, IbvQP qp, IbvCQ cq) {
 		this.postSendCall = null;
 		this.postRecvCall = null;
@@ -62,13 +52,13 @@ public class VerbsTools {
 		this.qp = qp;
 		this.cq = cq;
 	}
-	
+
 	public boolean send(ByteBuffer[] fragments,
 			LinkedList<IbvSendWR> wrList, boolean signaled, boolean polling)
 			throws Exception {
 		for (int i = 0; i < fragments.length; i++) {
 			ByteBuffer buffer = fragments[i];
-			buffer.clear(); 
+			buffer.clear();
 		}
 
 		postSendCall = getPostSendCall(wrList);
@@ -79,27 +69,27 @@ public class VerbsTools {
 
 		return false;
 	}
-	
+
 	public void initSGRecv(LinkedList<IbvRecvWR> wrList)
 			throws Exception {
 		postRecvCall = getPostRecvCall(wrList);
 		postRecvCall.execute();
 	}
-	
+
 	public boolean completeSGRecv(LinkedList<IbvRecvWR> wrList, boolean polling) throws Exception {
 		return checkCq(wrList.size(), polling);
 	}
-	
+
 	private boolean checkCq(int expectedElements, boolean polling) throws Exception{
 		boolean success = false;
 		int elementsRead = 0;
-		
+
 		while (true) {
 			if (!polling){
 				reqNotifyCall = getReqNotifyCall();
 				reqNotifyCall.execute();
 			}
-			
+
 			pollCqCall = getPollCqCall(1);
 			int res = pollCqCall.execute().getPolls();
 			if (res < 0){
@@ -110,7 +100,7 @@ public class VerbsTools {
 					break;
 				}
 			}
-			
+
 			elementsRead += res;
 			cq.ackEvents(res);
 			if (elementsRead == expectedElements){
@@ -125,32 +115,32 @@ public class VerbsTools {
 						compChannel.getCqEvent(cq, -1);
 					}
 				}
-			}			
+			}
 		}
-		return success;		
+		return success;
 	}
-	
+
 	private SVCPostSend getPostSendCall(LinkedList<IbvSendWR> wrList) throws Exception{
 		if (CachingON == false || this.postSendCall == null || !postSendCall.isValid()) {
 			this.postSendCall = qp.postSend(wrList, null);
-		} 
+		}
 		return postSendCall;
 	}
-	
+
 	private SVCPostRecv getPostRecvCall(LinkedList<IbvRecvWR> wrList) throws Exception{
 		if (CachingON == false || postRecvCall == null || !postRecvCall.isValid()) {
 			postRecvCall = qp.postRecv(wrList, null);
-		} 
+		}
 		return postRecvCall;
 	}
-	
+
 	private SVCReqNotify getReqNotifyCall() throws Exception{
 		if (CachingON == false || reqNotifyCall == null || !reqNotifyCall.isValid()) {
 			reqNotifyCall = cq.reqNotification(false);
-		} 
+		}
 		return reqNotifyCall;
 	}
-	
+
 	private SVCPollCq getPollCqCall(int size) throws Exception{
 		if (CachingON == false || pollCqCall == null || !pollCqCall.isValid()) {
 			wcList = new IbvWC[size];
@@ -158,7 +148,7 @@ public class VerbsTools {
 				wcList[i] = new IbvWC();
 			}
 			pollCqCall = cq.poll(wcList, size);
-		} 
+		}
 		return pollCqCall;
 	}
 }

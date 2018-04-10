@@ -21,25 +21,15 @@
 
 package com.ibm.disni.benchmarks;
 
+import com.ibm.disni.rdma.*;
+import com.ibm.disni.rdma.verbs.*;
+import org.apache.commons.cli.ParseException;
+
 import java.io.IOException;
 import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
-
-import org.apache.commons.cli.ParseException;
-
-import com.ibm.disni.rdma.RdmaActiveEndpoint;
-import com.ibm.disni.rdma.RdmaActiveEndpointGroup;
-import com.ibm.disni.rdma.RdmaEndpoint;
-import com.ibm.disni.rdma.RdmaEndpointFactory;
-import com.ibm.disni.rdma.RdmaServerEndpoint;
-import com.ibm.disni.rdma.verbs.IbvMr;
-import com.ibm.disni.rdma.verbs.IbvRecvWR;
-import com.ibm.disni.rdma.verbs.IbvSendWR;
-import com.ibm.disni.rdma.verbs.IbvSge;
-import com.ibm.disni.rdma.verbs.IbvWC;
-import com.ibm.disni.rdma.verbs.RdmaCmId;
 
 public class ReadServer implements RdmaEndpointFactory<ReadServer.ReadServerEndpoint> {
 	private RdmaActiveEndpointGroup<ReadServerEndpoint> group;

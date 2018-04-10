@@ -1,8 +1,5 @@
 package com.ibm.disni;
 
-import com.ibm.disni.benchmarks.NvmfClientBenchmark;
-import com.ibm.disni.nvmef.spdk.NvmeTransportId;
-import com.ibm.disni.nvmef.spdk.NvmfAddressFamily;
 import org.apache.commons.cli.*;
 
 public class CmdLineCommon {
