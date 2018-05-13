@@ -22,9 +22,7 @@
 package com.ibm.disni.rdma;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.concurrent.LinkedBlockingDeque;
 
@@ -77,17 +75,7 @@ public class RdmaServerEndpoint<C extends RdmaEndpoint> implements DiSNIServerEn
 	 * @throws Exception the exception
 	 */	
 	@Override
-	public synchronized RdmaServerEndpoint<C> bind(URI uri) throws Exception {
-		if (uri == null){
-			throw new IOException("uri not defined");
-		}
-		if (uri.getHost() == null){
-			throw new IOException("host not defined");
-		}
-		
-		SocketAddress src = new InetSocketAddress(uri.getHost(), uri.getPort());
-		int backlog = 1000;
-		
+	public synchronized RdmaServerEndpoint<C> bind(SocketAddress src, int backlog) throws Exception {
 		if (connState != CONN_STATE_INITIALIZED) {
 			throw new IOException("endpoint has to be disconnected for bind");
 		}

@@ -21,8 +21,8 @@
 
 package com.ibm.disni;
 
-import java.net.URI;
+import java.net.SocketAddress;
 
 public interface DiSNIEndpoint {
-	public void connect(URI uri) throws Exception;
+	public void connect(SocketAddress dst, int timeout) throws Exception;
 }
