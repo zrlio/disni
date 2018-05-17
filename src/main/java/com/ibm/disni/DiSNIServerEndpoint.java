@@ -21,10 +21,10 @@
 
 package com.ibm.disni;
 
-import java.net.URI;
+import java.net.SocketAddress;
 
 public interface DiSNIServerEndpoint<T extends DiSNIEndpoint> {
-	public DiSNIServerEndpoint<T> bind(URI uri) throws Exception;
+	public DiSNIServerEndpoint<T> bind(SocketAddress src, int backlog) throws Exception;
 	public T accept() throws Exception;
 	public void close() throws Exception;
 }

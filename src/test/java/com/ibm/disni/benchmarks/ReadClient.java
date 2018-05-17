@@ -29,7 +29,8 @@ import com.ibm.disni.rdma.verbs.*;
 import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
-import java.net.URI;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 
@@ -58,7 +59,9 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.ReadClientEndp
 		System.out.println("ReadClient, size " + size + ", loop " + loop);
 
 		ReadClient.ReadClientEndpoint endpoint = group.createEndpoint();
-		endpoint.connect(URI.create("rdma://" + host + ":" + port));
+ 		InetAddress ipAddress = InetAddress.getByName(host);
+ 		InetSocketAddress address = new InetSocketAddress(ipAddress, port);		
+		endpoint.connect(address, 1000);
 		System.out.println("ReadClient, client connected, address " + host + ", port " + port);
 
 		//in our custom endpoints we make sure CQ events get stored in a queue, we now query that queue for new CQ events.

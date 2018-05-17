@@ -29,7 +29,8 @@ import com.ibm.disni.rdma.verbs.*;
 import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
-import java.net.URI;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.ArrayList;
 import java.util.LinkedList;
@@ -62,10 +63,11 @@ public class SendRecvServer implements RdmaEndpointFactory<SendRecvServer.SendRe
 		System.out.println("SendRecvServer, size " + size + ", loop " + loop + ", recvQueueSize " + recvQueueSize + ", port " + port);
 
 		RdmaServerEndpoint<SendRecvServer.SendRecvEndpoint> serverEndpoint = group.createServerEndpoint();
-		URI uri = URI.create("rdma://" + host + ":" + 1919);
-		serverEndpoint.bind(uri);
+		InetAddress ipAddress = InetAddress.getByName(host);
+		InetSocketAddress address = new InetSocketAddress(ipAddress, 1919);				
+		serverEndpoint.bind(address, 10);
 		SendRecvServer.SendRecvEndpoint endpoint = serverEndpoint.accept();
-		System.out.println("SendRecvServer, client connected, address " + uri.toString());
+		System.out.println("SendRecvServer, client connected, address " + address.toString());
 
 		int opCount = 0;
 		while (opCount < loop){

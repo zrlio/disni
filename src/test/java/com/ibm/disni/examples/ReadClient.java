@@ -29,15 +29,15 @@ import com.ibm.disni.rdma.verbs.*;
 import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
+import java.net.InetAddress;
 import java.net.InetSocketAddress;
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class ReadClient implements RdmaEndpointFactory<ReadClient.CustomClientEndpoint> {
 	private RdmaActiveEndpointGroup<ReadClient.CustomClientEndpoint> endpointGroup;
-	private String ipAddress;
+	private String host;
 	private int port;
 
 	public ReadClient.CustomClientEndpoint createEndpoint(RdmaCmId idPriv, boolean serverSide) throws IOException {
@@ -53,7 +53,9 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.CustomClientEn
 		ReadClient.CustomClientEndpoint endpoint = endpointGroup.createEndpoint();
 
 		//connect to the server
-		endpoint.connect(URI.create("rdma://" + ipAddress + ":" + port));
+ 		InetAddress ipAddress = InetAddress.getByName(host);
+ 		InetSocketAddress address = new InetSocketAddress(ipAddress, port);			
+		endpoint.connect(address, 1000);
 		InetSocketAddress _addr = (InetSocketAddress) endpoint.getDstAddr();
 		System.out.println("ReadClient::client connected, address " + _addr.toString());
 
@@ -121,7 +123,7 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.CustomClientEn
 			cmdLine.printHelp();
 			System.exit(-1);
 		}
-		ipAddress = cmdLine.getIp();
+		host = cmdLine.getIp();
 		port = cmdLine.getPort();
 
 		this.run();

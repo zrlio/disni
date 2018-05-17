@@ -22,9 +22,7 @@
 package com.ibm.disni.rdma;
 
 import java.io.IOException;
-import java.net.InetSocketAddress;
 import java.net.SocketAddress;
-import java.net.URI;
 import java.nio.ByteBuffer;
 import java.util.List;
 
@@ -94,19 +92,10 @@ public class RdmaEndpoint implements DiSNIEndpoint {
 	 * @param uri (rdma://host:port)
 	 */	
 	@Override
-	public synchronized void connect(URI uri) throws Exception {
+	public synchronized void connect(SocketAddress dst, int timeout) throws Exception {
 		if (connState != CONN_STATE_INITIALIZED) {
 			throw new IOException("endpoint already connected");
 		}
-		if (uri == null){
-			throw new IOException("uri not defined");
-		}
-		if (uri.getHost() == null){
-			throw new IOException("host not defined");
-		}
-		
-		InetSocketAddress dst = new InetSocketAddress(uri.getHost(), uri.getPort());
-		int timeout = 1000;
 		idPriv.resolveAddr(null, dst, timeout);
 		while(connState < CONN_STATE_ADDR_RESOLVED){
 			wait();
