@@ -30,14 +30,15 @@ import com.ibm.disni.rdma.verbs.*;
 import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
-import java.net.URI;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class ReadServer implements RdmaEndpointFactory<ReadServer.CustomServerEndpoint> {
 	private RdmaActiveEndpointGroup<ReadServer.CustomServerEndpoint> endpointGroup;
-	private String ipAddress;
+	private String host;
 	private int port;
 
 	public ReadServer.CustomServerEndpoint createEndpoint(RdmaCmId idPriv, boolean serverSide) throws IOException {
@@ -52,9 +53,10 @@ public class ReadServer implements RdmaEndpointFactory<ReadServer.CustomServerEn
 		RdmaServerEndpoint<ReadServer.CustomServerEndpoint> serverEndpoint = endpointGroup.createServerEndpoint();
 
 		//we can call bind on a server endpoint, just like we do with sockets
-		URI uri = URI.create("rdma://" + ipAddress + ":" + port);
-		serverEndpoint.bind(uri);
-		System.out.println("ReadServer::server bound to address" + uri.toString());
+		InetAddress ipAddress = InetAddress.getByName(host);
+		InetSocketAddress address = new InetSocketAddress(ipAddress, port);		
+		serverEndpoint.bind(address, 10);
+		System.out.println("ReadServer::server bound to address" + address.toString());
 
 		//we can accept new connections
 		ReadServer.CustomServerEndpoint endpoint = serverEndpoint.accept();
@@ -97,7 +99,7 @@ public class ReadServer implements RdmaEndpointFactory<ReadServer.CustomServerEn
 			cmdLine.printHelp();
 			System.exit(-1);
 		}
-		ipAddress = cmdLine.getIp();
+		host = cmdLine.getIp();
 		port = cmdLine.getPort();
 
 		this.run();

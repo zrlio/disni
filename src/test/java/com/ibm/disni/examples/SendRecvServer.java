@@ -30,14 +30,15 @@ import com.ibm.disni.rdma.verbs.*;
 import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
-import java.net.URI;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
 
 public class SendRecvServer implements RdmaEndpointFactory<SendRecvServer.CustomServerEndpoint> {
 	RdmaActiveEndpointGroup<SendRecvServer.CustomServerEndpoint> endpointGroup;
-	private String ipAddress;
+	private String host;
 	private int port;
 
 	public SendRecvServer.CustomServerEndpoint createEndpoint(RdmaCmId idPriv, boolean serverSide) throws IOException {
@@ -52,9 +53,10 @@ public class SendRecvServer implements RdmaEndpointFactory<SendRecvServer.Custom
 		RdmaServerEndpoint<SendRecvServer.CustomServerEndpoint> serverEndpoint = endpointGroup.createServerEndpoint();
 
 		//we can call bind on a server endpoint, just like we do with sockets
-		URI uri = URI.create("rdma://" + ipAddress + ":" + port);
-		serverEndpoint.bind(uri);
-		System.out.println("SimpleServer::servers bound to address " + uri.toString());
+		InetAddress ipAddress = InetAddress.getByName(host);
+		InetSocketAddress address = new InetSocketAddress(ipAddress, port);				
+		serverEndpoint.bind(address, 10);
+		System.out.println("SimpleServer::servers bound to address " + address.toString());
 
 		//we can accept new connections
 		SendRecvServer.CustomServerEndpoint clientEndpoint = serverEndpoint.accept();
@@ -98,7 +100,7 @@ public class SendRecvServer implements RdmaEndpointFactory<SendRecvServer.Custom
 			cmdLine.printHelp();
 			System.exit(-1);
 		}
-		ipAddress = cmdLine.getIp();
+		host = cmdLine.getIp();
 		port = cmdLine.getPort();
 
 		this.run();

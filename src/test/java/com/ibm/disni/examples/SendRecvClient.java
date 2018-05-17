@@ -29,7 +29,8 @@ import com.ibm.disni.rdma.verbs.*;
 import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
-import java.net.URI;
+import java.net.InetAddress;
+import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
 import java.util.LinkedList;
 import java.util.concurrent.ArrayBlockingQueue;
@@ -37,7 +38,7 @@ import java.util.concurrent.ArrayBlockingQueue;
 
 public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.CustomClientEndpoint> {
 	RdmaActiveEndpointGroup<SendRecvClient.CustomClientEndpoint> endpointGroup;
-	private String ipAddress;
+	private String host;
 	private int port;
 
 	public SendRecvClient.CustomClientEndpoint createEndpoint(RdmaCmId idPriv, boolean serverSide) throws IOException {
@@ -53,7 +54,9 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.Custom
 		SendRecvClient.CustomClientEndpoint endpoint = endpointGroup.createEndpoint();
 
 		//connect to the server
-		endpoint.connect(URI.create("rdma://" + ipAddress + ":" + port));
+ 		InetAddress ipAddress = InetAddress.getByName(host);
+ 		InetSocketAddress address = new InetSocketAddress(ipAddress, port);			
+		endpoint.connect(address, 1000);
 		System.out.println("SimpleClient::client channel set up ");
 
 		//in our custom endpoints we have prepared (memory registration and work request creation) some memory
@@ -95,7 +98,7 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.Custom
 			cmdLine.printHelp();
 			System.exit(-1);
 		}
-		ipAddress = cmdLine.getIp();
+		host = cmdLine.getIp();
 		port = cmdLine.getPort();
 
 		this.run();
