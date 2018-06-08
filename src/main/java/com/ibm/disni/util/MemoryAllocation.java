@@ -23,7 +23,7 @@ package com.ibm.disni.util;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.TreeMap;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class MemoryAllocation {
 	public enum MemType {
@@ -31,7 +31,7 @@ public class MemoryAllocation {
 	}
 
 	private static MemoryAllocation instance = null;
-	private TreeMap<String, MemBuf> table;
+	private ConcurrentHashMap<String, MemBuf> table;
 
 	public synchronized static MemoryAllocation getInstance() {
 		if (instance == null) {
@@ -41,14 +41,14 @@ public class MemoryAllocation {
 	}
 	
 	private MemoryAllocation() {
-		table = new TreeMap<String, MemBuf>();
+		table = new ConcurrentHashMap<String, MemBuf>();
 	}
 	
-	public synchronized MemBuf allocate(int size, MemType type, String classname) {
+	public MemBuf allocate(int size, MemType type, String classname) {
 		if (type == MemType.DIRECT) {
 			String key = generateKey(size, type, classname);
-			if (table.containsKey(key)) {
-				MemBuf buf = table.remove(key);
+			MemBuf buf = table.remove(key);
+			if (buf != null) {
 				buf.getBuffer().clear();
 				return buf;
 			}
@@ -57,14 +57,11 @@ public class MemoryAllocation {
 	}
 	
 
-	public synchronized void free(MemBuf memBuf) {
+	public void free(MemBuf memBuf) {
 		if (memBuf.getType() == MemType.DIRECT) {
 			String key = generateKey(memBuf.getBuffer().capacity(),
 					memBuf.getType(), memBuf.getClassname());
-			if (!table.containsKey(key)) {
-				table.put(key, memBuf);
-				return;
-			} 
+			table.put(key, memBuf);
 		} 
 	}
 
