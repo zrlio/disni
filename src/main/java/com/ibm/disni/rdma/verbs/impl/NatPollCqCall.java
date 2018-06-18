@@ -75,10 +75,10 @@ public class NatPollCqCall extends SVCPollCq {
 		
 		this.csize = wcList.length*IbvWC.CSIZE;
 		if (cmd != null){
-			cmd.free();
+			memAlloc.put(cmd);
 			cmd = null;
-		}		
-		this.cmd = memAlloc.allocate(csize, MemoryAllocation.MemType.DIRECT, this.getClass().getCanonicalName());
+		}
+		this.cmd = memAlloc.allocate(csize);
 		this.valid = true;
 	}
 	
@@ -135,7 +135,7 @@ public class NatPollCqCall extends SVCPollCq {
 	@Override
 	public SVCPollCq free() {
 		if (cmd != null){
-			cmd.free();
+			memAlloc.put(cmd);
 			cmd = null;
 		}		
 		this.valid = false;

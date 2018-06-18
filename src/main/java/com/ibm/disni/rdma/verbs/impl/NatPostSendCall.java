@@ -86,10 +86,10 @@ public class NatPostSendCall extends SVCPostSend {
 		}
 		
 		if (cmd != null){
-			cmd.free();
+			memAlloc.put(cmd);
 			cmd = null;
 		}		
-		this.cmd = memAlloc.allocate(size, MemoryAllocation.MemType.DIRECT, this.getClass().getCanonicalName());
+		this.cmd = memAlloc.allocate(size);
 		
 		for (NatIbvSendWR natWR : wrNatList){
 			natWR.shiftAddress(cmd.address());
@@ -126,7 +126,7 @@ public class NatPostSendCall extends SVCPostSend {
 	@Override
 	public SVCPostSend free() {
 		if (cmd != null){
-			cmd.free();
+			memAlloc.put(cmd);
 			cmd = null;
 		}		
 		this.valid = false;
