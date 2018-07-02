@@ -134,7 +134,7 @@ public class RdmaCmNat extends RdmaCm {
             throw new IOException("Trying to bind() using a closed ID");
         }
         int ret = nativeDispatcher._bindAddr(idPriv.getObjId(), sockBuf.address());
-		memAlloc.put(sockBuf);
+        memAlloc.put(sockBuf);
         logger.info("bindAddr, address " + address.toString());
 
         return ret;
@@ -165,7 +165,7 @@ public class RdmaCmNat extends RdmaCm {
         }
         int ret = nativeDispatcher._resolveAddr(idPriv.getObjId(), 0, dstBuf.address(), timeout);
         logger.info("resolveAddr, addres " + destination.toString());
-		memAlloc.put(dstBuf);
+        memAlloc.put(dstBuf);
         
         return ret;
 	}

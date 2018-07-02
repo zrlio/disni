@@ -28,14 +28,16 @@ import java.nio.ByteOrder;
 import java.util.Comparator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicLong;
 
 
 public class MemoryAllocation {
 	private static final int MIN_BLOCK_SIZE = 64; // 64B
-	private int MAX_CACHE_SIZE = 4 * 1024 * 1024; // 4MB
+	private int MAX_CACHE_SIZE = 10 * 1024 * 1024; // 10MB
 	private final ConcurrentHashMap<Integer, AllocatorStack> allocStackMap =
 		new ConcurrentHashMap<>();
+	private final AtomicBoolean startedCleanStacks = new AtomicBoolean(false);
 	private static final Logger logger = DiSNILogger.getLogger();
 	private static MemoryAllocation instance = null;
 
@@ -46,6 +48,12 @@ public class MemoryAllocation {
 		return instance;
 	}
 
+	/**
+	 * Class to manage allocations and cache of buffers for particular @size.
+	 * Every time buffer returns to stack it's @lastAccess field got update.
+	 * When size of idling buffers got bigger then @MAX_CACHE_SIZE -
+	 * it starts to clean LRU buffers.
+	 */
 	private class AllocatorStack {
 		private final ConcurrentLinkedDeque<MemBuf> stack = new ConcurrentLinkedDeque<>();
 		private final AtomicLong idleBuffersSize = new AtomicLong(0);
@@ -65,7 +73,6 @@ public class MemoryAllocation {
 				buff.order(ByteOrder.nativeOrder());
 				return new MemBuf(buff);
 			} else {
-				logger.debug("Reusing buffer of size {}", size);
 				return buffer;
 			}
 		}
@@ -121,13 +128,17 @@ public class MemoryAllocation {
 		AllocatorStack allocatorStack = allocStackMap.get(buf.size());
 		if (allocatorStack != null) {
 			allocatorStack.put(buf);
-			// Check the size of current idling buffers
-			long idleBuffersSize = allocStackMap
-				.reduceValuesToLong(100L,
-					allocStack -> allocStack.idleBuffersSize.get(), 0L, Long::sum);
-			// If it reached out 90% of idle buffer capacity, clean old stacks
-			if (idleBuffersSize > MAX_CACHE_SIZE * 0.90) {
-				cleanLRUSBuffers(idleBuffersSize);
+			if (startedCleanStacks.compareAndSet(false, true)) {
+				// Check the size of current idling buffers
+				long idleBuffersSize = allocStackMap
+					    .reduceValuesToLong(100L,
+							  allocStack -> allocStack.idleBuffersSize.get(), 0L, Long::sum);
+				// If it reached out 90% of idle buffer capacity, clean old stacks
+				if (idleBuffersSize > MAX_CACHE_SIZE * 0.90) {
+					cleanLRUSBuffers(idleBuffersSize);
+				} else {
+					startedCleanStacks.compareAndSet(true, false);
+				}
 			}
 		}
 	}
@@ -137,6 +148,7 @@ public class MemoryAllocation {
 			" Cleaning LRU idling buffers", idleBuffersSize / 1024, MAX_CACHE_SIZE / 1024);
 		// Find least recently used buffer stack - it has lowest lastAccess value
 		AllocatorStack lruStack = allocStackMap.values().stream()
+			.filter(s -> !s.stack.isEmpty())
 			.sorted(Comparator.comparingLong(s -> s.lastAccess)).iterator().next();
 		long totalCleaned = 0;
 		// Will clean up to 65% of capacity
@@ -148,8 +160,9 @@ public class MemoryAllocation {
 				lruStack.idleBuffersSize.addAndGet(-lruStack.size);
 			}
 		}
-		logger.debug("Cleaned {} KB of idle stacks of size {} KB",
-			totalCleaned / 1024, lruStack.size / 1024);
+		logger.debug("Cleaned {} B of idle stacks of size {} B",
+			totalCleaned, lruStack.size );
+		startedCleanStacks.compareAndSet(true, false);
 	}
 
 	void setCacheSize(int maxCacheSize){
