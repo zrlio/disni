@@ -26,6 +26,7 @@ import org.slf4j.Logger;
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
 import java.util.Comparator;
+import java.util.Iterator;
 import java.util.concurrent.ConcurrentHashMap;
 import java.util.concurrent.ConcurrentLinkedDeque;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -34,7 +35,7 @@ import java.util.concurrent.atomic.AtomicLong;
 
 public class MemoryAllocation {
 	private static final int MIN_BLOCK_SIZE = 64; // 64B
-	private int MAX_CACHE_SIZE = 10 * 1024 * 1024; // 10MB
+	private int MAX_CACHE_SIZE = 50 * 1024 * 1024; // 50MB
 	private final ConcurrentHashMap<Integer, AllocatorStack> allocStackMap =
 		new ConcurrentHashMap<>();
 	private final AtomicBoolean startedCleanStacks = new AtomicBoolean(false);
@@ -147,21 +148,25 @@ public class MemoryAllocation {
 		logger.debug("Current idling buffers size {}KB exceed 90% of maxCacheSize {}KB." +
 			" Cleaning LRU idling buffers", idleBuffersSize / 1024, MAX_CACHE_SIZE / 1024);
 		// Find least recently used buffer stack - it has lowest lastAccess value
-		AllocatorStack lruStack = allocStackMap.values().stream()
-			.filter(s -> !s.stack.isEmpty())
-			.sorted(Comparator.comparingLong(s -> s.lastAccess)).iterator().next();
+		Iterator<AllocatorStack> bufferStacks = allocStackMap.values().stream()
+			    .filter(s -> !s.stack.isEmpty())
+			    .sorted(Comparator.comparingLong(s -> s.lastAccess)).iterator();
 		long totalCleaned = 0;
 		// Will clean up to 65% of capacity
 		long needToClean = idleBuffersSize - (long) (MAX_CACHE_SIZE * 0.65);
-		while (!lruStack.stack.isEmpty() && totalCleaned < needToClean) {
-			MemBuf buffer = lruStack.stack.pollFirst();
-			if (buffer != null) {
-				totalCleaned += lruStack.size;
-				lruStack.idleBuffersSize.addAndGet(-lruStack.size);
+		while (bufferStacks.hasNext()) {
+			AllocatorStack lruStack = bufferStacks.next();
+			while (!lruStack.stack.isEmpty() && totalCleaned < needToClean) {
+				MemBuf buffer = lruStack.stack.pollFirst();
+				if (buffer != null) {
+					totalCleaned += lruStack.size;
+					lruStack.idleBuffersSize.addAndGet(-lruStack.size);
+				}
 			}
+			logger.debug("Cleaned {} B of idle stacks of size {} B",
+				    totalCleaned, lruStack.size );
+			if (totalCleaned >= needToClean) break;
 		}
-		logger.debug("Cleaned {} B of idle stacks of size {} B",
-			totalCleaned, lruStack.size );
 		startedCleanStacks.compareAndSet(true, false);
 	}
 
