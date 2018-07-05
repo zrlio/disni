@@ -22,6 +22,7 @@
 package com.ibm.disni.rdma.verbs;
 
 import java.io.IOException;
+import java.util.List;
 
 /**
  * The Class SVCPostSend.
@@ -38,7 +39,17 @@ public abstract class SVCPostSend implements StatefulVerbCall<SVCPostSend> {
 	 * @throws Exception in case the index is out-of-bound.
 	 */
 	public abstract SendWRMod getWrMod(int index) throws IOException;
-	
+
+	/**
+	 * Set work requests of this SVC object.
+	 *
+	 * @param qp the qp
+	 * @param wrList list of WRs
+	 * @return
+	 * @throws Exception in case the wrList is null.
+	 */
+	public abstract void set(IbvQP qp, List<IbvSendWR> wrList);
+
 	/**
 	 * Provides access methods to modify a given work-request belonging to this SVC object.
 	 */

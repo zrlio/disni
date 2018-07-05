@@ -57,6 +57,7 @@ public class NatPostSendCall extends SVCPostSend {
 		this.valid = false;
 	}
 
+	@Override
 	public void set(IbvQP qp, List<IbvSendWR> wrList) {
 		this.qp = (NatIbvQP) qp;
 		wrNatList.clear();
@@ -85,12 +86,16 @@ public class NatPostSendCall extends SVCPostSend {
 			sgeOffset += sendWR.getSg_list().size()*NatIbvSge.CSIZE;
 		}
 		
-		if (cmd != null){
-			cmd.free();
+		if (cmd != null && cmd.size() < size){
+			memAlloc.put(cmd);
 			cmd = null;
-		}		
-		this.cmd = memAlloc.allocate(size, MemoryAllocation.MemType.DIRECT, this.getClass().getCanonicalName());
-		
+		}
+		if (cmd == null) {
+			this.cmd = memAlloc.allocate(size);
+		} else {
+			cmd.getBuffer().clear();
+		}
+
 		for (NatIbvSendWR natWR : wrNatList){
 			natWR.shiftAddress(cmd.address());
 		}
@@ -113,7 +118,7 @@ public class NatPostSendCall extends SVCPostSend {
 		}
 		int ret = nativeDispatcher._postSend(qp.getObjId(), cmd.address());
 		if (ret != 0){
-			throw new IOException("Post send failed");
+			throw new IOException("Post send failed ret: " + ret);
 		}
 		return this;
 	}
@@ -126,7 +131,7 @@ public class NatPostSendCall extends SVCPostSend {
 	@Override
 	public SVCPostSend free() {
 		if (cmd != null){
-			cmd.free();
+			memAlloc.put(cmd);
 			cmd = null;
 		}		
 		this.valid = false;

@@ -127,14 +127,14 @@ public class RdmaCmNat extends RdmaCm {
         short _sin_port = NetUtils.hostToNetworkByteOrder((short) _address.getPort());
         
         SockAddrIn addr = new SockAddrIn(_sin_family, _sin_addr, _sin_port);
-        MemBuf sockBuf = memAlloc.allocate(SockAddrIn.CSIZE, MemoryAllocation.MemType.DIRECT, SockAddrIn.class.getCanonicalName());
+        MemBuf sockBuf = memAlloc.allocate(SockAddrIn.CSIZE);
         addr.writeBack(sockBuf.getBuffer());
         NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
         if (!idPriv.isOpen()) {
             throw new IOException("Trying to bind() using a closed ID");
         }
         int ret = nativeDispatcher._bindAddr(idPriv.getObjId(), sockBuf.address());
-        sockBuf.free();
+        memAlloc.put(sockBuf);
         logger.info("bindAddr, address " + address.toString());
 
         return ret;
@@ -157,7 +157,7 @@ public class RdmaCmNat extends RdmaCm {
 			SocketAddress destination, int timeout) throws IOException {
         InetSocketAddress _dst = (InetSocketAddress) destination;
         SockAddrIn dst = new SockAddrIn(SockAddrIn.AF_INET, NetUtils.getIntIPFromInetAddress(_dst.getAddress()), NetUtils.hostToNetworkByteOrder((short) _dst.getPort()));
-        MemBuf dstBuf = memAlloc.allocate(SockAddrIn.CSIZE, MemoryAllocation.MemType.DIRECT, SockAddrIn.class.getCanonicalName());
+        MemBuf dstBuf = memAlloc.allocate(SockAddrIn.CSIZE);
         dst.writeBack(dstBuf.getBuffer());
         NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
         if (!idPriv.isOpen()) {
@@ -165,7 +165,7 @@ public class RdmaCmNat extends RdmaCm {
         }
         int ret = nativeDispatcher._resolveAddr(idPriv.getObjId(), 0, dstBuf.address(), timeout);
         logger.info("resolveAddr, addres " + destination.toString());
-        dstBuf.free();
+        memAlloc.put(dstBuf);
         
         return ret;
 	}
@@ -187,7 +187,7 @@ public class RdmaCmNat extends RdmaCm {
 		NatRdmaEventChannel channelImpl = (NatRdmaEventChannel) cmChannel;
 		RdmaCmEvent cmEvent = null;
 		
-		MemBuf memBuf = memAlloc.allocate(2*8, MemoryAllocation.MemType.DIRECT, "getcm");
+		MemBuf memBuf = memAlloc.allocate(2*8);
 		ByteBuffer buf = memBuf.getBuffer();
 		if (!channelImpl.isOpen()) {
 			throw new IOException("Trying to get CM event on closed channel.");
@@ -207,7 +207,7 @@ public class RdmaCmNat extends RdmaCm {
 			cmEvent = new RdmaCmEvent(event, idPriv, clientId);
 		}
 		
-		memBuf.free();
+		memAlloc.put(memBuf);
 		
 		return cmEvent;
 	}
@@ -298,7 +298,7 @@ public class RdmaCmNat extends RdmaCm {
 	public SocketAddress getSrcAddr(RdmaCmId id) throws IOException {
 		NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
 		SockAddrIn srcAddr = new SockAddrIn();
-		MemBuf sockBuf = memAlloc.allocate(SockAddrIn.CSIZE, MemoryAllocation.MemType.DIRECT, SockAddrIn.class.getCanonicalName());
+		MemBuf sockBuf = memAlloc.allocate(SockAddrIn.CSIZE);
 		if (!idPriv.isOpen()) {
 			throw new IOException("Trying to get source address with closed ID");
 		}
@@ -323,14 +323,14 @@ public class RdmaCmNat extends RdmaCm {
 			
 			socketAddress = new InetSocketAddress(address, hostport);		
 		}
-		sockBuf.free();
+		memAlloc.put(sockBuf);
 		return socketAddress;
 	}
 	
 	public SocketAddress getDstAddr(RdmaCmId id) throws IOException {
 		NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
 		SockAddrIn dstAddr = new SockAddrIn();
-		MemBuf sockBuf = memAlloc.allocate(SockAddrIn.CSIZE, MemoryAllocation.MemType.DIRECT, SockAddrIn.class.getCanonicalName());
+		MemBuf sockBuf = memAlloc.allocate(SockAddrIn.CSIZE);
 		if (!idPriv.isOpen()) {
 			throw new IOException("Trying to get destination address with closed ID");
 		}
@@ -355,7 +355,7 @@ public class RdmaCmNat extends RdmaCm {
 			
 			socketAddress = new InetSocketAddress(address, hostport);		
 		}
-		sockBuf.free();
+		memAlloc.put(sockBuf);
 		return socketAddress;
 	}	
 	
