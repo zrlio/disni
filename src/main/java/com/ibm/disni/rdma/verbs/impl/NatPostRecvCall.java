@@ -79,10 +79,10 @@ public class NatPostRecvCall extends SVCPostRecv {
 			}
 		}
 		if (cmd != null){
-			cmd.free();
-			cmd = null;
-		}		
-		this.cmd = memAlloc.allocate(size, MemoryAllocation.MemType.DIRECT, this.getClass().getCanonicalName());
+			cmd.getBuffer().clear();
+		} else {
+			this.cmd = memAlloc.allocate(size);
+		}
 		
 		for (NatIbvRecvWR natWR : wrNatList){
 			natWR.shiftAddress(cmd.address());

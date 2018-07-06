@@ -23,15 +23,12 @@ package com.ibm.disni.util;
 
 import java.nio.ByteBuffer;
 import java.nio.ByteOrder;
-import java.util.concurrent.ConcurrentHashMap;
+import java.util.concurrent.ConcurrentSkipListMap;
 
 public class MemoryAllocation {
-	public enum MemType {
-		INDIRECT, DIRECT,
-	}
-
 	private static MemoryAllocation instance = null;
-	private ConcurrentHashMap<String, MemBuf> table;
+	private ConcurrentSkipListMap<Integer, MemBuf> table;
+	private static final int MIN_BLOCK_SIZE = 64; // 64B
 
 	public synchronized static MemoryAllocation getInstance() {
 		if (instance == null) {
@@ -41,47 +38,45 @@ public class MemoryAllocation {
 	}
 	
 	private MemoryAllocation() {
-		table = new ConcurrentHashMap<String, MemBuf>();
-	}
-	
-	public MemBuf allocate(int size, MemType type, String classname) {
-		if (type == MemType.DIRECT) {
-			String key = generateKey(size, type, classname);
-			MemBuf buf = table.remove(key);
-			if (buf != null) {
-				buf.getBuffer().clear();
-				return buf;
-			}
-		}
-		return _allocate(size, type, classname);
-	}
-	
-
-	public void free(MemBuf memBuf) {
-		if (memBuf.getType() == MemType.DIRECT) {
-			String key = generateKey(memBuf.getBuffer().capacity(),
-					memBuf.getType(), memBuf.getClassname());
-			table.put(key, memBuf);
-		} 
+		table = new ConcurrentSkipListMap<>();
 	}
 
-	private String generateKey(int size, MemType type, String classname) {
-		String key = classname + ":" + size + ":" + type.ordinal();
-		return key;
-	}
-
-	private MemBuf _allocate(int size, MemType type, String classname) {
-		if (type == MemType.INDIRECT) {
-			ByteBuffer buffer = ByteBuffer.allocate(size);
-			buffer.order(ByteOrder.nativeOrder());
-			long address = 0;
-			return new MemBuf(MemType.INDIRECT, buffer, address, this,
-					classname);
+	private int roundUpSize(int size){
+		// Round up length to the nearest power of two, or the minimum block size
+		if (size < MIN_BLOCK_SIZE) {
+			size = MIN_BLOCK_SIZE;
 		} else {
-			ByteBuffer buffer = ByteBuffer.allocateDirect(size);
-			buffer.order(ByteOrder.nativeOrder());
-			long address = MemoryUtils.getAddress(buffer);
-			return new MemBuf(MemType.DIRECT, buffer, address, this, classname);
+			size--;
+			size |= size >> 1;
+			size |= size >> 2;
+			size |= size >> 4;
+			size |= size >> 8;
+			size |= size >> 16;
+			size++;
+		}
+		return size;
+	}
+
+
+	public MemBuf allocate(int size) {
+		size = roundUpSize(size);
+		MemBuf buf = table.remove(size);
+		if (buf == null) {
+			return _allocate(size);
+		} else {
+			return buf;
 		}
 	}
+
+	void free(MemBuf memBuf) {
+		memBuf.getBuffer().clear();
+		table.putIfAbsent(memBuf.size(), memBuf);
+	}
+
+	private MemBuf _allocate(int size) {
+		ByteBuffer buffer = ByteBuffer.allocateDirect(size);
+		buffer.order(ByteOrder.nativeOrder());
+		return new MemBuf(buffer, this);
+	}
+
 }

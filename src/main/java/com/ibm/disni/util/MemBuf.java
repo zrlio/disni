@@ -23,24 +23,15 @@ package com.ibm.disni.util;
 
 import java.nio.ByteBuffer;
 
-import org.slf4j.Logger;
-
 public class MemBuf {
-	private static final Logger logger = DiSNILogger.getLogger();
-
-	private MemoryAllocation.MemType type;
 	private long address;
 	private ByteBuffer buffer;
 	private MemoryAllocation memAlloc;
-	private String classname;
 
-	public MemBuf(MemoryAllocation.MemType type, ByteBuffer buffer,
-			long address, MemoryAllocation memAlloc, String classname) {
-		this.type = type;
+	MemBuf(ByteBuffer buffer, MemoryAllocation memAlloc) {
 		this.buffer = buffer;
-		this.address = address;
+		this.address = MemoryUtils.getAddress(buffer);
 		this.memAlloc = memAlloc;
-		this.classname = classname;
 	}
 	
 	public final long address() {
@@ -53,39 +44,12 @@ public class MemBuf {
 		return buffer;
 	}
 
-	public MemoryAllocation.MemType getType() {
-		return type;
-	}
-	
-	public String getClassname() {
-		return this.classname;
-	}	
-	
-	public void dump() {
-		dump(0, buffer.capacity());
-	}
-	
-	public void dump(int offset, int length) {
-		MemBuf.dump(buffer, offset, length);
-	}
-	
-	public static void dump(ByteBuffer buffer, int offset, int length) {
-		if (offset + length > buffer.capacity()) {
-			return;
-		}
-
-		String outputbuf = "";
-		for (int i = offset; i < offset + length; i++) {
-			byte tmp1 = buffer.get(i);
-			int tmp2 = tmp1 & 0xff;
-			outputbuf += tmp2 + " ";
-		}
-		logger.info(outputbuf);
-	}
+	public final int size() { return buffer.capacity(); }
 
 	public void free() {
-		if (memAlloc != null){
+		if (memAlloc != null) {
 			memAlloc.free(this);
 		}
 	}
+
 }
