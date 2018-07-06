@@ -63,10 +63,10 @@ public class NatRegMrCall extends SVCRegMr {
 		this.access = access;
 		
 		if (cmd != null){
-			cmd.free();
-			cmd = null;
+			cmd.getBuffer().clear();
+		} else {
+			this.cmd = memAlloc.allocate(3*4);
 		}
-		this.cmd = memAlloc.allocate(3*4, MemoryAllocation.MemType.DIRECT, this.getClass().getCanonicalName());
 		this.valid = true;
 	}
 

@@ -84,12 +84,12 @@ public class NatPostSendCall extends SVCPostSend {
 			wrOffset += NatIbvSendWR.CSIZE;
 			sgeOffset += sendWR.getSg_list().size()*NatIbvSge.CSIZE;
 		}
-		
+
 		if (cmd != null){
-			cmd.free();
-			cmd = null;
-		}		
-		this.cmd = memAlloc.allocate(size, MemoryAllocation.MemType.DIRECT, this.getClass().getCanonicalName());
+			cmd.getBuffer().clear();
+		} else {
+			this.cmd = memAlloc.allocate(size);
+		}
 		
 		for (NatIbvSendWR natWR : wrNatList){
 			natWR.shiftAddress(cmd.address());
