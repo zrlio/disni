@@ -55,23 +55,9 @@ public class RdmaVerbsNat extends RdmaVerbs {
 	private MemoryAllocation memAlloc;
 	private NativeDispatcher nativeDispatcher;
 	
-	private LinkedBlockingQueue<NatRegMrCall> regList;
-	private LinkedBlockingQueue<NatDeregMrCall> deregList;
-	private LinkedBlockingQueue<NatPostSendCall> postSendList;
-	private LinkedBlockingQueue<NatPostRecvCall> postRecvList;
-	private LinkedBlockingQueue<NatPollCqCall> pollCqList;
-	private LinkedBlockingQueue<NatReqNotifyCall> reqNotifyList;
-	
 	public RdmaVerbsNat(NativeDispatcher nativeDispatcher) {
 		this.memAlloc = MemoryAllocation.getInstance();
 		this.nativeDispatcher = nativeDispatcher;
-		
-		this.regList = new LinkedBlockingQueue<NatRegMrCall>();
-		this.deregList = new LinkedBlockingQueue<NatDeregMrCall>();
-		this.postSendList = new LinkedBlockingQueue<NatPostSendCall>();
-		this.postRecvList = new LinkedBlockingQueue<NatPostRecvCall>();
-		this.pollCqList = new LinkedBlockingQueue<NatPollCqCall>();
-		this.reqNotifyList = new LinkedBlockingQueue<NatReqNotifyCall>();
 	}
 
 	public IbvPd allocPd(IbvContext context) throws IOException {
@@ -142,20 +128,14 @@ public class RdmaVerbsNat extends RdmaVerbs {
 		return null;
 	}
 
-	public SVCRegMr regMr(IbvPd pd, ByteBuffer buffer, int access) throws IOException {
-		NatRegMrCall regMrCall = regList.poll();
-		if (regMrCall == null){
-			regMrCall = new NatRegMrCall(this, nativeDispatcher, memAlloc);
-		}
+	public SVCRegMr regMr(IbvPd pd, ByteBuffer buffer, int access) {
+		NatRegMrCall regMrCall =  new NatRegMrCall(this, nativeDispatcher, memAlloc);
 		regMrCall.set(pd, buffer, access);
 		return regMrCall;
 	}
 
-	public SVCRegMr regMr(IbvPd pd, long address, int length, int access) throws IOException {
-		NatRegMrCall regMrCall = regList.poll();
-		if (regMrCall == null){
-			regMrCall = new NatRegMrCall(this, nativeDispatcher, memAlloc);
-		}
+	public SVCRegMr regMr(IbvPd pd, long address, int length, int access) {
+		NatRegMrCall regMrCall = new NatRegMrCall(this, nativeDispatcher, memAlloc);
 		regMrCall.set(pd, address, length, access);
 		return regMrCall;
 
@@ -172,30 +152,20 @@ public class RdmaVerbsNat extends RdmaVerbs {
 
 	public SVCDeregMr deregMr(IbvMr mr)
 			throws IOException {
-		NatDeregMrCall deregMrCall = deregList.poll();
-		if (deregMrCall == null){
-			deregMrCall = new NatDeregMrCall(this, nativeDispatcher);
-		}
+		NatDeregMrCall deregMrCall = new NatDeregMrCall(this, nativeDispatcher);
 		deregMrCall.set(mr);
 		return deregMrCall;
 	}
 
-	public SVCPostSend postSend(IbvQP qp,
-			List<IbvSendWR> wrList, List<IbvSendWR> badwrList) throws IOException {
-		NatPostSendCall postSendCall = postSendList.poll();
-		if (postSendCall == null) {
-			postSendCall = new NatPostSendCall(this, nativeDispatcher,
-					memAlloc);
-		}
+	public SVCPostSend postSend(IbvQP qp, List<IbvSendWR> wrList, List<IbvSendWR> badwrList) {
+		NatPostSendCall postSendCall = new NatPostSendCall(this, nativeDispatcher,
+			    memAlloc);
 		postSendCall.set(qp, wrList);
 		return postSendCall;
 	}
 
-	public SVCPostRecv postRecv(IbvQP qp, List<IbvRecvWR> wrList, List<IbvRecvWR> badwrList) throws IOException {
-		NatPostRecvCall postRecvCall = postRecvList.poll();
-		if (postRecvCall == null){
-			postRecvCall = new NatPostRecvCall(this, nativeDispatcher, memAlloc);
-		}
+	public SVCPostRecv postRecv(IbvQP qp, List<IbvRecvWR> wrList, List<IbvRecvWR> badwrList) {
+		NatPostRecvCall postRecvCall = new NatPostRecvCall(this, nativeDispatcher, memAlloc);
 		postRecvCall.set(qp, wrList);
 		return postRecvCall;
 	}
@@ -209,21 +179,14 @@ public class RdmaVerbsNat extends RdmaVerbs {
 		return ret >= 0 ? true : false;
 	}
 
-	public SVCPollCq pollCQ(IbvCQ cq, IbvWC[] wcList, int ne) throws IOException {
-		NatPollCqCall pollCqCall = pollCqList.poll();
-		if (pollCqCall == null){
-			pollCqCall = new NatPollCqCall(this, nativeDispatcher, memAlloc);
-		}
+	public SVCPollCq pollCQ(IbvCQ cq, IbvWC[] wcList, int ne) {
+		NatPollCqCall pollCqCall = new NatPollCqCall(this, nativeDispatcher, memAlloc);
 		pollCqCall.set(cq, wcList, ne);
 		return pollCqCall;
 	}
 
-	public SVCReqNotify reqNotifyCQ(IbvCQ cq,
-			boolean solicited_only) throws IOException {
-		NatReqNotifyCall reqNotifyCall = reqNotifyList.poll();
-		if (reqNotifyCall == null){
-			reqNotifyCall = new NatReqNotifyCall(this, nativeDispatcher);
-		}
+	public SVCReqNotify reqNotifyCQ(IbvCQ cq, boolean solicited_only) {
+		NatReqNotifyCall reqNotifyCall = new NatReqNotifyCall(this, nativeDispatcher);
 		reqNotifyCall.set(cq, solicited_only);
 		return reqNotifyCall;
 	}
@@ -275,26 +238,25 @@ public class RdmaVerbsNat extends RdmaVerbs {
 	//--------------------------------------
 
 	void free(NatRegMrCall natRegMrCall) {
-		this.regList.add(natRegMrCall);
 	}
 
 	public void free(NatDeregMrCall natDeregMrCall) {
-		this.deregList.add(natDeregMrCall);
+
 	}
 
 	public void free(NatPostSendCall natPostSendCall) {
-		this.postSendList.add(natPostSendCall);
+
 	}
 
 	public void free(NatPostRecvCall natPostRecvCall) {
-		this.postRecvList.add(natPostRecvCall);
+
 	}
 
 	public void free(NatPollCqCall natPollCqCall) {
-		this.pollCqList.add(natPollCqCall);
+
 	}
 
 	public void free(NatReqNotifyCall natReqNotifyCall) {
-		this.reqNotifyList.add(natReqNotifyCall);
+
 	}
 }

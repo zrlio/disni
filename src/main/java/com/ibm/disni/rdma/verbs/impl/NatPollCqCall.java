@@ -75,6 +75,7 @@ public class NatPollCqCall extends SVCPollCq {
 		
 		this.csize = wcList.length*IbvWC.CSIZE;
 		if (cmd != null){
+			assert cmd.size() >= csize;
 			cmd.getBuffer().clear();
 		} else {
 			this.cmd = memAlloc.allocate(csize);

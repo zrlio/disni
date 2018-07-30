@@ -79,6 +79,7 @@ public class NatPostRecvCall extends SVCPostRecv {
 			}
 		}
 		if (cmd != null){
+			assert cmd.size() >= size;
 			cmd.getBuffer().clear();
 		} else {
 			this.cmd = memAlloc.allocate(size);
