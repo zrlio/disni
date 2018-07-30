@@ -86,6 +86,7 @@ public class NatPostSendCall extends SVCPostSend {
 		}
 
 		if (cmd != null){
+			assert cmd.size() >= size;
 			cmd.getBuffer().clear();
 		} else {
 			this.cmd = memAlloc.allocate(size);
