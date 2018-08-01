@@ -29,6 +29,7 @@ import com.ibm.disni.rdma.verbs.IbvPd;
 import com.ibm.disni.rdma.verbs.SVCRegMr;
 import com.ibm.disni.util.MemBuf;
 import com.ibm.disni.util.MemoryAllocation;
+import com.ibm.disni.util.MemoryUtils;
 
 public class NatRegMrCall extends SVCRegMr {
 	private NativeDispatcher nativeDispatcher;
@@ -44,30 +45,28 @@ public class NatRegMrCall extends SVCRegMr {
 	private IbvMr mr;
 	private boolean valid;
 	
-	public NatRegMrCall(RdmaVerbsNat verbs, NativeDispatcher nativeDispatcher, MemoryAllocation memAlloc) {
+	public NatRegMrCall(RdmaVerbsNat verbs, NativeDispatcher nativeDispatcher, MemoryAllocation memAlloc,
+						IbvPd pd, ByteBuffer buffer, int access) {
+		set(verbs, nativeDispatcher, memAlloc, pd, MemoryUtils.getAddress(buffer),
+			buffer.capacity(), access);
+	}
+
+	public NatRegMrCall(RdmaVerbsNat verbs, NativeDispatcher nativeDispatcher, MemoryAllocation memAlloc,
+						IbvPd pd, long address, int length, int access) {
+		set(verbs, nativeDispatcher, memAlloc, pd, address, length, access);
+	}
+
+	private void set(RdmaVerbsNat verbs, NativeDispatcher nativeDispatcher, MemoryAllocation memAlloc,
+					 IbvPd pd, long address, int length, int access) {
 		this.verbs = verbs;
 		this.nativeDispatcher = nativeDispatcher;
 		this.memAlloc = memAlloc;
-		this.cmd = null;
-		this.valid = false;
-	}
-
-	public void set(IbvPd pd, ByteBuffer buffer, int access) {
-		set(pd, ((sun.nio.ch.DirectBuffer) buffer).address(), buffer.capacity(), access);
-	}
-
-	public void set(IbvPd pd, long address, int length, int access) {
+		this.cmd = memAlloc.allocate(3*4);
+		this.valid = true;
 		this.pd = (NatIbvPd) pd;
 		this.userAddress = address;
 		this.bufferCapacity = length;
 		this.access = access;
-		
-		if (cmd != null){
-			cmd.getBuffer().clear();
-		} else {
-			this.cmd = memAlloc.allocate(3*4);
-		}
-		this.valid = true;
 	}
 
 	public SVCRegMr execute() throws IOException {
@@ -97,14 +96,10 @@ public class NatRegMrCall extends SVCRegMr {
 	}
 
 	public SVCRegMr free() {
-		if (cmd != null){
-			cmd.free();
-			cmd = null;
-		}		
+		cmd.free();
 		this.valid = false;
-		verbs.free(this);
 		return this;
 	}
 
-	
+
 }

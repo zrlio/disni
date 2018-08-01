@@ -45,22 +45,33 @@ public class NatPostRecvCall extends SVCPostRecv {
 	private MemBuf cmd;
 	private boolean valid;
 	
-	public NatPostRecvCall(RdmaVerbsNat verbs, NativeDispatcher nativeDispatcher, MemoryAllocation memAlloc) {
+	public NatPostRecvCall(RdmaVerbsNat verbs, NativeDispatcher nativeDispatcher,
+	                       MemoryAllocation memAlloc, IbvQP qp, List<IbvRecvWR> wrList) {
 		this.verbs = verbs;
 		this.nativeDispatcher = nativeDispatcher;
 		this.memAlloc = memAlloc;
+		this.qp = (NatIbvQP) qp;
 		
-		this.wrNatList = new ArrayList<NatIbvRecvWR>();
+		this.wrNatList = new ArrayList<NatIbvRecvWR>(wrList.size());
 		this.sgeNatList = new ArrayList<IbvSge>();
 		this.valid = false;
+
+		int size = 0;
+		for (IbvRecvWR recvWR : wrList) {
+			size += NatIbvRecvWR.CSIZE;
+			if (recvWR.getNum_sge() > 0) {
+				size += recvWR.getSg_list().size()*NatIbvSge.CSIZE;
+			}
+		}
+		this.cmd = memAlloc.allocate(size);
+		setWrList(wrList);
 	}
 	
-	public void set(IbvQP qp, List<IbvRecvWR> wrList) {
-		this.qp = (NatIbvQP) qp;
+	private void setWrList(List<IbvRecvWR> wrList) {
 		wrNatList.clear();
 		sgeNatList.clear();
-		int size = 0;
-		
+		cmd.getBuffer().clear();
+
 		long sgeOffset = wrList.size()*NatIbvRecvWR.CSIZE;
 		long wrOffset = NatIbvRecvWR.CSIZE;
 		for (IbvRecvWR recvWR : wrList){
@@ -68,21 +79,13 @@ public class NatPostRecvCall extends SVCPostRecv {
 			natRecvWR.setNext(wrOffset);
 			wrNatList.add(natRecvWR);
 
-			size += NatIbvRecvWR.CSIZE;
 			wrOffset += NatIbvRecvWR.CSIZE;
 
 			if (recvWR.getNum_sge() > 0) {
 				natRecvWR.setPtr_sge_list(sgeOffset);
 				sgeNatList.addAll(recvWR.getSg_list());
-				size += recvWR.getSg_list().size()*NatIbvSge.CSIZE;
 				sgeOffset += recvWR.getSg_list().size()*NatIbvSge.CSIZE;
 			}
-		}
-		if (cmd != null){
-			assert cmd.size() >= size;
-			cmd.getBuffer().clear();
-		} else {
-			this.cmd = memAlloc.allocate(size);
 		}
 		
 		for (NatIbvRecvWR natWR : wrNatList){
@@ -126,7 +129,6 @@ public class NatPostRecvCall extends SVCPostRecv {
 			cmd = null;
 		}		
 		this.valid = false;
-		verbs.free(this);
 		return this;
 	}
 

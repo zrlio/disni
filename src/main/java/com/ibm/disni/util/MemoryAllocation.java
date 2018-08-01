@@ -38,7 +38,7 @@ public class MemoryAllocation {
 	}
 	
 	private MemoryAllocation() {
-		table = new ConcurrentSkipListMap<>();
+		table = new ConcurrentSkipListMap<Integer, MemBuf>();
 	}
 
 	private int roundUpSize(int size){

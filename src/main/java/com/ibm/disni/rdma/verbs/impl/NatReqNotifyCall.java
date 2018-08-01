@@ -36,13 +36,10 @@ public class NatReqNotifyCall extends SVCReqNotify {
 	private boolean valid;
 	
 	
-	public NatReqNotifyCall(RdmaVerbsNat verbs, NativeDispatcher nativeDispatcher) {
+	public NatReqNotifyCall(RdmaVerbsNat verbs, NativeDispatcher nativeDispatcher,
+							IbvCQ cq, boolean solicited_only) {
 		this.verbs = verbs;
 		this.nativeDispatcher = nativeDispatcher;
-		this.valid = false;
-	}
-
-	public void set(IbvCQ cq, boolean solicited_only) {
 		this.cq = (NatIbvCQ) cq;
 		this.solicited = solicited_only ? 1 : 0;
 		this.valid = true;
@@ -65,7 +62,6 @@ public class NatReqNotifyCall extends SVCReqNotify {
 
 	public SVCReqNotify free() {
 		this.valid = false;
-		verbs.free(this);
 		return this;
 	}
 

@@ -61,26 +61,18 @@ public class NatPollCqCall extends SVCPollCq {
 	private int result;
 	private boolean valid;
 	
-	public NatPollCqCall(RdmaVerbsNat verbs, NativeDispatcher nativeDispatcher, MemoryAllocation memAlloc) {
+	public NatPollCqCall(RdmaVerbsNat verbs, NativeDispatcher nativeDispatcher,
+	                     MemoryAllocation memAlloc, IbvCQ cq, IbvWC[] wcList, int ne) {
 		this.verbs = verbs;
 		this.nativeDispatcher = nativeDispatcher;
 		this.memAlloc = memAlloc;
 		this.valid = false;
-	}
-
-	public void set(IbvCQ cq, IbvWC[] wcList, int ne) {
 		this.cq = (NatIbvCQ) cq;
 		this.wcList = wcList;
 		this.ne = ne;
-		
-		this.csize = wcList.length*IbvWC.CSIZE;
-		if (cmd != null){
-			assert cmd.size() >= csize;
-			cmd.getBuffer().clear();
-		} else {
-			this.cmd = memAlloc.allocate(csize);
-		}
 
+		this.csize = wcList.length*IbvWC.CSIZE;
+		this.cmd = memAlloc.allocate(csize);
 		this.valid = true;
 	}
 	
@@ -141,7 +133,6 @@ public class NatPollCqCall extends SVCPollCq {
 			cmd = null;
 		}		
 		this.valid = false;
-		verbs.free(this);
 		return this;
 	}
 }
