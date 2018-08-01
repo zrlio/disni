@@ -129,15 +129,11 @@ public class RdmaVerbsNat extends RdmaVerbs {
 	}
 
 	public SVCRegMr regMr(IbvPd pd, ByteBuffer buffer, int access) {
-		NatRegMrCall regMrCall =  new NatRegMrCall(this, nativeDispatcher, memAlloc);
-		regMrCall.set(pd, buffer, access);
-		return regMrCall;
+		return new NatRegMrCall(this, nativeDispatcher, memAlloc, pd, buffer, access);
 	}
 
 	public SVCRegMr regMr(IbvPd pd, long address, int length, int access) {
-		NatRegMrCall regMrCall = new NatRegMrCall(this, nativeDispatcher, memAlloc);
-		regMrCall.set(pd, address, length, access);
-		return regMrCall;
+		return new NatRegMrCall(this, nativeDispatcher, memAlloc, pd, address, length, access);
 
 	}
 
@@ -152,22 +148,15 @@ public class RdmaVerbsNat extends RdmaVerbs {
 
 	public SVCDeregMr deregMr(IbvMr mr)
 			throws IOException {
-		NatDeregMrCall deregMrCall = new NatDeregMrCall(this, nativeDispatcher);
-		deregMrCall.set(mr);
-		return deregMrCall;
+		return new NatDeregMrCall(this, nativeDispatcher, mr);
 	}
 
 	public SVCPostSend postSend(IbvQP qp, List<IbvSendWR> wrList, List<IbvSendWR> badwrList) {
-		NatPostSendCall postSendCall = new NatPostSendCall(this, nativeDispatcher,
-			    memAlloc);
-		postSendCall.set(qp, wrList);
-		return postSendCall;
+		return new NatPostSendCall(this, nativeDispatcher, memAlloc, qp, wrList);
 	}
 
 	public SVCPostRecv postRecv(IbvQP qp, List<IbvRecvWR> wrList, List<IbvRecvWR> badwrList) {
-		NatPostRecvCall postRecvCall = new NatPostRecvCall(this, nativeDispatcher, memAlloc);
-		postRecvCall.set(qp, wrList);
-		return postRecvCall;
+		return new NatPostRecvCall(this, nativeDispatcher, memAlloc, qp, wrList);
 	}
 
 	public boolean getCqEvent(IbvCompChannel compChannel, IbvCQ cq, int timeout) throws IOException {
@@ -180,15 +169,11 @@ public class RdmaVerbsNat extends RdmaVerbs {
 	}
 
 	public SVCPollCq pollCQ(IbvCQ cq, IbvWC[] wcList, int ne) {
-		NatPollCqCall pollCqCall = new NatPollCqCall(this, nativeDispatcher, memAlloc);
-		pollCqCall.set(cq, wcList, ne);
-		return pollCqCall;
+		return new NatPollCqCall(this, nativeDispatcher, memAlloc, cq, wcList, ne);
 	}
 
 	public SVCReqNotify reqNotifyCQ(IbvCQ cq, boolean solicited_only) {
-		NatReqNotifyCall reqNotifyCall = new NatReqNotifyCall(this, nativeDispatcher);
-		reqNotifyCall.set(cq, solicited_only);
-		return reqNotifyCall;
+		return new NatReqNotifyCall(this, nativeDispatcher, cq, solicited_only);
 	}
 
 	public int ackCqEvents(IbvCQ cq, int nevents) throws IOException {
@@ -233,30 +218,5 @@ public class RdmaVerbsNat extends RdmaVerbs {
 		cqImpl.close();
 		int ret = nativeDispatcher._destroyCQ(cqImpl.getObjId());
 		return ret;
-	}
-	
-	//--------------------------------------
-
-	void free(NatRegMrCall natRegMrCall) {
-	}
-
-	public void free(NatDeregMrCall natDeregMrCall) {
-
-	}
-
-	public void free(NatPostSendCall natPostSendCall) {
-
-	}
-
-	public void free(NatPostRecvCall natPostRecvCall) {
-
-	}
-
-	public void free(NatPollCqCall natPollCqCall) {
-
-	}
-
-	public void free(NatReqNotifyCall natReqNotifyCall) {
-
 	}
 }

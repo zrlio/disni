@@ -34,13 +34,9 @@ public class NatDeregMrCall extends SVCDeregMr {
 	private NatIbvMr mr;
 	private boolean valid;
 
-	public NatDeregMrCall(RdmaVerbsNat verbs, NativeDispatcher nativeDispatcher) {
+	public NatDeregMrCall(RdmaVerbsNat verbs, NativeDispatcher nativeDispatcher, IbvMr mr) {
 		this.verbs = verbs;
 		this.nativeDispatcher = nativeDispatcher;
-		this.valid = false;
-	}
-
-	public void set(IbvMr mr) {
 		this.mr = (NatIbvMr) mr;
 		this.valid = true;
 	}
@@ -62,7 +58,6 @@ public class NatDeregMrCall extends SVCDeregMr {
 	}
 
 	public SVCDeregMr free() {
-		verbs.free(this);
 		this.valid = false;
 		return this;
 	}

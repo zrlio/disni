@@ -47,21 +47,29 @@ public class NatPostSendCall extends SVCPostSend {
 	private MemBuf cmd;
 	private boolean valid;
 	
-	public NatPostSendCall(RdmaVerbsNat verbs, NativeDispatcher nativeDispatcher, MemoryAllocation memAlloc) {
+	public NatPostSendCall(RdmaVerbsNat verbs, NativeDispatcher nativeDispatcher,
+	                       MemoryAllocation memAlloc, IbvQP qp, List<IbvSendWR> wrList) {
 		this.verbs = verbs;
 		this.nativeDispatcher = nativeDispatcher;
 		this.memAlloc = memAlloc;
 		
-		this.wrNatList = new ArrayList<NatIbvSendWR>();
+		this.wrNatList = new ArrayList<NatIbvSendWR>(wrList.size());
 		this.sgeNatList = new ArrayList<NatIbvSge>();
 		this.valid = false;
+		this.qp = (NatIbvQP) qp;
+		int size = 0;
+		for (IbvSendWR sendWR : wrList){
+			size += NatIbvSendWR.CSIZE;
+			size += sendWR.getSg_list().size()*NatIbvSge.CSIZE;
+		}
+		this.cmd = memAlloc.allocate(size);
+		setWrList(wrList);
 	}
 
-	public void set(IbvQP qp, List<IbvSendWR> wrList) {
-		this.qp = (NatIbvQP) qp;
+	private void setWrList(List<IbvSendWR> wrList) {
 		wrNatList.clear();
 		sgeNatList.clear();
-		int size = 0;
+		cmd.getBuffer().clear();
 		
 		long sgeOffset = wrList.size()*NatIbvSendWR.CSIZE;
 		long wrOffset = NatIbvSendWR.CSIZE;
@@ -78,18 +86,9 @@ public class NatPostSendCall extends SVCPostSend {
 			natSendWR.setPtr_sge_list(sgeOffset);
 			natSendWR.setNext(wrOffset);
 			wrNatList.add(natSendWR);
-			
-			size += NatIbvSendWR.CSIZE;
-			size += sendWR.getSg_list().size()*NatIbvSge.CSIZE;
+
 			wrOffset += NatIbvSendWR.CSIZE;
 			sgeOffset += sendWR.getSg_list().size()*NatIbvSge.CSIZE;
-		}
-
-		if (cmd != null){
-			assert cmd.size() >= size;
-			cmd.getBuffer().clear();
-		} else {
-			this.cmd = memAlloc.allocate(size);
 		}
 		
 		for (NatIbvSendWR natWR : wrNatList){
@@ -131,7 +130,6 @@ public class NatPostSendCall extends SVCPostSend {
 			cmd = null;
 		}		
 		this.valid = false;
-		verbs.free(this);
 		return this;
 	}
 	
