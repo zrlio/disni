@@ -42,7 +42,7 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.Custom
 	private int port;
 
 	public SendRecvClient.CustomClientEndpoint createEndpoint(RdmaCmId idPriv, boolean serverSide) throws IOException {
-		return new CustomClientEndpoint(endpointGroup, idPriv, serverSide);
+		return new CustomClientEndpoint(endpointGroup, idPriv, serverSide, 100);
 	}
 
 	public void run() throws Exception {
@@ -113,7 +113,6 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.Custom
 		private ByteBuffer buffers[];
 		private IbvMr mrlist[];
 		private int buffercount = 3;
-		private int buffersize = 100;
 
 		private ByteBuffer dataBuf;
 		private IbvMr dataMr;
@@ -134,10 +133,10 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.Custom
 
 		private ArrayBlockingQueue<IbvWC> wcEvents;
 
-		public CustomClientEndpoint(RdmaActiveEndpointGroup<CustomClientEndpoint> endpointGroup, RdmaCmId idPriv, boolean serverSide) throws IOException {
+		public CustomClientEndpoint(RdmaActiveEndpointGroup<CustomClientEndpoint> endpointGroup,
+	                                    RdmaCmId idPriv, boolean serverSide, int buffersize) throws IOException {
 			super(endpointGroup, idPriv, serverSide);
 			this.buffercount = 3;
-			this.buffersize = 100;
 			buffers = new ByteBuffer[buffercount];
 			this.mrlist = new IbvMr[buffercount];
 

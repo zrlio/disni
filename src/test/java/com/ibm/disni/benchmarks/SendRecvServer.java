@@ -64,7 +64,7 @@ public class SendRecvServer implements RdmaEndpointFactory<SendRecvServer.SendRe
 
 		RdmaServerEndpoint<SendRecvServer.SendRecvEndpoint> serverEndpoint = group.createServerEndpoint();
 		InetAddress ipAddress = InetAddress.getByName(host);
-		InetSocketAddress address = new InetSocketAddress(ipAddress, 1919);				
+		InetSocketAddress address = new InetSocketAddress(ipAddress, port);
 		serverEndpoint.bind(address, 10);
 		SendRecvServer.SendRecvEndpoint endpoint = serverEndpoint.accept();
 		System.out.println("SendRecvServer, client connected, address " + address.toString());

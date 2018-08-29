@@ -88,7 +88,7 @@ public class SendRecvClient implements RdmaEndpointFactory<SendRecvClient.SendRe
 		double _seconds = _duration / 1000 / 1000 / 1000;
 		double iops = _ops / _seconds;
 		System.out.println("iops " + iops);
-
+		System.out.println("Bidirectional average latency: " + duration  / (1e6 * loop) + " ms");
 
 		//close everything
 		endpoint.close();
