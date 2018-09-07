@@ -22,6 +22,6 @@
 package com.ibm.disni;
 
 public interface DiSNIGroup<T extends DiSNIEndpoint> {
-	public DiSNIServerEndpoint<T> createServerEndpoint() throws Exception;
-	public T createEndpoint() throws Exception;
+	DiSNIServerEndpoint<T> createServerEndpoint() throws Exception;
+	T createEndpoint() throws Exception;
 }

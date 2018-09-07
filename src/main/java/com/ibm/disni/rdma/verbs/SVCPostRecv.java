@@ -42,14 +42,14 @@ public abstract class SVCPostRecv implements StatefulVerbCall<SVCPostRecv> {
 	/**
 	 * Provides access methods to modify a given work-request belonging to this SVC object.
 	 */
-	public static interface RecvWRMod {
+	public interface RecvWRMod {
 		
 		/**
 		 * Retrieve the current work-request id 
 		 *
 		 * @return the wr_id
 		 */
-		public long getWr_id();
+		long getWr_id();
 	}	
 	
 }

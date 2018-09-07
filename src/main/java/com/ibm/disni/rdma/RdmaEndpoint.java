@@ -87,10 +87,13 @@ public class RdmaEndpoint implements DiSNIEndpoint {
 	}
 	
 	/**
+	/**
+	/**
 	 * Connect this endpoint to a remote server endpoint.
 	 *
-	 * @param uri (rdma://host:port)
-	 */	
+	 * @param dst address of remote server
+	 * @param timeout connection timeout
+	 */
 	@Override
 	public synchronized void connect(SocketAddress dst, int timeout) throws Exception {
 		if (connState != CONN_STATE_INITIALIZED) {
