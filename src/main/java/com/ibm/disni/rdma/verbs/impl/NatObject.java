@@ -23,5 +23,5 @@ package com.ibm.disni.rdma.verbs.impl;
 
 public interface NatObject {
 
-	public long getObjId();
+	long getObjId();
 }

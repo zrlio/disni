@@ -123,7 +123,6 @@ public class RdmaServerEndpoint<C extends RdmaEndpoint> implements DiSNIServerEn
 	/**
 	 * Extract the first connection request on the queue of pending connections. 
 	 *
-	 * @param dispatcher used to signal the completion of the accept call.
 	 * @throws Exception on failure.
 	 */
 	public C accept() throws IOException {

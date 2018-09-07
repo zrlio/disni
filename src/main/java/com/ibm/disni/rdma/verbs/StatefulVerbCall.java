@@ -45,21 +45,21 @@ public interface StatefulVerbCall<T extends StatefulVerbCall<?>> {
 	 * @return the call-specific SVC object which can be used to query the result.
 	 * @throws Exception on failure.
 	 */
-	public T execute() throws IOException;
+	T execute() throws IOException;
 
 	/**
 	 * Checks if this SVC object is still valid and can be executed.
 	 *
 	 * @return true, if is valid
 	 */
-	public boolean isValid();
+	boolean isValid();
 	
 	/**
 	 * Free any resources associated with this SVC.
 	 *
 	 * @return the SVC object itself.
 	 */
-	public T free();
+	T free();
 	
 	
 }

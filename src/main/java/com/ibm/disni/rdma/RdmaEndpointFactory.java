@@ -30,11 +30,11 @@ public interface RdmaEndpointFactory <C extends RdmaEndpoint> {
 	/**
 	 * Creates a new client endpoint.
 	 *
-	 * @param group the RdmaEndpoint group the newly created endpoint is going to be part of.
 	 * @param id the RDMA identifier.
+	 * @param serverSide whether this endpoint is on the server (accepting) side or not
 	 * @return the newly created endpoint.
 	 * @throws Exception on failure.
 	 */
-	public C createEndpoint(RdmaCmId id, boolean serverSide) throws IOException;
+	C createEndpoint(RdmaCmId id, boolean serverSide) throws IOException;
 	
 }
