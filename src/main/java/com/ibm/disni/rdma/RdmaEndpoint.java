@@ -28,7 +28,6 @@ import java.util.List;
 
 import org.slf4j.Logger;
 
-import com.ibm.disni.DiSNIEndpoint;
 import com.ibm.disni.rdma.verbs.IbvMr;
 import com.ibm.disni.rdma.verbs.IbvPd;
 import com.ibm.disni.rdma.verbs.IbvQP;
@@ -48,7 +47,7 @@ import com.ibm.disni.util.DiSNILogger;
  * 
  * Conceptually, endpoints behave like sockets for control operations (e.g., connect(), disconnect()), but behave like RdmaCmId's once connected (offering postSend((), postRecv(), registerMemory()). 
  */
-public class RdmaEndpoint implements DiSNIEndpoint {
+public class RdmaEndpoint {
 	private static final Logger logger = DiSNILogger.getLogger();
 	
 	private static int CONN_STATE_INITIALIZED = 0;
@@ -94,7 +93,6 @@ public class RdmaEndpoint implements DiSNIEndpoint {
 	 * @param dst address of remote server
 	 * @param timeout connection timeout
 	 */
-	@Override
 	public synchronized void connect(SocketAddress dst, int timeout) throws Exception {
 		if (connState != CONN_STATE_INITIALIZED) {
 			throw new IOException("endpoint already connected");
