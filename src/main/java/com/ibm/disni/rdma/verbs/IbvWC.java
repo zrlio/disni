@@ -56,7 +56,7 @@ public class IbvWC {
 			}
 			throw new IllegalArgumentException();
 		}
-	};
+	}
 
 	public enum IbvWcOpcode {
 		IBV_WC_SEND(0),

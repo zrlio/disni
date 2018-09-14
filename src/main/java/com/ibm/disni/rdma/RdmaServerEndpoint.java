@@ -28,7 +28,6 @@ import java.util.concurrent.LinkedBlockingDeque;
 
 import org.slf4j.Logger;
 
-import com.ibm.disni.DiSNIServerEndpoint;
 import com.ibm.disni.rdma.verbs.IbvMr;
 import com.ibm.disni.rdma.verbs.IbvPd;
 import com.ibm.disni.rdma.verbs.RdmaCmEvent;
@@ -39,7 +38,7 @@ import com.ibm.disni.util.DiSNILogger;
 /**
  * This class represent a server endpoint. Conceptually it is similar to a server socket providing operations like bind() and accept().  
  */
-public class RdmaServerEndpoint<C extends RdmaEndpoint> implements DiSNIServerEndpoint<C>{
+public class RdmaServerEndpoint<C extends RdmaEndpoint> {
 	private static final Logger logger = DiSNILogger.getLogger();
 	
 	private static int CONN_STATE_INITIALIZED = 0;
@@ -73,8 +72,7 @@ public class RdmaServerEndpoint<C extends RdmaEndpoint> implements DiSNIServerEn
 	 * @param src (rdma://host:port)
 	 * @return the rdma server endpoint
 	 * @throws Exception the exception
-	 */	
-	@Override
+	 */
 	public synchronized RdmaServerEndpoint<C> bind(SocketAddress src, int backlog) throws Exception {
 		if (connState != CONN_STATE_INITIALIZED) {
 			throw new IOException("endpoint has to be disconnected for bind");

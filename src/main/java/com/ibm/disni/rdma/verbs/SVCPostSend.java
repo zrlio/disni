@@ -105,7 +105,7 @@ public abstract class SVCPostSend implements StatefulVerbCall<SVCPostSend> {
 	/**
 	 * Provides access methods to modify the RDMA information of a work request.
 	 */
-	public static interface RdmaMod {
+	public interface RdmaMod {
 		
 		/**
 		 * Sets the remote_addr.
@@ -153,7 +153,7 @@ public abstract class SVCPostSend implements StatefulVerbCall<SVCPostSend> {
 	/**
 	 * Provides access methods to modify a given scatter/gather element.
 	 */
-	public static interface SgeMod {
+	public interface SgeMod {
 		
 		/**
 		 * Sets the addr.

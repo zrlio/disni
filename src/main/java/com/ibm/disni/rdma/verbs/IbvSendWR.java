@@ -59,7 +59,7 @@ import java.util.LinkedList;
 public class IbvSendWR {
 	public enum IbvWrOcode {
 		IBV_WR_RDMA_WRITE, IBV_WR_RDMA_WRITE_WITH_IMM, IBV_WR_SEND, IBV_WR_SEND_WITH_IMM, IBV_WR_RDMA_READ, IBV_WR_ATOMIC_CMP_AND_SWP, IBV_WR_ATOMIC_FETCH_AND_ADD
-	};
+	}
 	
 	public static final int IBV_WR_RDMA_WRITE = 0;
 	public static final int IBV_WR_RDMA_WRITE_WITH_IMM = 1;
@@ -69,7 +69,7 @@ public class IbvSendWR {
 	public static final int IBV_WR_ATOMIC_CMP_AND_SWP = 5;
 	public static final int IBV_WR_ATOMIC_FETCH_AND_ADD = 6;
 
-	public static int IBV_SEND_FENCE = 1 << 0;
+	public static int IBV_SEND_FENCE = 1;
 	public static int IBV_SEND_SIGNALED = 1 << 1;
 	public static int IBV_SEND_SOLICITED = 1 << 2;
 	public static int IBV_SEND_INLINE = 1 << 3;

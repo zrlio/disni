@@ -121,28 +121,28 @@ public class VerbsTools {
 	}
 
 	private SVCPostSend getPostSendCall(LinkedList<IbvSendWR> wrList) throws Exception{
-		if (CachingON == false || this.postSendCall == null || !postSendCall.isValid()) {
+		if (!CachingON || this.postSendCall == null || !postSendCall.isValid()) {
 			this.postSendCall = qp.postSend(wrList, null);
 		}
 		return postSendCall;
 	}
 
 	private SVCPostRecv getPostRecvCall(LinkedList<IbvRecvWR> wrList) throws Exception{
-		if (CachingON == false || postRecvCall == null || !postRecvCall.isValid()) {
+		if (!CachingON || postRecvCall == null || !postRecvCall.isValid()) {
 			postRecvCall = qp.postRecv(wrList, null);
 		}
 		return postRecvCall;
 	}
 
 	private SVCReqNotify getReqNotifyCall() throws Exception{
-		if (CachingON == false || reqNotifyCall == null || !reqNotifyCall.isValid()) {
+		if (!CachingON || reqNotifyCall == null || !reqNotifyCall.isValid()) {
 			reqNotifyCall = cq.reqNotification(false);
 		}
 		return reqNotifyCall;
 	}
 
 	private SVCPollCq getPollCqCall(int size) throws Exception{
-		if (CachingON == false || pollCqCall == null || !pollCqCall.isValid()) {
+		if (!CachingON || pollCqCall == null || !pollCqCall.isValid()) {
 			wcList = new IbvWC[size];
 			for (int i = 0; i < size; i++){
 				wcList[i] = new IbvWC();

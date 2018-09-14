@@ -52,7 +52,7 @@ public class IbvContext  {
 	protected int numCompVectors;
 
 	//ODP capabilities
-	public static int IBV_ODP_SUPPORT_SEND     = 1 << 0;
+	public static int IBV_ODP_SUPPORT_SEND     = 1;
 	public static int IBV_ODP_SUPPORT_RECV     = 1 << 1;
 	public static int IBV_ODP_SUPPORT_WRITE    = 1 << 2;
 	public static int IBV_ODP_SUPPORT_READ     = 1 << 3;

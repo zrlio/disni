@@ -24,7 +24,6 @@ package com.ibm.disni.rdma.verbs.impl;
 import java.io.IOException;
 import java.nio.ByteBuffer;
 import java.util.List;
-import java.util.concurrent.LinkedBlockingQueue;
 
 import org.slf4j.Logger;
 
@@ -165,7 +164,7 @@ public class RdmaVerbsNat extends RdmaVerbs {
 			throw new IOException("Trying to get CQ event on closed completion channel.");
 		}
 		int ret = nativeDispatcher._getCqEvent(natChannel.getObjId(), timeout);
-		return ret >= 0 ? true : false;
+		return ret >= 0;
 	}
 
 	public SVCPollCq pollCQ(IbvCQ cq, IbvWC[] wcList, int ne) {
