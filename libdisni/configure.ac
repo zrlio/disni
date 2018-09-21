@@ -3,7 +3,7 @@
 
 #AC_PREREQ([2.67])
 AC_INIT([libdisni], [1.5], [https://github.com/zrlio/disni/issues])
-AC_CONFIG_SRCDIR([src/verbs/com_ibm_disni_rdma_verbs_impl_NativeDispatcher.cpp])
+AC_CONFIG_SRCDIR([src/verbs/com_ibm_disni_verbs_impl_NativeDispatcher.cpp])
 AC_CONFIG_HEADERS([config.h])
 AC_CONFIG_MACRO_DIRS([m4])
 
