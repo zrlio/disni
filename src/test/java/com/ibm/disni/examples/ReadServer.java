@@ -22,11 +22,11 @@
 package com.ibm.disni.examples;
 
 import com.ibm.disni.CmdLineCommon;
-import com.ibm.disni.rdma.RdmaActiveEndpoint;
-import com.ibm.disni.rdma.RdmaActiveEndpointGroup;
-import com.ibm.disni.rdma.RdmaEndpointFactory;
-import com.ibm.disni.rdma.RdmaServerEndpoint;
-import com.ibm.disni.rdma.verbs.*;
+import com.ibm.disni.RdmaActiveEndpoint;
+import com.ibm.disni.RdmaActiveEndpointGroup;
+import com.ibm.disni.RdmaEndpointFactory;
+import com.ibm.disni.RdmaServerEndpoint;
+import com.ibm.disni.verbs.*;
 import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;

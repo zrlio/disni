@@ -21,7 +21,7 @@
 
 package com.ibm.disni.examples;
 
-import com.ibm.disni.rdma.verbs.*;
+import com.ibm.disni.verbs.*;
 
 import java.nio.ByteBuffer;
 import java.util.LinkedList;

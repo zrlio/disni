@@ -19,12 +19,12 @@
 package com.ibm.disni.benchmarks;
 
 import com.ibm.disni.examples.SendRecvServer;
-import com.ibm.disni.rdma.RdmaActiveEndpointGroup;
-import com.ibm.disni.rdma.RdmaEndpointFactory;
-import com.ibm.disni.rdma.RdmaServerEndpoint;
-import com.ibm.disni.rdma.verbs.RdmaCmId;
-import com.ibm.disni.rdma.verbs.SVCPostRecv;
-import com.ibm.disni.rdma.verbs.SVCPostSend;
+import com.ibm.disni.RdmaActiveEndpointGroup;
+import com.ibm.disni.RdmaEndpointFactory;
+import com.ibm.disni.RdmaServerEndpoint;
+import com.ibm.disni.verbs.RdmaCmId;
+import com.ibm.disni.verbs.SVCPostRecv;
+import com.ibm.disni.verbs.SVCPostSend;
 import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
