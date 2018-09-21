@@ -19,9 +19,9 @@
 package com.ibm.disni.benchmarks;
 
 import com.ibm.disni.examples.SendRecvClient.CustomClientEndpoint;
-import com.ibm.disni.rdma.RdmaActiveEndpointGroup;
-import com.ibm.disni.rdma.RdmaEndpointFactory;
-import com.ibm.disni.rdma.verbs.*;
+import com.ibm.disni.RdmaActiveEndpointGroup;
+import com.ibm.disni.RdmaEndpointFactory;
+import com.ibm.disni.verbs.*;
 import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;

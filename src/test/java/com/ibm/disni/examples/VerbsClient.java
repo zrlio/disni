@@ -22,7 +22,7 @@
 package com.ibm.disni.examples;
 
 import com.ibm.disni.CmdLineCommon;
-import com.ibm.disni.rdma.verbs.*;
+import com.ibm.disni.verbs.*;
 import org.apache.commons.cli.ParseException;
 
 import java.net.InetAddress;

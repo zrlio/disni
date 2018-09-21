@@ -21,10 +21,10 @@
 
 package com.ibm.disni.benchmarks;
 
-import com.ibm.disni.rdma.RdmaEndpoint;
-import com.ibm.disni.rdma.RdmaEndpointFactory;
-import com.ibm.disni.rdma.RdmaPassiveEndpointGroup;
-import com.ibm.disni.rdma.verbs.*;
+import com.ibm.disni.RdmaEndpoint;
+import com.ibm.disni.RdmaEndpointFactory;
+import com.ibm.disni.RdmaPassiveEndpointGroup;
+import com.ibm.disni.verbs.*;
 import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;

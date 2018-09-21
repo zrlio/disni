@@ -21,8 +21,8 @@
 
 package com.ibm.disni.benchmarks;
 
-import com.ibm.disni.rdma.*;
-import com.ibm.disni.rdma.verbs.*;
+import com.ibm.disni.*;
+import com.ibm.disni.verbs.*;
 import org.apache.commons.cli.ParseException;
 
 import java.io.IOException;
@@ -57,7 +57,7 @@ public class ReadServer implements RdmaEndpointFactory<ReadServer.ReadServerEndp
 	private void run() throws Exception {
 		System.out.println("ReadServer, size " + size + ", loop " + loop);
 
-		RdmaServerEndpoint<ReadServer.ReadServerEndpoint> serverEndpoint = group.createServerEndpoint();
+		RdmaServerEndpoint<ReadServerEndpoint> serverEndpoint = group.createServerEndpoint();
 		InetAddress ipAddress = InetAddress.getByName(host);
 		InetSocketAddress address = new InetSocketAddress(ipAddress, port);				
 		serverEndpoint.bind(address, 10);
