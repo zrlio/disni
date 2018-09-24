@@ -119,7 +119,7 @@ public class RdmaCmNat extends RdmaCm {
 	}
 
 	@Override
-	public int bindAddr(RdmaCmId id, SocketAddress address)
+	public void bindAddr(RdmaCmId id, SocketAddress address)
 			throws IOException {
         InetSocketAddress _address = (InetSocketAddress) address;
         short _sin_family = SockAddrIn.AF_INET;
@@ -133,28 +133,26 @@ public class RdmaCmNat extends RdmaCm {
         if (!idPriv.isOpen()) {
             throw new IOException("Trying to bind() using a closed ID");
         }
-        int ret = nativeDispatcher._bindAddr(idPriv.getObjId(), sockBuf.address());
+        nativeDispatcher._bindAddr(idPriv.getObjId(), sockBuf.address());
         sockBuf.free();
         logger.info("bindAddr, address " + address.toString());
-
-        return ret;
 	}
 
 	@Override
-	public int listen(RdmaCmId id, int backlog) throws IOException {
+	public void listen(RdmaCmId id, int backlog) throws IOException {
 		NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
 		if (!idPriv.isOpen()) {
 		    throw new IOException("Trying to listen on closed ID");
 		}
-		int ret = nativeDispatcher._listen(idPriv.getObjId(), backlog);
+		nativeDispatcher._listen(idPriv.getObjId(), backlog);
 		logger.info("listen, id " + id.getPs());
 		
-		return  ret;
+		return;
 	}
 
 	@Override
-	public int resolveAddr(RdmaCmId id, SocketAddress source,
-			SocketAddress destination, int timeout) throws IOException {
+	public void resolveAddr(RdmaCmId id, SocketAddress source,
+            SocketAddress destination, int timeout) throws IOException {
         InetSocketAddress _dst = (InetSocketAddress) destination;
         SockAddrIn dst = new SockAddrIn(SockAddrIn.AF_INET, NetUtils.getIntIPFromInetAddress(_dst.getAddress()), NetUtils.hostToNetworkByteOrder((short) _dst.getPort()));
         MemBuf dstBuf = memAlloc.allocate(SockAddrIn.CSIZE);
@@ -163,23 +161,23 @@ public class RdmaCmNat extends RdmaCm {
         if (!idPriv.isOpen()) {
             throw new IOException("Trying to resolve address with closed ID");
         }
-        int ret = nativeDispatcher._resolveAddr(idPriv.getObjId(), 0, dstBuf.address(), timeout);
+        nativeDispatcher._resolveAddr(idPriv.getObjId(), 0, dstBuf.address(), timeout);
         logger.info("resolveAddr, addres " + destination.toString());
         dstBuf.free();
         
-        return ret;
+        return;
 	}
 
 	@Override
-	public int resolveRoute(RdmaCmId id, int timeout) throws IOException {
+	public void resolveRoute(RdmaCmId id, int timeout) throws IOException {
 		NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
         if (!idPriv.isOpen()) {
             throw new IOException("Trying to resolve route with closed ID");
         }
-		int ret = nativeDispatcher._resolveRoute(idPriv.getObjId(), timeout);
+		nativeDispatcher._resolveRoute(idPriv.getObjId(), timeout);
 		logger.info("resolveRoute, id " + id.getPs());
 		
-		return ret;
+		return;
 	}
 
 	@Override
@@ -213,32 +211,30 @@ public class RdmaCmNat extends RdmaCm {
 	}
 
 	@Override
-	public int connect(RdmaCmId id, RdmaConnParam connParam)
+	public void connect(RdmaCmId id, RdmaConnParam connParam)
 			throws IOException {
 		NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
 		if (!idPriv.isOpen()) {
 			throw new IOException("Trying to call connect() with closed ID");
 		}
-		int ret = nativeDispatcher._connect(idPriv.getObjId(), connParam.getRetry_count(),
+		nativeDispatcher._connect(idPriv.getObjId(), connParam.getRetry_count(),
 				connParam.getRnr_retry_count(), connParam.getPrivate_data(), connParam.getPrivate_data_len());
-//		int ret = nativeDispatcher._connect(idPriv.getObjId(), (long) 0);
 		logger.info("connect, id " + id.getPs());
 		
-		return ret;
+		return;
 	}
 
 	@Override
-	public int accept(RdmaCmId id, RdmaConnParam connParam)
+	public void accept(RdmaCmId id, RdmaConnParam connParam)
 			throws IOException {
 		NatCmaIdPrivate idPriv = (NatCmaIdPrivate) id;
 		if (!idPriv.isOpen()) {
 			throw new IOException("Trying to call accept() with closed ID");
 		}
-		int ret = nativeDispatcher._accept(idPriv.getObjId(), connParam.getRetry_count(), connParam.getRnr_retry_count());
-//		int ret = nativeDispatcher._accept(idPriv.getObjId(), (long) 0);
+		nativeDispatcher._accept(idPriv.getObjId(), connParam.getRetry_count(), connParam.getRnr_retry_count());
 		logger.info("accept, id " + id.getPs());
 		
-		return ret;
+		return;
 	}
 
 	@Override

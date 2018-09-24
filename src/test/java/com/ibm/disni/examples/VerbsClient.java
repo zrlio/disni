@@ -55,11 +55,7 @@ public class VerbsClient {
 		//before connecting, we have to resolve addresses
 		InetAddress _dst = InetAddress.getByName(ipAddress);
 		InetSocketAddress dst = new InetSocketAddress(_dst, port);
-		int ret = idPriv.resolveAddr(null, dst, 2000);
-		if (ret < 0){
-			System.out.println("VerbsClient::resolveAddr failed");
-			return;
-		}
+		idPriv.resolveAddr(null, dst, 2000);
 
 		//resolve addr returns an event, we have to catch that event
 		RdmaCmEvent cmEvent = cmChannel.getCmEvent(-1);
@@ -74,12 +70,7 @@ public class VerbsClient {
 		cmEvent.ackEvent();
 
 		//we also have to resolve the route
-		ret = idPriv.resolveRoute(2000);
-		if (ret < 0){
-			System.out.println("VerbsClient::resolveRoute failed");
-			return;
-		}
-
+		idPriv.resolveRoute(2000);
 		//and catch that event too
 		cmEvent = cmChannel.getCmEvent(-1);
 		if (cmEvent == null){
@@ -174,11 +165,8 @@ public class VerbsClient {
 		//now let's connect to the server
 		RdmaConnParam connParam = new RdmaConnParam();
 		connParam.setRetry_count((byte) 2);
-		ret = idPriv.connect(connParam);
-		if (ret < 0){
-			System.out.println("VerbsClient::connect failed");
-			return;
-		}
+		idPriv.connect(connParam);
+
 
 		//wait until we are really connected
 		cmEvent = cmChannel.getCmEvent(-1);

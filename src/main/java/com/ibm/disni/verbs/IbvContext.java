@@ -75,7 +75,7 @@ public class IbvContext  {
 		return cmd_fd;
 	}
 
-	public int getNumCompVectors() {
+	public int getNumCompVectors() throws IOException {
 		return numCompVectors;
 	}
 	

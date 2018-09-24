@@ -88,16 +88,18 @@ public class NativeDispatcher {
 	}
 
 	//rdmacm
-	public native long _createEventChannel();
-	public native long _createId(long channel, short rdma_ps);
-	public native long _createQP(long id, long pd, long sendcq, long recvcq, int qptype, int maxsendwr, int maxrecvwr, int maxinline);
-	public native int _bindAddr(long id, long addr);
-	public native int _listen(long id, int backlog);
-	public native int _resolveAddr(long id, long src, long dst, int timeout);
-	public native int _resolveRoute(long id, int timeout);
+	public native long _createEventChannel() throws IOException;
+	public native long _createId(long channel, short rdma_ps) throws IOException;
+	public native long _createQP(long id, long pd, long sendcq, long recvcq, int qptype, int maxsendwr, int maxrecvwr,
+								 int maxinline) throws IOException;
+	public native void _bindAddr(long id, long addr) throws IOException;
+	public native void _listen(long id, int backlog)  throws IOException;
+	public native void _resolveAddr(long id, long src, long dst, int timeout) throws IOException;
+	public native void _resolveRoute(long id, int timeout) throws IOException;
 	public native int _getCmEvent(long channel, long listenid, long clientid, int timeout);
-	public native int _connect(long id, int retrycount, int rnrretrycount, long privdataaddr, byte privdatalen);
-	public native int _accept(long id, int retrycount, int rnrretrycount);
+	public native void _connect(long id, int retrycount, int rnrretrycount, long privdataaddr, byte privdatalen)
+		throws IOException;
+	public native void _accept(long id, int retrycount, int rnrretrycount) throws IOException;
 	public native int _ackCmEvent(int cmEvent);
 	public native int _disconnect(long id);
 	public native int _destroyEventChannel(long fd);
@@ -108,30 +110,30 @@ public class NativeDispatcher {
 	public native int _destroyEp(long natid);
 
 	//ibverbs
-	public native long _allocPd(long context);
-	public native long _createCompChannel(long context);
-	public native long _createCQ(long context, long compChannel, int ncqe, int comp_vector);
-	public native int _modifyQP(long qp, long attr);
-	public native long _regMr(long pd, long addr, int len, int access, long lkey, long rkey, long handle);
+	public native long _allocPd(long context) throws IOException;
+	public native long _createCompChannel(long context) throws IOException;
+	public native long _createCQ(long context, long compChannel, int ncqe, int comp_vector) throws IOException;
+	public native int _modifyQP(long qp, long attr) throws IOException;
+	public native long _regMr(long pd, long addr, int len, int access, long lkey, long rkey, long handle) throws IOException;
 	public native int _queryOdpSupport(long context);
-	public native int _expPrefetchMr(long handle, long addr, int len);
-	public native int _deregMr(long handle);
-	public native int _postSend(long qp, long wrList);
-	public native int _postRecv(long qp, long wrList);
-	public native int _getCqEvent(long compChannel, int timeout);
-	public native int _pollCQ(long cq, int ne, long wclist);
-	public native int _reqNotifyCQ(long cq, int solicited_only);
+	public native int _expPrefetchMr(long handle, long addr, int len) throws IOException;
+	public native void _deregMr(long handle) throws IOException;
+	public native void _postSend(long qp, long wrList) throws IOException;
+	public native void _postRecv(long qp, long wrList) throws IOException;
+	public native int _getCqEvent(long compChannel, int timeout) throws IOException;
+	public native int _pollCQ(long cq, int ne, long wclist) throws IOException;
+	public native int _reqNotifyCQ(long cq, int solicited_only) throws IOException;
 	public native int _ackCqEvent(long cq, int nevents);
 	public native int _destroyCompChannel(long fd);
 	public native int _deallocPd(long handle);
 	public native int _destroyCQ(long handle);
 
 	//field lookup
-	public native long _getContext(long id);
-	public native int _getQpNum(long id);
-	public native int _getContextFd(long objId);
-	public native int _getContextNumCompVectors(long objId);
-	public native int _getPdHandle(long objId);
+	public native long _getContext(long id) throws IOException;
+	public native int _getQpNum(long id) throws IOException;
+	public native int _getContextFd(long objId) throws IOException;
+	public native int _getContextNumCompVectors(long objId) throws IOException;
+	public native int _getPdHandle(long objId) throws IOException;
 
 	//struct verification
 	public native int _getSockAddrInSize();

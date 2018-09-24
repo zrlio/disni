@@ -131,28 +131,28 @@ public class RdmaCmId  {
 		return cm.createQP(this, pd, attr);
 	}
 	
-	public int bindAddr(SocketAddress addr) throws IOException{
-		return cm.bindAddr(this, addr);
+	public void bindAddr(SocketAddress addr) throws IOException{
+		cm.bindAddr(this, addr);
 	}
 	
-	public int listen(int backlog) throws IOException{
-		return cm.listen(this, backlog);
+	public void listen(int backlog) throws IOException{
+		cm.listen(this, backlog);
 	}	
 	
-	public int resolveAddr(SocketAddress src, SocketAddress dst, int timeout) throws IOException{
-		return cm.resolveAddr(this, src, dst, timeout);
+	public void resolveAddr(SocketAddress src, SocketAddress dst, int timeout) throws IOException{
+		cm.resolveAddr(this, src, dst, timeout);
 	}
 	
-	public int resolveRoute(int timeout) throws IOException{
-		return cm.resolveRoute(this, timeout);
+	public void resolveRoute(int timeout) throws IOException{
+		cm.resolveRoute(this, timeout);
 	}
 	
-	public int connect(RdmaConnParam connParam) throws IOException{
-		return cm.connect(this, connParam);
+	public void connect(RdmaConnParam connParam) throws IOException{
+		cm.connect(this, connParam);
 	}
 	
-	public int accept(RdmaConnParam connParam) throws IOException{
-		return cm.accept(this, connParam);
+	public void accept(RdmaConnParam connParam) throws IOException{
+		cm.accept(this, connParam);
 	}
 	
 	public int disconnect() throws IOException{
