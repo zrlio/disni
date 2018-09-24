@@ -78,13 +78,8 @@ public class RdmaServerEndpoint<C extends RdmaEndpoint> {
 			throw new IOException("endpoint has to be disconnected for bind");
 		}
 		connState = CONN_STATE_READY_FOR_ACCEPT;
-		
-		if (idPriv.bindAddr(src) != 0){
-			throw new IOException("binding server address " + src.toString() + ", failed");
-		}
-		if (idPriv.listen(backlog) != 0){
-			throw new IOException("listen to server address " + src.toString() + ", failed");
-		}
+		idPriv.bindAddr(src);
+		idPriv.listen(backlog);
 		this.pd = group.createProtectionDomainRaw(this);
 		logger.info("PD value " + pd.getHandle());
 		return this;

@@ -78,6 +78,48 @@ static unsigned long long createObjectId(void *obj) {
   */
 }
 
+
+/**
+ * Throw a Java exception by name. Similar to SignalError.
+ */
+JNIEXPORT void JNICALL
+JNU_ThrowByName(JNIEnv *env, const char *name, const char *msg)
+{
+    jclass cls = env->FindClass(name);
+
+    if (cls != 0) /* Otherwise an exception has already been thrown */
+        env->ThrowNew(cls, msg);
+}
+
+/* Throw an IOException, using provided message string.
+ */
+void JNU_ThrowIOException(JNIEnv *env, const char *msg)
+{
+    JNU_ThrowByName(env, "java/io/IOException", msg);
+}
+
+/* Throw an IOException, using the last-error string for the detail
+ * string.
+ */
+void JNU_ThrowIOExceptionWithLastError(JNIEnv *env, const char *msg)
+{
+    char* errorMsg;
+    asprintf(&errorMsg, "%s: %s\n", msg, strerror(errno));
+    JNU_ThrowIOException(env, errorMsg);
+    free(errorMsg);
+}
+
+/* Throw an IOException, using return code.
+ */
+void JNU_ThrowIOExceptionWithReturnCode(JNIEnv *env, const char *msg, int ret)
+{
+    char* errorMsg;
+    asprintf(&errorMsg, "%s: %s\n", msg, strerror(ret));
+    JNU_ThrowIOException(env, errorMsg);
+    free(errorMsg);
+}
+
+
 /*
  * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
  * Method:    _createEventChannel
@@ -97,6 +139,8 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1createEventChannel(
     log("j2c::createEventChannel: obj_id %llu\n", obj_id);
   } else {
     log("j2c::createEventChannel: rdma_create_event_channel failed\n");
+    JNU_ThrowIOExceptionWithLastError(env,
+    "j2c::createEventChannel: rdma_create_event_channel failed");
   }
 
   return obj_id;
@@ -125,9 +169,12 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1createId(JNIEnv *env,
       log("j2c::createId: ret %i, obj_id %p\n", ret, (void *)cm_listen_id);
     } else {
       log("j2c::createId: rdma_create_id failed\n");
+      JNU_ThrowIOExceptionWithLastError(env,
+      "j2c::createId: rdma_create_id failed");
     }
   } else {
     log("j2c::createId: cm_channel (%p) \n", cm_channel);
+    JNU_ThrowIOException(env, "j2c::createId: cm_channel is null");
   }
 
   return obj_id;
@@ -183,9 +230,11 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1createQP(
       ret = ibv_query_qp(qp, &tmp_attr, IBV_QP_STATE, &tmp_init_attr);
     } else {
       log("j2c::createQP: rdma_create_qp failed %s\n", strerror(errno));
+      JNU_ThrowIOExceptionWithLastError(env, "j2c::createQP: rdma_create_qp failed");
     }
   } else {
     log("j2c::createQP: cm_listen_id or protection or cq null\n");
+    JNU_ThrowIOException(env, "j2c::createQP: cm_listen_id or protection or cq null\n");
   }
 
   return obj_id;
@@ -196,29 +245,28 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1createQP(
  * Method:    _bindAddr
  * Signature: (IJ)V
  */
-JNIEXPORT jint JNICALL
+JNIEXPORT void JNICALL
 Java_com_ibm_disni_verbs_impl_NativeDispatcher__1bindAddr(JNIEnv *env,
                                                           jobject obj, jlong id,
                                                           jlong address) {
   struct rdma_cm_id *cm_listen_id = NULL;
   struct sockaddr_in *s_addr = (struct sockaddr_in *)address;
-  jint ret = -1;
 
   cm_listen_id = (struct rdma_cm_id *)id;
 
   if (cm_listen_id != NULL) {
-    ret = rdma_bind_addr(cm_listen_id, (struct sockaddr *)s_addr);
+    int ret = rdma_bind_addr(cm_listen_id, (struct sockaddr *)s_addr);
     if (ret == 0) {
       log("j2c::bind: ret %i, cm_listen_id %p\n", ret, (void *)cm_listen_id);
     } else {
       log("j2c::bind: rdma_bind_addr failed, cm_listen_id %p \n",
           (void *)cm_listen_id);
+      JNU_ThrowIOExceptionWithLastError(env, "j2c::bind: rdma_bind_addr failed");
     }
   } else {
     log("j2c::bind: cm_listen_id null\n");
+    JNU_ThrowIOException(env, "j2c::bind: cm_listen_id null\n");
   }
-
-  return ret;
 }
 
 /*
@@ -226,24 +274,23 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1bindAddr(JNIEnv *env,
  * Method:    _listen
  * Signature: (II)V
  */
-JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1listen(
+JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1listen(
     JNIEnv *env, jobject obj, jlong id, jint backlog) {
   struct rdma_cm_id *cm_listen_id = NULL;
-  jint ret = -1;
 
   cm_listen_id = (struct rdma_cm_id *)id;
   if (cm_listen_id != NULL) {
-    ret = rdma_listen(cm_listen_id, backlog);
+    int ret = rdma_listen(cm_listen_id, backlog);
     if (ret == 0) {
       log("j2c::listen: ret %i\n", ret);
     } else {
       log("j2c::listen: rdma_listen failed\n");
+      JNU_ThrowIOExceptionWithLastError(env, "j2c::listen: rdma_listen failed");
     }
   } else {
     log("j2c::listen: cm_listen_id null\n");
+    JNU_ThrowIOException(env, "j2c::listen: cm_listen_id null\n");
   }
-
-  return ret;
 }
 
 /*
@@ -251,27 +298,26 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1listen(
  * Method:    _resolveAddr
  * Signature: (IJJI)V
  */
-JNIEXPORT jint JNICALL
+JNIEXPORT void JNICALL
 Java_com_ibm_disni_verbs_impl_NativeDispatcher__1resolveAddr(
     JNIEnv *env, jobject obj, jlong id, jlong src, jlong dst, jint timeout) {
   struct rdma_cm_id *cm_listen_id = NULL;
   struct sockaddr_in *d_addr = (struct sockaddr_in *)dst;
-  jint ret = -1;
 
   cm_listen_id = (struct rdma_cm_id *)id;
   if (cm_listen_id != NULL) {
-    ret = rdma_resolve_addr(cm_listen_id, NULL, (struct sockaddr *)d_addr,
+    int ret = rdma_resolve_addr(cm_listen_id, NULL, (struct sockaddr *)d_addr,
                             (int)timeout);
     if (ret == 0) {
       log("j2c::resolveAddr: ret %i\n", ret);
     } else {
       log("j2c::resolveAddr: rdma_resolve_addr failed\n");
+      JNU_ThrowIOExceptionWithLastError(env, "j2c::resolveAddr: rdma_resolve_addr failed");
     }
   } else {
     log("j2c::resolveAddr: cm_listen_id null\n");
+    JNU_ThrowIOException(env, "j2c::resolveAddr: cm_listen_id null\n");
   }
-
-  return ret;
 }
 
 /*
@@ -279,27 +325,26 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1resolveAddr(
  * Method:    _resolveRoute
  * Signature: (II)V
  */
-JNIEXPORT jint JNICALL
+JNIEXPORT void JNICALL
 Java_com_ibm_disni_verbs_impl_NativeDispatcher__1resolveRoute(JNIEnv *env,
                                                               jobject obj,
                                                               jlong id,
                                                               jint timeout) {
   struct rdma_cm_id *cm_listen_id = NULL;
-  jint ret = -1;
 
   cm_listen_id = (struct rdma_cm_id *)id;
   if (cm_listen_id != NULL) {
-    ret = rdma_resolve_route(cm_listen_id, (int)timeout);
+    int ret = rdma_resolve_route(cm_listen_id, (int)timeout);
     if (ret == 0) {
       log("j2c::resolveRoute: ret %i\n", ret);
     } else {
       log("j2c::resolveRoute: rdma_resolve_route failed\n");
+      JNU_ThrowIOExceptionWithLastError(env, "j2c::resolveRoute: rdma_resolve_route failed");
     }
   } else {
     log("j2c::resolveRoute: cm_listen_id null\n");
+    JNU_ThrowIOException(env, "j2c::resolveRoute: cm_listen_id null\n");
   }
-
-  return ret;
 }
 
 /*
@@ -353,12 +398,11 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1getCmEvent(
  * Method:    _connect
  * Signature: (IJ)V
  */
-JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1connect(
+JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1connect(
     JNIEnv *env, jobject obj, jlong id, jint retry, jint rnr_retry,
     jlong private_data_addr, jbyte private_data_len) {
   struct rdma_cm_id *cm_listen_id = NULL;
   struct rdma_conn_param conn_param;
-  jint ret = -1;
 
   cm_listen_id = (struct rdma_cm_id *)id;
   struct ibv_device_attr dev_attr;
@@ -372,18 +416,18 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1connect(
     conn_param.rnr_retry_count = (unsigned char)rnr_retry;
     conn_param.private_data = (void *)private_data_addr;
     conn_param.private_data_len = (unsigned char)private_data_len;
-    ret = rdma_connect(cm_listen_id, &conn_param);
+    int ret = rdma_connect(cm_listen_id, &conn_param);
     if (ret == 0) {
       log("j2c::connect: ret %i, guid %" PRIu64 "\n", ret,
           ibv_get_device_guid(cm_listen_id->verbs->device));
     } else {
       log("j2c::connect: rdma_connect failed\n");
+      JNU_ThrowIOExceptionWithLastError(env, "j2c::connect: rdma_connect failed");
     }
   } else {
     log("j2c:connect: cm_listen_id null\n");
+    JNU_ThrowIOException(env, "j2c:connect: cm_listen_id null\n");
   }
-
-  return ret;
 }
 
 /*
@@ -391,11 +435,10 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1connect(
  * Method:    _accept
  * Signature: (IJ)V
  */
-JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1accept(
+JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1accept(
     JNIEnv *env, jobject obj, jlong id, jint retry, jint rnr_retry) {
   struct rdma_cm_id *cm_listen_id = NULL;
   struct rdma_conn_param conn_param;
-  jint ret = -1;
 
   cm_listen_id = (struct rdma_cm_id *)id;
   struct ibv_device_attr dev_attr;
@@ -407,17 +450,17 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1accept(
     conn_param.responder_resources = dev_attr.max_qp_rd_atom;
     conn_param.retry_count = (unsigned char)retry;
     conn_param.rnr_retry_count = (unsigned char)rnr_retry;
-    ret = rdma_accept(cm_listen_id, &conn_param);
+    int ret = rdma_accept(cm_listen_id, &conn_param);
     log("j2c::accept: ret %i\n", ret);
     if (ret == 0) {
     } else {
       log("j2c::accept: rdma_accept failed\n");
+      JNU_ThrowIOExceptionWithLastError(env, "j2c::accept: rdma_accept failed");
     }
   } else {
     log("j2c::accept: cm_listen_id null\n");
+    JNU_ThrowIOException(env, "j2c::accept: cm_listen_id null\n");
   }
-
-  return ret;
 }
 
 /*
@@ -450,6 +493,7 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1disconnect(JNIEnv *env,
     ret = rdma_disconnect(cm_listen_id);
   } else {
     log("j2c:disconnect: cm_listen_id null\n");
+    JNU_ThrowIOException(env, "j2c:disconnect: cm_listen_id null\n");
   }
 
   return ret;
@@ -612,7 +656,8 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1getContext(JNIEnv *env,
       log("j2c::getContext: context_list empty %p\n", (void *)cm_listen_id);
     }
   } else {
-    log("j2c::getContext: rdma_get_devices failed\n");
+    log("j2c::getContext: cm_listen_id null\n");
+    JNU_ThrowIOException(env, "j2c::getContext: cm_listen_id null\n");
   }
 
   return obj_id;
@@ -639,9 +684,11 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1allocPd(JNIEnv *env,
       log("j2c::allocPd: obj_id %llu\n", obj_id);
     } else {
       log("j2c::allocPd: ibv_alloc_pd failed\n");
+      JNU_ThrowIOExceptionWithLastError(env, "j2c::allocPd: ibv_alloc_pd failed");
     }
   } else {
     log("j2c::allocPd: context null\n");
+    JNU_ThrowIOException(env, "j2c::allocPd: context null\n");
   }
 
   return obj_id;
@@ -669,9 +716,11 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1createCompChannel(JNIEnv *env,
       log("j2c::createCompChannel: obj_id %llu\n", obj_id);
     } else {
       log("j2c::createCompChannel: ibv_create_comp_channel failed\n");
+      JNU_ThrowIOExceptionWithLastError(env, "j2c::createCompChannel: ibv_create_comp_channel failed");
     }
   } else {
     log("j2c::createCompChannel: context null\n");
+    JNU_ThrowIOException(env, "j2c::createCompChannel: context null\n");
   }
 
   return obj_id;
@@ -704,9 +753,11 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1createCQ(
           (void *)obj_id, (void *)cq, cq->handle, _ncqe);
     } else {
       log("j2c::createCQ: ibv_create_cq failed\n");
+      JNU_ThrowIOExceptionWithLastError(env, "j2c::createCQ: ibv_create_cq failed");
     }
   } else {
     log("j2c::createCQ: context or comp_channel null\n");
+    JNU_ThrowIOException(env, "j2c::createCQ: context or comp_channel null\n");
   }
 
   // return handle;
@@ -718,28 +769,27 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1createCQ(
  * Method:    _modifyQP
  * Signature: (IIJ)V
  */
-JNIEXPORT jint JNICALL
+JNIEXPORT void JNICALL
 Java_com_ibm_disni_verbs_impl_NativeDispatcher__1modifyQP(JNIEnv *env,
                                                           jobject obj, jlong qp,
                                                           jlong addr) {
   struct ibv_qp *queuepair = NULL;
   struct ibv_qp_attr attr;
   int attr_mask;
-  jint ret = -1;
 
   queuepair = (struct ibv_qp *)qp;
   if (queuepair != NULL) {
-    ret = ibv_modify_qp(queuepair, &attr, attr_mask);
+    int ret = ibv_modify_qp(queuepair, &attr, attr_mask);
     if (ret == 0) {
       log("j2c::modify_qp: ret %i\n", ret);
     } else {
       log("j2c::modify_qp: ibv_modify_qp failed\n");
+      JNU_ThrowIOExceptionWithReturnCode(env, "j2c::modify_qp: ibv_modify_qp failed", ret);
     }
   } else {
     log("j2c::modify_qp: queuepair null\n");
+    JNU_ThrowIOException(env, "j2c::modify_qp: queuepair null\n");
   }
-
-  return ret;
 }
 
 /*
@@ -795,6 +845,7 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1expPrefetchMr(
     } else {
       log("j2c::expPrefetchMr:  ibv_exp_prefetch_mr failed, error %s\n",
           strerror(errno));
+          JNU_ThrowIOExceptionWithLastError(env, "j2c::expPrefetchMr:  ibv_exp_prefetch_mr failed");
     }
   } else {
     log("j2c::expPrefetchMr: mr null\n");
@@ -835,9 +886,11 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1regMr(
       log("j2c::regMr: obj_id %p, mr %p\n", (void *)obj_id, (void *)mr);
     } else {
       log("j2c::regMr: ibv_reg_mr failed\n");
+      JNU_ThrowIOExceptionWithLastError(env, "j2c::regMr: ibv_reg_mr failed");
     }
   } else {
     log("j2c::regMr: protection null\n");
+     JNU_ThrowIOException(env, "j2c::regMr: protection null\n");
   }
 
   return obj_id;
@@ -848,26 +901,25 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1regMr(
  * Method:    _deregMr
  * Signature: (IJ)V
  */
-JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1deregMr(
+JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1deregMr(
     JNIEnv *env, jobject obj, jlong handle) {
   // int _handle = (int) handle;
   struct ibv_mr *mr = NULL;
-  jint ret = -1;
 
   mr = (struct ibv_mr *)handle;
 
   if (mr != NULL) {
-    ret = ibv_dereg_mr(mr);
+    int ret = ibv_dereg_mr(mr);
     if (ret == 0) {
       log("j2c::deregMr: ret %i\n", ret);
     } else {
       log("j2c::deregMr:  ibv_dereg_failed, error %s\n", strerror(errno));
+      JNU_ThrowIOExceptionWithReturnCode(env, "j2c::deregMr:  ibv_dereg_failed, error", ret);
     }
   } else {
     log("j2c::deregMr: mr null\n");
+    JNU_ThrowIOException(env, "j2c::deregMr: mr null\n");
   }
-
-  return ret;
 }
 
 /*
@@ -875,29 +927,28 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1deregMr(
  * Method:    _postSend
  * Signature: (IIJ)I
  */
-JNIEXPORT jint JNICALL
+JNIEXPORT void JNICALL
 Java_com_ibm_disni_verbs_impl_NativeDispatcher__1postSend(JNIEnv *env,
                                                           jobject obj, jlong qp,
                                                           jlong wrList) {
   struct ibv_qp *queuepair = NULL;
   struct ibv_send_wr *wr = (struct ibv_send_wr *)wrList;
   struct ibv_send_wr *bad_wr;
-  jint ret = -1;
 
   queuepair = (struct ibv_qp *)qp;
   if (queuepair != NULL) {
-    ret = ibv_post_send(queuepair, wr, &bad_wr);
+    int ret = ibv_post_send(queuepair, wr, &bad_wr);
     if (ret == 0) {
       // log("j2c::post_send: ret %i\n", ret);
     } else {
       log("j2c::post_send: ibv_post_send failed %s\n", strerror(ret));
+      JNU_ThrowIOExceptionWithReturnCode(env, "j2c::post_send: ibv_post_send failed", ret);
     }
 
   } else {
     log("j2c::post_send: queuepair null\n");
+    JNU_ThrowIOException(env, "j2c::post_send: queuepair null\n");
   }
-
-  return ret;
 }
 
 /*
@@ -905,29 +956,28 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1postSend(JNIEnv *env,
  * Method:    _postRecv
  * Signature: (IIJ)I
  */
-JNIEXPORT jint JNICALL
+JNIEXPORT void JNICALL
 Java_com_ibm_disni_verbs_impl_NativeDispatcher__1postRecv(JNIEnv *env,
                                                           jobject obj, jlong qp,
                                                           jlong wrList) {
   struct ibv_qp *queuepair = NULL;
   struct ibv_recv_wr *wr = (struct ibv_recv_wr *)wrList;
   struct ibv_recv_wr *bad_wr;
-  jint ret = -1;
 
   queuepair = (struct ibv_qp *)qp;
   if (queuepair != NULL) {
     // log("j2c::post_recv: sizeof wr %zu, wrid %llu\n", sizeof *wr, wr->wr_id);
-    ret = ibv_post_recv(queuepair, wr, &bad_wr);
+    int ret = ibv_post_recv(queuepair, wr, &bad_wr);
     if (ret == 0) {
       // log("j2c::post_recv: ret %i\n", ret);
     } else {
       log("j2c::post_recv: ibv_post_recv failed %s\n", strerror(ret));
+      JNU_ThrowIOExceptionWithReturnCode(env, "j2c::post_recv: ibv_post_recv failed", ret);
     }
   } else {
     log("j2c::post_recv: queuepair null\n");
+    JNU_ThrowIOException(env, "j2c::post_recv: queuepair null\n");
   }
-
-  return ret;
 }
 
 /*
@@ -960,6 +1010,7 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1getCqEvent(JNIEnv *env,
     }
   } else {
     // log("j2c::getCqEvent: comp_channel null, channel %llu\n", channel);
+    JNU_ThrowIOException(env, "j2c::getCqEvent: comp_channel null");
   }
 
   return ret;
@@ -983,6 +1034,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1pollCQ(
     // log("j2c::pollCQ: ret %i\n", ret);
   } else {
     // log("j2c::pollCQ: completionqueue null\n");
+    JNU_ThrowIOException(env, "j2c::pollCQ: completionqueue null");
   }
 
   return ret;
@@ -1009,6 +1061,7 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1reqNotifyCQ(JNIEnv *env,
     // log("j2c::reqNotify: ret %i\n", ret);
   } else {
     // log("j2c::reqNotify:  completionqueue null\n");
+    JNU_ThrowIOException(env, "j2c::reqNotify:  completionqueue null");
   }
 
   return ret;
@@ -1114,6 +1167,7 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1getQpNum(JNIEnv *env,
     log("j2c::getQpNum: obj_id %p, qpnum %i\n", (void *)obj_id, qpnum);
   } else {
     log("j2c::getQpNum: failed, obj_id %p\n", (void *)obj_id);
+    JNU_ThrowIOException(env, "j2c::getQpNum: failed, ibv_qp null");
   }
 
   return qpnum;
@@ -1136,6 +1190,7 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1getContextFd(JNIEnv *env,
     log("j2c::getContextFd: obj_id %p, fd %i\n", (void *)obj_id, cmd_fd);
   } else {
     log("j2c::getContext: failed, obj_id %p\n", (void *)obj_id);
+    JNU_ThrowIOException(env, "j2c::getContext: failed, ibv_context null");
   }
 
   return cmd_fd;
@@ -1158,6 +1213,7 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1getContextNumCompVectors(
         obj_id, num_comp_vectors);
   } else {
     log("j2c::getContextNumCompVectors: failed, obj_id %llu\n", obj_id);
+    JNU_ThrowIOException(env, "j2c::getContextNumCompVectors: failed, ibv_context null");
   }
 
   return num_comp_vectors;
@@ -1180,6 +1236,7 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1getPdHandle(JNIEnv *env,
     log("j2c::getPdHandle: obj_id %p, handle %i\n", (void *)pd, handle);
   } else {
     log("j2c::getPdHandle: failed, obj_id %p\n", (void *)pd);
+    JNU_ThrowIOException(env, "j2c::getPdHandle: failed, pd null");
   }
 
   return handle;

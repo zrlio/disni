@@ -51,7 +51,7 @@ public class NatIbvContext extends IbvContext implements NatObject {
 	}
 
 	@Override
-	public int getNumCompVectors() {
+	public int getNumCompVectors() throws IOException {
 		if (this.numCompVectors < 0){
 			this.numCompVectors = nativeDispatcher._getContextNumCompVectors(objId);
 		}

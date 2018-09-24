@@ -53,16 +53,10 @@ public class VerbsServer {
 
 		InetAddress _src = InetAddress.getByName(ipAddress);
 		InetSocketAddress src = new InetSocketAddress(_src, port);
-		int ret = idPriv.bindAddr(src);
-		if (ret < 0){
-			System.out.println("VerbsServer::binding not sucessfull");
-		}
+		idPriv.bindAddr(src);
 
 		//listen on the id
-		ret = idPriv.listen(10);
-		if (ret < 0){
-			System.out.println("VerbsServer::listen not successfull");
-		}
+		idPriv.listen(10);
 
 		//wait for new connect requests
 		RdmaCmEvent cmEvent = cmChannel.getCmEvent(-1);
@@ -140,11 +134,7 @@ public class VerbsServer {
 		RdmaConnParam connParam = new RdmaConnParam();
 		connParam.setRetry_count((byte) 2);
 		//once the client id is set up, accept the connection
-		ret = connId.accept(connParam);
-		if (ret < 0){
-			System.out.println("VerbsServer::accept failed");
-			return;
-		}
+		connId.accept(connParam);
 		//wait until the connection is officially switched into established mode
 		cmEvent = cmChannel.getCmEvent(-1);
 		if (cmEvent.getEvent() != RdmaCmEvent.EventType.RDMA_CM_EVENT_ESTABLISHED

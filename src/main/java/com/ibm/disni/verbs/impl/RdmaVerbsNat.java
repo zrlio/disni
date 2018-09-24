@@ -141,12 +141,11 @@ public class RdmaVerbsNat extends RdmaVerbs {
 		return nativeDispatcher._queryOdpSupport(natContext.getObjId());
 	}
 
-	public int expPrefetchMr(IbvMr ibvMr, long address, int length){
+	public int expPrefetchMr(IbvMr ibvMr, long address, int length) throws IOException {
 		return nativeDispatcher._expPrefetchMr(((NatIbvMr)ibvMr).getObjId(), address, length);
 	}
 
-	public SVCDeregMr deregMr(IbvMr mr)
-			throws IOException {
+	public SVCDeregMr deregMr(IbvMr mr) {
 		return new NatDeregMrCall(this, nativeDispatcher, mr);
 	}
 

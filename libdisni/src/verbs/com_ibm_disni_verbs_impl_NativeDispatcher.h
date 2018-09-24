@@ -41,7 +41,7 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1createQP(JNIEnv *, jobject,
  * Method:    _bindAddr
  * Signature: (JJ)I
  */
-JNIEXPORT jint JNICALL
+JNIEXPORT void JNICALL
 Java_com_ibm_disni_verbs_impl_NativeDispatcher__1bindAddr(JNIEnv *, jobject,
                                                           jlong, jlong);
 
@@ -50,7 +50,7 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1bindAddr(JNIEnv *, jobject,
  * Method:    _listen
  * Signature: (JI)I
  */
-JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1listen(
+JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1listen(
     JNIEnv *, jobject, jlong, jint);
 
 /*
@@ -58,7 +58,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1listen(
  * Method:    _resolveAddr
  * Signature: (JJJI)I
  */
-JNIEXPORT jint JNICALL
+JNIEXPORT void JNICALL
 Java_com_ibm_disni_verbs_impl_NativeDispatcher__1resolveAddr(JNIEnv *, jobject,
                                                              jlong, jlong,
                                                              jlong, jint);
@@ -68,7 +68,7 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1resolveAddr(JNIEnv *, jobject,
  * Method:    _resolveRoute
  * Signature: (JI)I
  */
-JNIEXPORT jint JNICALL
+JNIEXPORT void JNICALL
 Java_com_ibm_disni_verbs_impl_NativeDispatcher__1resolveRoute(JNIEnv *, jobject,
                                                               jlong, jint);
 
@@ -87,7 +87,7 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1getCmEvent(JNIEnv *, jobject,
  * Method:    _connect
  * Signature: (JIIJB)I
  */
-JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1connect(
+JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1connect(
     JNIEnv *, jobject, jlong, jint, jint, jlong, jbyte);
 
 /*
@@ -95,7 +95,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1connect(
  * Method:    _accept
  * Signature: (JII)I
  */
-JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1accept(
+JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1accept(
     JNIEnv *, jobject, jlong, jint, jint);
 
 /*
@@ -205,7 +205,7 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1createCQ(JNIEnv *, jobject,
  * Method:    _modifyQP
  * Signature: (JJ)I
  */
-JNIEXPORT jint JNICALL
+JNIEXPORT void JNICALL
 Java_com_ibm_disni_verbs_impl_NativeDispatcher__1modifyQP(JNIEnv *, jobject,
                                                           jlong, jlong);
 
@@ -242,7 +242,7 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1regMr(
  * Method:    _deregMr
  * Signature: (J)I
  */
-JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1deregMr(
+JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1deregMr(
     JNIEnv *, jobject, jlong);
 
 /*
@@ -250,7 +250,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1deregMr(
  * Method:    _postSend
  * Signature: (JJ)I
  */
-JNIEXPORT jint JNICALL
+JNIEXPORT void JNICALL
 Java_com_ibm_disni_verbs_impl_NativeDispatcher__1postSend(JNIEnv *, jobject,
                                                           jlong, jlong);
 
@@ -259,7 +259,7 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1postSend(JNIEnv *, jobject,
  * Method:    _postRecv
  * Signature: (JJ)I
  */
-JNIEXPORT jint JNICALL
+JNIEXPORT void JNICALL
 Java_com_ibm_disni_verbs_impl_NativeDispatcher__1postRecv(JNIEnv *, jobject,
                                                           jlong, jlong);
 

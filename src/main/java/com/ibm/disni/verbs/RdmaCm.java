@@ -96,10 +96,9 @@ public abstract class RdmaCm {
 	 * 
 	 * @param id the RDMA identifier.
 	 * @param addr local address information.
-	 * @return returns 0 on success.
 	 * @throws Exception on failure.
 	 */
-	public abstract int bindAddr(RdmaCmId id, SocketAddress addr)
+	public abstract void bindAddr(RdmaCmId id, SocketAddress addr)
 			throws IOException;
 
 	/**
@@ -107,12 +106,11 @@ public abstract class RdmaCm {
 	 * 
 	 * The listen will be restricted to the locally bound source address.
 	 *
-	 * @param id the RDMA identifier. 
-	 * @param backlog the backlog of listen call. 
-	 * @return returns 0 on success. 
+	 * @param id the RDMA identifier.
+	 * @param backlog the backlog of listen call.
 	 * @throws Exception on failure. 
 	 */
-	public abstract int listen(RdmaCmId id, int backlog)
+	public abstract void listen(RdmaCmId id, int backlog)
 			throws IOException;
 
 	/**
@@ -121,14 +119,13 @@ public abstract class RdmaCm {
 	 * If successful, the specified RdmaCmId will be bound to a local device.
 	 *
 	 * @param id the RDMA identifier.
-	 * @param src source address information. 
+	 * @param src source address information.
 	 * @param dst destination address information
 	 * @param timeout time to wait for resolution to complete.
-	 * @return returns 0 on success. 
 	 * @throws Exception on failure.
 	 */
-	public abstract int resolveAddr(RdmaCmId id, SocketAddress src,
-			SocketAddress dst, int timeout) throws IOException;
+	public abstract void resolveAddr(RdmaCmId id, SocketAddress src,
+             SocketAddress dst, int timeout) throws IOException;
 
 	/**
 	 * Resolves an RDMA route to the destination address in order to establish a connection.
@@ -137,10 +134,9 @@ public abstract class RdmaCm {
 	 * 
 	 * @param id the RDMA identifier.
 	 * @param timeout time to wait for resolution to complete.
-	 * @return returns 0 on success. 
 	 * @throws Exception on failure.
 	 */
-	public abstract int resolveRoute(RdmaCmId id, int timeout)
+	public abstract void resolveRoute(RdmaCmId id, int timeout)
 			throws IOException;
 
 	/**
@@ -178,12 +174,11 @@ public abstract class RdmaCm {
 	 * 
 	 * flow_control: Specifies if hardware flow control is available. This value is exchanged with the remote peer and is not used to configure the QP. Applies only to RDMA_PS_TCP.
 	 *
-	 * @param id the RDMA identifier. 
+	 * @param id the RDMA identifier.
 	 * @param connParam connection parameters. See above for details.
-	 * @return returns 0 on success. 
 	 * @throws Exception on failure.
 	 */
-	public abstract int connect(RdmaCmId id, RdmaConnParam connParam)
+	public abstract void connect(RdmaCmId id, RdmaConnParam connParam)
 			throws IOException;
 
 	/**
@@ -210,10 +205,9 @@ public abstract class RdmaCm {
 	 *
 	 * @param id the connection identifier associated with the request
 	 * @param connParam Information needed to establish the connection. See above for details.
-	 * @return the int
 	 * @throws Exception the exception
 	 */
-	public abstract int accept(RdmaCmId id, RdmaConnParam connParam)
+	public abstract void accept(RdmaCmId id, RdmaConnParam connParam)
 			throws IOException;
 
 	/**
