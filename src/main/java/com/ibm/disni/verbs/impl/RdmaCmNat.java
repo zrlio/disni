@@ -33,6 +33,7 @@ import org.slf4j.Logger;
 import com.ibm.disni.verbs.IbvPd;
 import com.ibm.disni.verbs.IbvQP;
 import com.ibm.disni.verbs.IbvQPInitAttr;
+import com.ibm.disni.verbs.IbvQPCap;
 import com.ibm.disni.verbs.RdmaCm;
 import com.ibm.disni.verbs.RdmaCmEvent;
 import com.ibm.disni.verbs.RdmaCmId;
@@ -106,7 +107,9 @@ public class RdmaCmNat extends RdmaCm {
 		if (!natRecvCq.isOpen()) {
 			throw new IOException("Trying to create a QP with closed receive CQ");
 		}
-		long objId = nativeDispatcher._createQP(idPriv.getObjId(), natPd.getObjId(), natSendCq.getObjId(), natRecvCq.getObjId(), attr.getQp_type(), attr.cap().getMax_send_wr(), attr.cap().getMax_recv_wr(), attr.cap().getMax_inline_data());
+		IbvQPCap cap = attr.cap();
+		long objId = nativeDispatcher._createQP(idPriv.getObjId(), natPd.getObjId(), natSendCq.getObjId(),
+				natRecvCq.getObjId(), attr.getQp_type(), cap.getMax_send_wr(), cap.getMax_recv_wr(), cap.getMax_inline_data(), cap.getMax_send_sge());
 		logger.info("createQP, objId " + objId + ", send_wr size " + attr.cap().getMax_send_wr() + ", recv_wr_size " + attr.cap().getMax_recv_wr());
 		
 		NatIbvQP qp = null;

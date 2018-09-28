@@ -48,7 +48,6 @@
 #endif
 
 //#define MAX_WR 200;
-#define MAX_SGE 4;
 //#define N_CQE 200
 #define JVERBS_JNI_VERSION 32;
 
@@ -188,7 +187,7 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1createId(JNIEnv *env,
 JNIEXPORT jlong JNICALL
 Java_com_ibm_disni_verbs_impl_NativeDispatcher__1createQP(
     JNIEnv *env, jobject obj, jlong id, jlong pd, jlong sendcq, jlong recvcq,
-    jint qptype, jint maxsendwr, jint maxrecvwr, jint maxinline) {
+    jint qptype, jint maxsendwr, jint maxrecvwr, jint maxinline, jint maxsge) {
   struct rdma_cm_id *cm_listen_id = NULL;
   struct ibv_pd *protection = NULL;
   struct ibv_cq *send_cq = NULL;
@@ -207,9 +206,9 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1createQP(
   if (cm_listen_id != NULL && protection != NULL && send_cq != NULL &&
       recv_cq != NULL) {
     memset(&qp_init_attr, 0, sizeof qp_init_attr);
-    qp_init_attr.cap.max_recv_sge = MAX_SGE;
+    qp_init_attr.cap.max_recv_sge = maxsge;
     qp_init_attr.cap.max_recv_wr = _maxrecvwr;
-    qp_init_attr.cap.max_send_sge = MAX_SGE;
+    qp_init_attr.cap.max_send_sge = maxsge;
     qp_init_attr.cap.max_send_wr = _maxsendwr;
     qp_init_attr.qp_type = _qptype;
     qp_init_attr.cap.max_inline_data = maxinline;

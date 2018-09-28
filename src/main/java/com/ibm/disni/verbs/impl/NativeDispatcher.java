@@ -91,7 +91,7 @@ public class NativeDispatcher {
 	public native long _createEventChannel() throws IOException;
 	public native long _createId(long channel, short rdma_ps) throws IOException;
 	public native long _createQP(long id, long pd, long sendcq, long recvcq, int qptype, int maxsendwr, int maxrecvwr,
-								 int maxinline) throws IOException;
+								 int maxinline, int maxsge) throws IOException;
 	public native void _bindAddr(long id, long addr) throws IOException;
 	public native void _listen(long id, int backlog)  throws IOException;
 	public native void _resolveAddr(long id, long src, long dst, int timeout) throws IOException;

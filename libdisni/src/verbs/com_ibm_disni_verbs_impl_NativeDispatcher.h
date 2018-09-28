@@ -28,13 +28,13 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1createId(JNIEnv *, jobject,
 /*
  * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
  * Method:    _createQP
- * Signature: (JJJJIIII)J
+ * Signature: (JJJJIIIII)J
  */
 JNIEXPORT jlong JNICALL
 Java_com_ibm_disni_verbs_impl_NativeDispatcher__1createQP(JNIEnv *, jobject,
                                                           jlong, jlong, jlong,
                                                           jlong, jint, jint,
-                                                          jint, jint);
+                                                          jint, jint,jint);
 
 /*
  * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
