@@ -47,7 +47,7 @@ public abstract class RdmaCqProcessor<C extends RdmaEndpoint> extends RdmaCqProv
 	private int timeout;
 	private int ackCounter;
 	private boolean blocking;
-	private boolean running;
+	private volatile boolean running;
 	private long affinity;
 	private int clusterId;
 	private Thread thread;
