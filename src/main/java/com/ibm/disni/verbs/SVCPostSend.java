@@ -57,7 +57,13 @@ public abstract class SVCPostSend implements StatefulVerbCall<SVCPostSend> {
 		 * @param send_flags new flags
 		 */		
 		void setSend_flags(int send_flags);
-		
+
+		/**
+		 * Modify the Opcode
+		 *
+		 * @param opcode the new opcode
+		 */
+		void setOpcode(int opcode);
 		/**
 		 * Retrieve the current work-request id 
 		 *

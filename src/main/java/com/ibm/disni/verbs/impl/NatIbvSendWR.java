@@ -64,7 +64,7 @@ public class NatIbvSendWR extends IbvSendWR implements SendWRMod {
 //	public static int NEXT_OFFSET = 8;
 //	public static int SGLIST_OFFSET = 16;
 //	public static int NUMSGE_OFFSET = 24;
-//	public static int OPCODE_OFFSET = 28;
+	public static int OPCODE_OFFSET = 28;
 	public static int SENDFLAGS_OFFSET = 32;
 //	public static int IMMDATA_OFFSET = 36;
 	public static int REMOTEADDR_OFFSET = 40;
@@ -151,7 +151,12 @@ public class NatIbvSendWR extends IbvSendWR implements SendWRMod {
 		super.setSend_flags(send_flags);
 		postSendCall.setSend_flags(this, SENDFLAGS_OFFSET);
 	}	
-	
+
+	@Override
+	public void setOpcode(int opcode) {
+		super.setOpcode(opcode);
+		postSendCall.setOpcode(this, OPCODE_OFFSET);
+	}
 	@Override
 	public RdmaMod getRdmaMod() {
 		return (RdmaMod) this.rdma;

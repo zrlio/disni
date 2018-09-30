@@ -174,5 +174,10 @@ public class NatPostSendCall extends SVCPostSend {
 	void setSend_flags(NatIbvSendWR sendWR, int offset) {
 		int position = sendWR.getBufPosition() + offset;
 		cmd.getBuffer().putInt(position, sendWR.getSend_flags());		
-	}	
+	}
+
+	void setOpcode(NatIbvSendWR sendWR, int offset) {
+		int position = sendWR.getBufPosition() + offset;
+		cmd.getBuffer().putInt(position, sendWR.getOpcode());
+	}
 }
