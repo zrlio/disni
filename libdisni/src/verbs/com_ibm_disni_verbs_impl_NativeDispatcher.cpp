@@ -58,7 +58,7 @@ static pthread_mutex_t mut_counter = PTHREAD_MUTEX_INITIALIZER;
 
 #ifdef ENABLE_LOGGING
 #define log(...)                                                               \
-  { printf(__VA_ARGS__); }
+  { printf(__VA_ARGS__); fflush(stdout); }
 #else
 #define log(...)                                                               \
   {}
