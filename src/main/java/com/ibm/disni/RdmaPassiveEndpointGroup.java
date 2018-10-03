@@ -87,7 +87,10 @@ public class RdmaPassiveEndpointGroup<C extends RdmaEndpoint> extends RdmaEndpoi
 	public void allocateResources(C endpoint) throws Exception {
 		endpoint.allocateResources();
 	}
-	
+
+	public void checkResources(RdmaCmId idPriv) throws IOException {
+		idPriv.checkResources(maxWR, maxSge, cqSize);
+	}
 	public int getMaxWR() {
 		return maxWR;
 	}

@@ -442,6 +442,16 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1getRKeyOffset(JNIEnv *,
 JNIEXPORT jint JNICALL
 Java_com_ibm_disni_verbs_impl_NativeDispatcher__1getVersion(JNIEnv *, jobject);
 
+
+/*
+ * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
+ * Method:    _checkResources
+ * Signature: (JIII)I
+ */
+JNIEXPORT jint JNICALL 
+Java_com_ibm_disni_verbs_impl_NativeDispatcher__1checkResources
+  (JNIEnv *, jobject, jlong, jint, jint, jint);
+
 #ifdef __cplusplus
 }
 #endif

@@ -79,6 +79,7 @@ public class RdmaServerEndpoint<C extends RdmaEndpoint> {
 		}
 		connState = CONN_STATE_READY_FOR_ACCEPT;
 		idPriv.bindAddr(src);
+		group.checkResources(idPriv);
 		idPriv.listen(backlog);
 		this.pd = group.createProtectionDomainRaw(this);
 		logger.info("PD value " + pd.getHandle());

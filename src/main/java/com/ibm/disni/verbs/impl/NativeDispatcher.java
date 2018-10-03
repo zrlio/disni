@@ -127,6 +127,7 @@ public class NativeDispatcher {
 	public native int _destroyCompChannel(long fd);
 	public native int _deallocPd(long handle);
 	public native int _destroyCQ(long handle);
+	public native int _checkResources(long context, int maxWR, int maxSge, int cqSize);
 
 	//field lookup
 	public native long _getContext(long id) throws IOException;

@@ -51,8 +51,10 @@ public abstract class RdmaEndpointGroup <C extends RdmaEndpoint> {
 	public abstract RdmaCqProvider createCqProvider(C endpoint) throws IOException;
 	
 	public abstract IbvQP createQpProvider(C endpoint) throws IOException;
-	
-	public abstract void allocateResources(C endpoint) throws Exception;	
+
+	public abstract void allocateResources(C endpoint) throws Exception;
+
+	public abstract void checkResources(RdmaCmId idPriv) throws IOException;
 	
 	public RdmaEndpointGroup(int timeout) throws IOException{
 		this.endpointProvider = RdmaEndpointProvider.getEndpointProvider();

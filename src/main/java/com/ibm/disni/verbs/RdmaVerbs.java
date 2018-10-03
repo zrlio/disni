@@ -229,4 +229,6 @@ public abstract class RdmaVerbs {
 	 * @throws Exception on failure.
 	 */
 	public abstract int destroyCQ(IbvCQ cq) throws IOException;
+
+	public abstract void checkResources(IbvContext context, int maxWR, int maxSge, int cqSize) throws IOException;
 }

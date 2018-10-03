@@ -1328,3 +1328,35 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1getVersion(JNIEnv *, jobject) {
   int version = JVERBS_JNI_VERSION;
   return version;
 }
+
+/*
+ * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
+ * Method:    _checkResources
+ * Signature: (JIII)I
+ */
+JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1checkResources
+  (JNIEnv *env, jobject obj, jlong ctx, jint maxwr, jint maxsge, jint cqsize) {
+  struct ibv_context *context = NULL;
+  struct ibv_device_attr attr;
+  jint dev_maxwr, dev_maxsge, dev_cqsize;
+  jint ret = -1;
+  context = (struct ibv_context *)ctx;
+  ret = ibv_query_device(context, &attr);
+  if (ret == 0) {
+    dev_maxwr = attr.max_qp_wr;
+    dev_maxsge = attr.max_sge;
+    dev_cqsize = attr.max_cqe;
+    log("j2c::checkResources: device maxWR %u, maxSge %u, maxCQE %u \n",
+        dev_maxwr, dev_maxsge, dev_cqsize);
+    if (maxwr > dev_maxwr) 
+      ret |= 1;
+    if (maxsge > dev_maxsge)
+      ret |= 2;
+    if (cqsize > dev_cqsize)
+      ret |= 4;
+  } else {
+    log("j2c::checkResources: ibv_query_device failed %s\n", strerror(ret));
+    ret = -1;
+  }
+  return ret;
+}

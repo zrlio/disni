@@ -24,12 +24,9 @@ package com.ibm.disni;
 import java.io.IOException;
 import java.util.HashMap;
 
+import com.ibm.disni.verbs.*;
 import org.slf4j.Logger;
 
-import com.ibm.disni.verbs.IbvCQ;
-import com.ibm.disni.verbs.IbvContext;
-import com.ibm.disni.verbs.IbvQP;
-import com.ibm.disni.verbs.IbvQPInitAttr;
 import com.ibm.disni.util.DiSNILogger;
 
 /**
@@ -101,7 +98,11 @@ public class RdmaActiveEndpointGroup<C extends RdmaActiveEndpoint> extends RdmaE
 	public void allocateResources(C endpoint) throws Exception {
 		endpoint.allocateResources();
 	}	
-	
+
+	@Override
+	public void checkResources(RdmaCmId idPriv) throws IOException {
+		idPriv.checkResources(maxWR, maxSge, cqSize);
+	}
 	public void close() throws IOException, InterruptedException {
 		super.close();
 		for (RdmaActiveCqProcessor<C> cqProcessor : cqMap.values()){

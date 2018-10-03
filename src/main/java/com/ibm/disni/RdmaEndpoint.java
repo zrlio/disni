@@ -112,7 +112,8 @@ public class RdmaEndpoint {
 		if (connState != CONN_STATE_ROUTE_RESOLVED){
 			throw new IOException("resolve route failed");
 		}			
-		
+
+		group.checkResources(idPriv);
 		group.allocateResourcesRaw(this);
 		while(connState < CONN_STATE_RESOURCES_ALLOCATED){
 			wait();
@@ -355,5 +356,9 @@ public class RdmaEndpoint {
 
 	public RdmaConnParam getConnParam() {
 		return group.getConnParam();
+	}
+
+	public int queryODPSupport() throws IOException {
+		return idPriv.getVerbs().queryOdpSupport();
 	}
 }

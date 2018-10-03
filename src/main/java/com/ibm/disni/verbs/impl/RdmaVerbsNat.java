@@ -217,4 +217,24 @@ public class RdmaVerbsNat extends RdmaVerbs {
 		int ret = nativeDispatcher._destroyCQ(cqImpl.getObjId());
 		return ret;
 	}
+	@Override
+	public void checkResources(IbvContext context, int maxWR, int maxSge, int cqSize) throws IOException {
+		NatIbvContext natContext = (NatIbvContext)context;
+		int ret = nativeDispatcher._checkResources(natContext.getObjId(), maxWR, maxSge, cqSize);
+		String warning = "";
+		if ((ret & 1) != 0)
+		    warning = "too many maxWR";
+		if ((ret & 2) != 0) {
+			if (!warning.isEmpty())
+				warning = warning + " and ";
+			warning = warning + "too many maxSge";
+		}
+		if ((ret & 4) != 0) {
+			if (!warning.isEmpty())
+				warning = warning + " and ";
+			warning = warning + "too many cqSize";
+		}
+		if (!warning.isEmpty())
+			throw new IOException(warning);
+	}
 }

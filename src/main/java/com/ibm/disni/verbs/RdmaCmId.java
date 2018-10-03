@@ -21,6 +21,8 @@
 
 package com.ibm.disni.verbs;
 
+import com.ibm.disni.RdmaEndpointGroup;
+
 import java.io.IOException;
 import java.net.SocketAddress;
 
@@ -123,6 +125,11 @@ public class RdmaCmId  {
 
 	public void close() {
 		isOpen = false;
+	}
+
+	public void checkResources(int maxWR, int maxSge, int cqSize) throws IOException{
+		getVerbs();
+	    verbs.checkResources(maxWR, maxSge, cqSize);
 	}
 
 	//---------- oo-verbs

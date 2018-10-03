@@ -101,4 +101,8 @@ public class IbvContext  {
 	}
 
 	public int queryOdpSupport() throws IOException { return verbs.queryOdpSupport(this); }
+
+	public void checkResources(int maxWR, int maxSge, int cqSize) throws IOException {
+		verbs.checkResources(this, maxWR, maxSge, cqSize);
+	}
 }
