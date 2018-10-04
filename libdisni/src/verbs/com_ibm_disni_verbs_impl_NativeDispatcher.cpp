@@ -1356,7 +1356,7 @@ JNIEXPORT jint JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1checkRes
       ret |= 4;
   } else {
     log("j2c::checkResources: ibv_query_device failed %s\n", strerror(ret));
-    ret = -1;
+    JNU_ThrowIOExceptionWithReturnCode(env, "j2c::checkResources: ibv_query_device failed", ret);
   }
   return ret;
 }
