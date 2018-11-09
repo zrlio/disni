@@ -3,7 +3,7 @@
  *
  * Author: Patrick Stuedi <stu@zurich.ibm.com>
  *
- * Copyright (C) 2016, IBM Corporation
+ * Copyright (C) 2016-2018, IBM Corporation
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -78,47 +78,41 @@ static unsigned long long createObjectId(void *obj) {
   */
 }
 
-
 /**
  * Throw a Java exception by name. Similar to SignalError.
  */
-JNIEXPORT void JNICALL
-JNU_ThrowByName(JNIEnv *env, const char *name, const char *msg)
-{
-    jclass cls = env->FindClass(name);
+JNIEXPORT void JNICALL JNU_ThrowByName(JNIEnv *env, const char *name,
+                                       const char *msg) {
+  jclass cls = env->FindClass(name);
 
-    if (cls != 0) /* Otherwise an exception has already been thrown */
-        env->ThrowNew(cls, msg);
+  if (cls != 0) /* Otherwise an exception has already been thrown */
+    env->ThrowNew(cls, msg);
 }
 
 /* Throw an IOException, using provided message string.
  */
-void JNU_ThrowIOException(JNIEnv *env, const char *msg)
-{
-    JNU_ThrowByName(env, "java/io/IOException", msg);
+void JNU_ThrowIOException(JNIEnv *env, const char *msg) {
+  JNU_ThrowByName(env, "java/io/IOException", msg);
 }
 
 /* Throw an IOException, using the last-error string for the detail
  * string.
  */
-void JNU_ThrowIOExceptionWithLastError(JNIEnv *env, const char *msg)
-{
-    char* errorMsg;
-    asprintf(&errorMsg, "%s: %s\n", msg, strerror(errno));
-    JNU_ThrowIOException(env, errorMsg);
-    free(errorMsg);
+void JNU_ThrowIOExceptionWithLastError(JNIEnv *env, const char *msg) {
+  char *errorMsg;
+  asprintf(&errorMsg, "%s: %s\n", msg, strerror(errno));
+  JNU_ThrowIOException(env, errorMsg);
+  free(errorMsg);
 }
 
 /* Throw an IOException, using return code.
  */
-void JNU_ThrowIOExceptionWithReturnCode(JNIEnv *env, const char *msg, int ret)
-{
-    char* errorMsg;
-    asprintf(&errorMsg, "%s: %s\n", msg, strerror(ret));
-    JNU_ThrowIOException(env, errorMsg);
-    free(errorMsg);
+void JNU_ThrowIOExceptionWithReturnCode(JNIEnv *env, const char *msg, int ret) {
+  char *errorMsg;
+  asprintf(&errorMsg, "%s: %s\n", msg, strerror(ret));
+  JNU_ThrowIOException(env, errorMsg);
+  free(errorMsg);
 }
-
 
 /*
  * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
@@ -139,8 +133,8 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1createEventChannel(
     log("j2c::createEventChannel: obj_id %llu\n", obj_id);
   } else {
     log("j2c::createEventChannel: rdma_create_event_channel failed\n");
-    JNU_ThrowIOExceptionWithLastError(env,
-    "j2c::createEventChannel: rdma_create_event_channel failed");
+    JNU_ThrowIOExceptionWithLastError(
+        env, "j2c::createEventChannel: rdma_create_event_channel failed");
   }
 
   return obj_id;
@@ -170,7 +164,7 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1createId(JNIEnv *env,
     } else {
       log("j2c::createId: rdma_create_id failed\n");
       JNU_ThrowIOExceptionWithLastError(env,
-      "j2c::createId: rdma_create_id failed");
+                                        "j2c::createId: rdma_create_id failed");
     }
   } else {
     log("j2c::createId: cm_channel (%p) \n", cm_channel);
@@ -230,11 +224,13 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1createQP(
       ret = ibv_query_qp(qp, &tmp_attr, IBV_QP_STATE, &tmp_init_attr);
     } else {
       log("j2c::createQP: rdma_create_qp failed %s\n", strerror(errno));
-      JNU_ThrowIOExceptionWithLastError(env, "j2c::createQP: rdma_create_qp failed");
+      JNU_ThrowIOExceptionWithLastError(env,
+                                        "j2c::createQP: rdma_create_qp failed");
     }
   } else {
     log("j2c::createQP: cm_listen_id or protection or cq null\n");
-    JNU_ThrowIOException(env, "j2c::createQP: cm_listen_id or protection or cq null\n");
+    JNU_ThrowIOException(
+        env, "j2c::createQP: cm_listen_id or protection or cq null\n");
   }
 
   return obj_id;
@@ -261,7 +257,8 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1bindAddr(JNIEnv *env,
     } else {
       log("j2c::bind: rdma_bind_addr failed, cm_listen_id %p \n",
           (void *)cm_listen_id);
-      JNU_ThrowIOExceptionWithLastError(env, "j2c::bind: rdma_bind_addr failed");
+      JNU_ThrowIOExceptionWithLastError(env,
+                                        "j2c::bind: rdma_bind_addr failed");
     }
   } else {
     log("j2c::bind: cm_listen_id null\n");
@@ -307,12 +304,13 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1resolveAddr(
   cm_listen_id = (struct rdma_cm_id *)id;
   if (cm_listen_id != NULL) {
     int ret = rdma_resolve_addr(cm_listen_id, NULL, (struct sockaddr *)d_addr,
-                            (int)timeout);
+                                (int)timeout);
     if (ret == 0) {
       log("j2c::resolveAddr: ret %i\n", ret);
     } else {
       log("j2c::resolveAddr: rdma_resolve_addr failed\n");
-      JNU_ThrowIOExceptionWithLastError(env, "j2c::resolveAddr: rdma_resolve_addr failed");
+      JNU_ThrowIOExceptionWithLastError(
+          env, "j2c::resolveAddr: rdma_resolve_addr failed");
     }
   } else {
     log("j2c::resolveAddr: cm_listen_id null\n");
@@ -339,7 +337,8 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1resolveRoute(JNIEnv *env,
       log("j2c::resolveRoute: ret %i\n", ret);
     } else {
       log("j2c::resolveRoute: rdma_resolve_route failed\n");
-      JNU_ThrowIOExceptionWithLastError(env, "j2c::resolveRoute: rdma_resolve_route failed");
+      JNU_ThrowIOExceptionWithLastError(
+          env, "j2c::resolveRoute: rdma_resolve_route failed");
     }
   } else {
     log("j2c::resolveRoute: cm_listen_id null\n");
@@ -422,7 +421,8 @@ JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1connect(
           ibv_get_device_guid(cm_listen_id->verbs->device));
     } else {
       log("j2c::connect: rdma_connect failed\n");
-      JNU_ThrowIOExceptionWithLastError(env, "j2c::connect: rdma_connect failed");
+      JNU_ThrowIOExceptionWithLastError(env,
+                                        "j2c::connect: rdma_connect failed");
     }
   } else {
     log("j2c:connect: cm_listen_id null\n");
@@ -684,7 +684,8 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1allocPd(JNIEnv *env,
       log("j2c::allocPd: obj_id %llu\n", obj_id);
     } else {
       log("j2c::allocPd: ibv_alloc_pd failed\n");
-      JNU_ThrowIOExceptionWithLastError(env, "j2c::allocPd: ibv_alloc_pd failed");
+      JNU_ThrowIOExceptionWithLastError(env,
+                                        "j2c::allocPd: ibv_alloc_pd failed");
     }
   } else {
     log("j2c::allocPd: context null\n");
@@ -716,7 +717,8 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1createCompChannel(JNIEnv *env,
       log("j2c::createCompChannel: obj_id %llu\n", obj_id);
     } else {
       log("j2c::createCompChannel: ibv_create_comp_channel failed\n");
-      JNU_ThrowIOExceptionWithLastError(env, "j2c::createCompChannel: ibv_create_comp_channel failed");
+      JNU_ThrowIOExceptionWithLastError(
+          env, "j2c::createCompChannel: ibv_create_comp_channel failed");
     }
   } else {
     log("j2c::createCompChannel: context null\n");
@@ -753,7 +755,8 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1createCQ(
           (void *)obj_id, (void *)cq, cq->handle, _ncqe);
     } else {
       log("j2c::createCQ: ibv_create_cq failed\n");
-      JNU_ThrowIOExceptionWithLastError(env, "j2c::createCQ: ibv_create_cq failed");
+      JNU_ThrowIOExceptionWithLastError(env,
+                                        "j2c::createCQ: ibv_create_cq failed");
     }
   } else {
     log("j2c::createCQ: context or comp_channel null\n");
@@ -784,7 +787,8 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1modifyQP(JNIEnv *env,
       log("j2c::modify_qp: ret %i\n", ret);
     } else {
       log("j2c::modify_qp: ibv_modify_qp failed\n");
-      JNU_ThrowIOExceptionWithReturnCode(env, "j2c::modify_qp: ibv_modify_qp failed", ret);
+      JNU_ThrowIOExceptionWithReturnCode(
+          env, "j2c::modify_qp: ibv_modify_qp failed", ret);
     }
   } else {
     log("j2c::modify_qp: queuepair null\n");
@@ -845,7 +849,8 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1expPrefetchMr(
     } else {
       log("j2c::expPrefetchMr:  ibv_exp_prefetch_mr failed, error %s\n",
           strerror(errno));
-          JNU_ThrowIOExceptionWithLastError(env, "j2c::expPrefetchMr:  ibv_exp_prefetch_mr failed");
+      JNU_ThrowIOExceptionWithLastError(
+          env, "j2c::expPrefetchMr:  ibv_exp_prefetch_mr failed");
     }
   } else {
     log("j2c::expPrefetchMr: mr null\n");
@@ -890,7 +895,7 @@ JNIEXPORT jlong JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1regMr(
     }
   } else {
     log("j2c::regMr: protection null\n");
-     JNU_ThrowIOException(env, "j2c::regMr: protection null\n");
+    JNU_ThrowIOException(env, "j2c::regMr: protection null\n");
   }
 
   return obj_id;
@@ -914,7 +919,8 @@ JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1deregMr(
       log("j2c::deregMr: ret %i\n", ret);
     } else {
       log("j2c::deregMr:  ibv_dereg_failed, error %s\n", strerror(errno));
-      JNU_ThrowIOExceptionWithReturnCode(env, "j2c::deregMr:  ibv_dereg_failed, error", ret);
+      JNU_ThrowIOExceptionWithReturnCode(
+          env, "j2c::deregMr:  ibv_dereg_failed, error", ret);
     }
   } else {
     log("j2c::deregMr: mr null\n");
@@ -942,7 +948,8 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1postSend(JNIEnv *env,
       // log("j2c::post_send: ret %i\n", ret);
     } else {
       log("j2c::post_send: ibv_post_send failed %s\n", strerror(ret));
-      JNU_ThrowIOExceptionWithReturnCode(env, "j2c::post_send: ibv_post_send failed", ret);
+      JNU_ThrowIOExceptionWithReturnCode(
+          env, "j2c::post_send: ibv_post_send failed", ret);
     }
 
   } else {
@@ -972,7 +979,8 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1postRecv(JNIEnv *env,
       // log("j2c::post_recv: ret %i\n", ret);
     } else {
       log("j2c::post_recv: ibv_post_recv failed %s\n", strerror(ret));
-      JNU_ThrowIOExceptionWithReturnCode(env, "j2c::post_recv: ibv_post_recv failed", ret);
+      JNU_ThrowIOExceptionWithReturnCode(
+          env, "j2c::post_recv: ibv_post_recv failed", ret);
     }
   } else {
     log("j2c::post_recv: queuepair null\n");
@@ -1213,7 +1221,8 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1getContextNumCompVectors(
         obj_id, num_comp_vectors);
   } else {
     log("j2c::getContextNumCompVectors: failed, obj_id %llu\n", obj_id);
-    JNU_ThrowIOException(env, "j2c::getContextNumCompVectors: failed, ibv_context null");
+    JNU_ThrowIOException(
+        env, "j2c::getContextNumCompVectors: failed, ibv_context null");
   }
 
   return num_comp_vectors;
