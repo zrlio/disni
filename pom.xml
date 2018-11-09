@@ -98,11 +98,18 @@
     </profile>
   </profiles>
 
-  <build>
-    <plugins>
-      <!-- any other plugins -->
-
-      <plugin>
+	<build>
+    <resources>
+      <resource>
+        <directory>${project.basedir}</directory>
+        <targetPath>META-INF/</targetPath>
+        <includes>
+          <include>LICENSE</include>
+        </includes>
+      </resource>
+    </resources>
+		<plugins>
+     <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-jar-plugin</artifactId>
         <version>2.6</version>
@@ -114,7 +121,6 @@
           </execution>
         </executions>
       </plugin>
-
       <plugin>
         <artifactId>maven-assembly-plugin</artifactId>
         <executions>
@@ -132,8 +138,6 @@
           </execution>
         </executions>
       </plugin>
-
-
       <plugin>
         <groupId>org.sonatype.plugins</groupId>
         <artifactId>nexus-staging-maven-plugin</artifactId>
@@ -145,7 +149,6 @@
           <autoReleaseAfterClose>false</autoReleaseAfterClose>
         </configuration>
       </plugin>
-
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
         <artifactId>maven-source-plugin</artifactId>
@@ -181,6 +184,36 @@
         <configuration>
           <source>8</source>
           <target>8</target>
+        </configuration>
+			</plugin>
+      <plugin>
+        <groupId>org.apache.rat</groupId>
+        <artifactId>apache-rat-plugin</artifactId>
+        <version>0.12</version>
+				<configuration>
+         <licenses>
+            <license implementation="org.apache.rat.analysis.license.SimplePatternBasedLicense">
+              <licenseFamilyCategory>AL20</licenseFamilyCategory>
+              <licenseFamilyName>Apache License, 2.0</licenseFamilyName>
+            </license>
+            <license implementation="org.apache.rat.analysis.license.SimplePatternBasedLicense">
+              <licenseFamilyCategory>LGPL2</licenseFamilyCategory>
+              <licenseFamilyName>Lesser GNU General Public License, version 2.1</licenseFamilyName>
+              <patterns>
+                <pattern>This library is free software; you can redistribute it and/or</pattern>
+                <pattern>modify it under the terms of the GNU Lesser General Public</pattern>
+                <pattern>version 2.1 of the License, or (at your option) any later version.</pattern>
+              </patterns>
+            </license>
+          </licenses>
+          <licenseFamilies>
+            <licenseFamily implementation="org.apache.rat.license.SimpleLicenseFamily">
+              <familyName>Lesser GNU General Public License, version 2.1</familyName>
+            </licenseFamily>
+					</licenseFamilies>
+          <excludes>
+						<exclude>libdisni/**/*</exclude>
+          </excludes>
         </configuration>
       </plugin>
     </plugins>
