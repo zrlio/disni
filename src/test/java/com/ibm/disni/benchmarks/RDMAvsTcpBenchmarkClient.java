@@ -93,15 +93,15 @@ public class RDMAvsTcpBenchmarkClient implements RdmaEndpointFactory<CustomClien
     SVCPostSend postSend = endpoint.postSend(endpoint.getWrList_send());
     SVCPostRecv postRecv = endpoint.postRecv(endpoint.getWrList_recv());
     long startTime = System.nanoTime();
-    for (int i = 0; i < loopCount + 1; i++) {
+    for (int i = 0; i < loopCount; i++) {
       // Send PING
       sendBuf.clear();
       postSend.execute();
       endpoint.getWcEvents().take();
 
       // Recv PONG
-      postRecv.execute();
       endpoint.getWcEvents().take();
+      postRecv.execute();
       recvBuf.clear();
     }
     System.out.println("RDMA result:");
