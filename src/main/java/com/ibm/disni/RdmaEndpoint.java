@@ -118,7 +118,7 @@ public class RdmaEndpoint {
 			wait();
 		}	
 		if (connState != CONN_STATE_RESOURCES_ALLOCATED){
-			throw new IOException("resolve route failed");
+			throw new IOException("resources allocation failed");
 		}	
 		
 		RdmaConnParam connParam = getConnParam();
@@ -178,7 +178,7 @@ public class RdmaEndpoint {
 			wait();
 		}	
 		if (connState != CONN_STATE_RESOURCES_ALLOCATED){
-			throw new IOException("resolve route failed");
+			throw new IOException("resources allocation failed");
 		}		
 		
 		RdmaConnParam connParam = getConnParam();
