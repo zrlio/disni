@@ -154,6 +154,7 @@ public class RdmaEndpoint {
 				logger.info("got event type + RDMA_CM_EVENT_CONNECT_REQUEST, srcAddress " + this.getSrcAddr() + ", dstAddress " + this.getDstAddr());
 			} else {
 				logger.info("got event type + UNKNOWN, srcAddress " + this.getSrcAddr() + ", dstAddress " + this.getDstAddr());
+				notifyAll();
 			}
 		} catch (Exception e) {
 			throw new IOException(e);
