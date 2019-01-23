@@ -100,7 +100,7 @@ public class RdmaActiveEndpointGroup<C extends RdmaActiveEndpoint> extends RdmaE
 	
 	public void allocateResources(C endpoint) throws Exception {
 		endpoint.allocateResources();
-	}	
+	}
 	
 	public void close() throws IOException, InterruptedException {
 		super.close();
@@ -110,9 +110,11 @@ public class RdmaActiveEndpointGroup<C extends RdmaActiveEndpoint> extends RdmaE
 	}
 
 	void close(RdmaEndpoint endpoint) throws IOException {
-		IbvContext context = endpoint.getIdPriv().getVerbs();
-		RdmaActiveCqProcessor<C> cqProcessor = cqMap.get(context.getCmd_fd());
-		cqProcessor.unregister(endpoint);
+	    if (endpoint.isResouceAllocated()) {
+			IbvContext context = endpoint.getIdPriv().getVerbs();
+			RdmaActiveCqProcessor<C> cqProcessor = cqMap.get(context.getCmd_fd());
+			cqProcessor.unregister(endpoint);
+		}
 	}
 	
 	public int getMaxWR() {
