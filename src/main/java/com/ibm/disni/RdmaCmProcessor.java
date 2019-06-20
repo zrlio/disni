@@ -33,32 +33,33 @@ import com.ibm.disni.verbs.RdmaEventChannel;
 import com.ibm.disni.util.DiSNILogger;
 
 /**
- * Responsible for processing communication events. 
+ * Responsible for processing communication events.
  */
 public class RdmaCmProcessor implements Runnable {
 	private static final Logger logger = DiSNILogger.getLogger();
-	
+
 	private RdmaEventChannel cmChannel;
 	private RdmaEndpointGroup<? extends RdmaEndpoint> cmConsumer;
 	private Thread thread;
 	private AtomicBoolean closed;
 	private int timeout;
-	
+
 	public RdmaCmProcessor(RdmaEndpointGroup<? extends RdmaEndpoint> cmConsumer, int timeout) throws IOException {
 		this.cmChannel = RdmaEventChannel.createEventChannel();
 		if (cmChannel == null){
 			throw new IOException("No RDMA device configured!");
 		}
-		this.cmConsumer = cmConsumer;		
+		this.cmConsumer = cmConsumer;
 		this.thread = new Thread(this);
+		this.thread.setDaemon(true);
 		closed = new AtomicBoolean(true);
 		this.timeout = timeout;
 	}
-	
+
 	public synchronized void start(){
 		closed.set(false);
 		thread.start();
-	}	
+	}
 
 	public void run() {
 		logger.info("launching cm processor, cmChannel " + cmChannel.getFd());
@@ -93,7 +94,7 @@ public class RdmaCmProcessor implements Runnable {
 		if (closed.get()){
 			return;
 		}
-		
+
 		closed.set(true);
 		thread.join();
 		logger.info("cm processor down");
