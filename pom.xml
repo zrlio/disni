@@ -5,7 +5,7 @@
   <groupId>com.ibm.disni</groupId>
   <artifactId>disni</artifactId>
   <packaging>jar</packaging>
-  <version>2.0</version>
+  <version>2.1</version>
   <name>disni</name>
   <description>DiSNI (Direct Storage and Networking Interface) is a Java library for direct storage and networking access from userpace.</description>
   <url>http://github.com/zrlio/disni</url>
