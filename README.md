@@ -151,6 +151,12 @@ postSend.free();
 
 As mentioned earlier, EndpointGroups are containers and factories for RDMA connections (RdmaEndpoint). There are two types of groups available in the RDMA API, and which type works best depends on the application. The RdmaActiveEndpointGroup actively processes network events caused by RDMA messages being transmitted or received. Events are signaled by calling dispatchCqEvent() which can be overriden by the custom endpoint of the application. The RdmaPassiveEndpointGroup provides a polling interface that allows the application to directly reap completion events from the network queue (completion queue). As such, the passive mode has typically lower latency but may suffer from contention in case of large numbers of threads operating on the same connection. The active mode, on the other hand, is more robust under large numbers of threads, but has higher latencies. Often it is the best option to use active endpoints at the server, and passive connections at the client. Passive endpoints are typically the right choice if the application knows when messages will be received and, thus, can poll the completion queue accordingly. 
 
+## Publications
+
+  * [**jVerbs: Ultra-low Latency for Data Center Applications**](https://dl.acm.org/citation.cfm?id=2523631), Patrick Stuedi, Bernard Metzler, Animesh Trivedi. Proceedings of the *4th ACM Symposium on Cloud Computing 2013 (SoCC’13)*, Santa Clara, CA, USA, October 2013.
+
+  * [**jVerbs: RDMA support for Java**](http://domino.research.ibm.com/library/cyberdig.nsf/papers/4BCF9F3B8E5A3B9D85257FF100271295), Patrick Stuedi, Bernard Metzler, Animesh Trivedi. IBM Technical Report Number RZ3845. 
+
 ## Contributions
 
 PRs are always welcome. Please fork, and make necessary modifications 
