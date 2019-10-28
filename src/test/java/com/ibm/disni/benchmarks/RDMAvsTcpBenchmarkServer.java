@@ -91,10 +91,10 @@ public class RDMAvsTcpBenchmarkServer implements RdmaEndpointFactory<SendRecvSer
     ByteBuffer recvBuf = clientEndpoint.getRecvBuf();
     SVCPostSend postSend = clientEndpoint.postSend(clientEndpoint.getWrList_send());
     SVCPostRecv postRecv = clientEndpoint.postRecv(clientEndpoint.getWrList_recv());
-    for (int i = 0; i < loopCount + 1; i++){
+    for (int i = 0; i < loopCount; i++){
       // Recv PING
-      postRecv.execute();
       clientEndpoint.getWcEvents().take();
+      postRecv.execute();
       recvBuf.clear();
 
       //Send PONG
