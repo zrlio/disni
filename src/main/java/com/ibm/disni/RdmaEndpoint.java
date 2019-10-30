@@ -68,13 +68,15 @@ public class RdmaEndpoint {
 	private boolean isClosed;
 	private boolean isInitialized;
 	private boolean serverSide;
-	
+	private boolean isError;
+
 	protected RdmaEndpoint(RdmaEndpointGroup<? extends RdmaEndpoint> group, RdmaCmId idPriv, boolean serverSide) throws IOException{
 		this.endpointId = group.getNextId();
 		this.group = group;
 		this.idPriv = idPriv;
-		this.access = IbvMr.IBV_ACCESS_LOCAL_WRITE | IbvMr.IBV_ACCESS_REMOTE_WRITE | IbvMr.IBV_ACCESS_REMOTE_READ; 	
-		
+		this.access = IbvMr.IBV_ACCESS_LOCAL_WRITE | IbvMr.IBV_ACCESS_REMOTE_WRITE | IbvMr.IBV_ACCESS_REMOTE_READ;
+		this.isError = false;
+
 		this.qp = null;
 		this.pd = null;
 		this.cqProcessor = null;
@@ -84,7 +86,7 @@ public class RdmaEndpoint {
 		this.serverSide = serverSide;
 		logger.info("new client endpoint, id " + endpointId + ", idPriv " + idPriv.getPs());
 	}
-	
+
 	/**
 	/**
 	/**
@@ -94,41 +96,44 @@ public class RdmaEndpoint {
 	 * @param timeout connection timeout
 	 */
 	public synchronized void connect(SocketAddress dst, int timeout) throws Exception {
-		if (connState != CONN_STATE_INITIALIZED) {
+		if (connState != CONN_STATE_INITIALIZED && !isError) {
 			throw new IOException("endpoint already connected");
 		}
-		idPriv.resolveAddr(null, dst, timeout);
-		while(connState < CONN_STATE_ADDR_RESOLVED){
-			wait();
+		isError = false;
+		if (connState < CONN_STATE_ADDR_RESOLVED) {
+			idPriv.resolveAddr(null, dst, timeout);
+			while (connState < CONN_STATE_ADDR_RESOLVED && !isError) {
+				wait();
+			}
+			if (isError)
+				throw new IOException("resolve address failed");
 		}
-		if (connState != CONN_STATE_ADDR_RESOLVED){
-			throw new IOException("resolve address failed");
+		if (connState < CONN_STATE_ROUTE_RESOLVED) {
+			idPriv.resolveRoute(timeout);
+			while (connState < CONN_STATE_ROUTE_RESOLVED && !isError) {
+				wait();
+			}
+			if (isError)
+				throw new IOException("resolve route failed");
 		}
-		
-		idPriv.resolveRoute(timeout);
-		while(connState < CONN_STATE_ROUTE_RESOLVED){
-			wait();
+		if (connState < CONN_STATE_RESOURCES_ALLOCATED) {
+			group.allocateResourcesRaw(this);
+			while (connState < CONN_STATE_RESOURCES_ALLOCATED && !isError) {
+				wait();
+			}
+			if (isError)
+				throw new IOException("allocate resource failed");
 		}
-		if (connState != CONN_STATE_ROUTE_RESOLVED){
-			throw new IOException("resolve route failed");
-		}			
-		
-		group.allocateResourcesRaw(this);
-		while(connState < CONN_STATE_RESOURCES_ALLOCATED){
-			wait();
-		}	
-		if (connState != CONN_STATE_RESOURCES_ALLOCATED){
-			throw new IOException("resources allocation failed");
-		}	
-		
 		RdmaConnParam connParam = getConnParam();
 		idPriv.connect(connParam);
-		
-		while(connState < CONN_STATE_CONNECTED){
+
+		while(connState < CONN_STATE_CONNECTED && !isError){
 			wait();
-		}			
-	}		
-	
+		}
+		if (isError)
+			throw new IOException("idPriv connect failed");
+	}
+
 	/* (non-Javadoc)
 	 * @see com.ibm.jverbs.endpoints.ICmConsumer#dispatchCmEvent(com.ibm.jverbs.cm.RdmaCmEvent)
 	 */
@@ -138,28 +143,26 @@ public class RdmaEndpoint {
 			int eventType = cmEvent.getEvent();
 			if (eventType == RdmaCmEvent.EventType.RDMA_CM_EVENT_ADDR_RESOLVED.ordinal()) {
 				connState = RdmaEndpoint.CONN_STATE_ADDR_RESOLVED;
-				notifyAll();
 			} else if (cmEvent.getEvent() == RdmaCmEvent.EventType.RDMA_CM_EVENT_ROUTE_RESOLVED.ordinal()) {
 				connState = RdmaEndpoint.CONN_STATE_ROUTE_RESOLVED;
-				notifyAll();
 			} else if (eventType == RdmaCmEvent.EventType.RDMA_CM_EVENT_ESTABLISHED.ordinal()) {
 				logger.info("got event type + RDMA_CM_EVENT_ESTABLISHED, srcAddress " + this.getSrcAddr() + ", dstAddress " + this.getDstAddr());
 				connState = CONN_STATE_CONNECTED;
-				notifyAll();
 			} else if (eventType == RdmaCmEvent.EventType.RDMA_CM_EVENT_DISCONNECTED.ordinal()) {
 				logger.info("got event type + RDMA_CM_EVENT_DISCONNECTED, srcAddress " + this.getSrcAddr() + ", dstAddress " + this.getDstAddr());
 				connState = CONN_STATE_CLOSED;
-				notifyAll();
 			} else if (eventType == RdmaCmEvent.EventType.RDMA_CM_EVENT_CONNECT_REQUEST.ordinal()) {
 				logger.info("got event type + RDMA_CM_EVENT_CONNECT_REQUEST, srcAddress " + this.getSrcAddr() + ", dstAddress " + this.getDstAddr());
 			} else {
 				logger.info("got event type + UNKNOWN, srcAddress " + this.getSrcAddr() + ", dstAddress " + this.getDstAddr());
+				isError = true;
 			}
+			notifyAll();
 		} catch (Exception e) {
 			throw new IOException(e);
 		}
 	}
-	
+
 	public final synchronized void allocateResources() throws IOException {
 		if (!isInitialized) {
 			this.pd = group.createProtectionDomainRaw(this);
@@ -200,7 +203,7 @@ public class RdmaEndpoint {
 		if (isClosed){
 			return;
 		}
-		
+
 		logger.info("closing client endpoint");
 		if (connState == CONN_STATE_CONNECTED) {
 			idPriv.disconnect();
@@ -222,6 +225,9 @@ public class RdmaEndpoint {
 	 */
 	public synchronized boolean isConnected() {
 		return (connState == CONN_STATE_CONNECTED);
+	}
+	public synchronized boolean isResouceAllocated() {
+		return (connState == CONN_STATE_RESOURCES_ALLOCATED);
 	}
 
 	/**
