@@ -22,6 +22,8 @@
 package com.ibm.disni.verbs;
 
 import java.io.IOException;
+import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 
 // TODO: Auto-generated Javadoc
 //struct rdma_conn_param {
@@ -50,6 +52,8 @@ public class RdmaConnParam {
 	protected byte rnr_retry_count;
 	protected byte srq;
 	protected int qp_num;
+
+	public static int CSIZE = 24;
 
 	public RdmaConnParam() {
 		this.private_data_addr = 0;
@@ -111,7 +115,7 @@ public class RdmaConnParam {
 	 * @param responder_resources the new responder resources.
 	 */
 	public void setResponder_resources(byte responder_resources) throws IOException {
-		throw new IOException("Operation currently not supported");
+		this.responder_resources = responder_resources;
 	}
 
 	/**
@@ -129,7 +133,7 @@ public class RdmaConnParam {
 	 * @param initiator_depth the new initiater depth.
 	 */
 	public void setInitiator_depth(byte initiator_depth) throws IOException {
-		throw new IOException("Operation currently not supported");
+		this.initiator_depth = initiator_depth;
 	}
 
 	/**
@@ -220,5 +224,24 @@ public class RdmaConnParam {
 	 */
 	public void setQp_num(int qp_num) throws IOException {
 		throw new IOException("Operation currently not supported");
+	}
+
+
+	public void writeBack(ByteBuffer buffer) {
+		buffer.order(ByteOrder.LITTLE_ENDIAN);
+		buffer.putLong(private_data_addr);
+		buffer.order(ByteOrder.nativeOrder());
+		buffer.put(private_data_len);
+		buffer.put(responder_resources);
+		buffer.put(initiator_depth);
+		buffer.put(flow_control);
+		buffer.put(retry_count);
+		buffer.put(rnr_retry_count);
+		buffer.put(srq);
+		buffer.put((byte)0);
+	}
+
+	public int size() {
+		return CSIZE;
 	}
 }

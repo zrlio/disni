@@ -133,6 +133,8 @@ public class VerbsServer {
 
 		RdmaConnParam connParam = new RdmaConnParam();
 		connParam.setRetry_count((byte) 2);
+		connParam.setResponder_resources((byte) 1);
+		connParam.setInitiator_depth((byte) 1);
 		//once the client id is set up, accept the connection
 		connId.accept(connParam);
 		//wait until the connection is officially switched into established mode

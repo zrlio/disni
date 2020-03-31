@@ -217,10 +217,14 @@ public class RdmaCmNat extends RdmaCm {
 		if (!idPriv.isOpen()) {
 			throw new IOException("Trying to call connect() with closed ID");
 		}
-		nativeDispatcher._connect(idPriv.getObjId(), connParam.getRetry_count(),
-				connParam.getRnr_retry_count(), connParam.getPrivate_data(), connParam.getPrivate_data_len());
+
+		MemBuf memBuf = memAlloc.allocate(connParam.CSIZE);
+        connParam.writeBack(memBuf.getBuffer());
+ 
+		nativeDispatcher._connectV2(idPriv.getObjId(), memBuf.address());
 		logger.info("connect, id " + id.getPs());
-		
+
+		memBuf.free();
 		return;
 	}
 
@@ -231,9 +235,14 @@ public class RdmaCmNat extends RdmaCm {
 		if (!idPriv.isOpen()) {
 			throw new IOException("Trying to call accept() with closed ID");
 		}
-		nativeDispatcher._accept(idPriv.getObjId(), connParam.getRetry_count(), connParam.getRnr_retry_count());
+		
+		MemBuf memBuf = memAlloc.allocate(connParam.CSIZE);
+        connParam.writeBack(memBuf.getBuffer());
+
+		nativeDispatcher._acceptV2(idPriv.getObjId(), memBuf.address());
 		logger.info("accept, id " + id.getPs());
 		
+		memBuf.free();
 		return;
 	}
 

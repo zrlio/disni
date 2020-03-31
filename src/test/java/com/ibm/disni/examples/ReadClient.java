@@ -48,6 +48,12 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.CustomClientEn
 		//create a EndpointGroup. The RdmaActiveEndpointGroup contains CQ processing and delivers CQ event to the endpoint.dispatchCqEvent() method.
 		endpointGroup = new RdmaActiveEndpointGroup<ReadClient.CustomClientEndpoint>(1000, false, 128, 4, 128);
 		endpointGroup.init(this);
+
+		RdmaConnParam connParam = new RdmaConnParam();
+		connParam.setResponder_resources((byte) 0);
+		connParam.setInitiator_depth((byte) 16);
+		endpointGroup.setConnParam(connParam);
+
 		//we have passed our own endpoint factory to the group, therefore new endpoints will be of type CustomClientEndpoint
 		//let's create a new client endpoint
 		ReadClient.CustomClientEndpoint endpoint = endpointGroup.createEndpoint();

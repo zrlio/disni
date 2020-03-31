@@ -99,7 +99,9 @@ public class NativeDispatcher {
 	public native int _getCmEvent(long channel, long listenid, long clientid, int timeout);
 	public native void _connect(long id, int retrycount, int rnrretrycount, long privdataaddr, byte privdatalen)
 		throws IOException;
+	public native void _connectV2(long id, long conn_param) throws IOException;
 	public native void _accept(long id, int retrycount, int rnrretrycount) throws IOException;
+	public native void _acceptV2(long id, long conn_param) throws IOException;
 	public native int _ackCmEvent(int cmEvent);
 	public native int _disconnect(long id);
 	public native int _destroyEventChannel(long fd);
