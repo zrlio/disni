@@ -136,9 +136,19 @@ public class RdmaVerbsNat extends RdmaVerbs {
 
 	}
 
-	public int queryOdpSupport(IbvContext context){
+	public int queryOdpSupport(IbvContext context) {
 		NatIbvContext natContext = (NatIbvContext) context;
 		return nativeDispatcher._queryOdpSupport(natContext.getObjId());
+	}
+
+	public int queryMaxResponderResources(IbvContext context) throws IOException{
+		NatIbvContext natContext = (NatIbvContext) context;
+		return nativeDispatcher._queryMaxResponderResources(natContext.getObjId());
+	}
+
+	public int queryMaxInitiatorDepth(IbvContext context) throws IOException{
+		NatIbvContext natContext = (NatIbvContext) context;
+		return nativeDispatcher._queryMaxInitiatorDepth(natContext.getObjId());
 	}
 
 	public int expPrefetchMr(IbvMr ibvMr, long address, int length) throws IOException {

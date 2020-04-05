@@ -894,6 +894,59 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1queryOdpSupport(JNIEnv *env,
 
 /*
  * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
+ * Method:    _queryMaxResponderResources
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL
+Java_com_ibm_disni_verbs_impl_NativeDispatcher__1queryMaxResponderResources(
+                                                                 JNIEnv *env,
+                                                                 jobject obj,
+                                                                 jlong id) {
+  jint ret = -1;
+  struct ibv_context *context = (struct ibv_context *)id;
+
+  struct ibv_device_attr dev_attr;
+  ret = ibv_query_device(context, &dev_attr);
+
+  if(ret == 0) {
+    ret = dev_attr.max_qp_rd_atom;
+  } else {
+    log("j2c::queryMaxResponderResources:  ibv_query_device failed, error %s\n",
+        strerror(ret));
+    ret = -1;
+    JNU_ThrowIOExceptionWithLastError(env, "j2c::queryMaxResponderResources:  ibv_query_device failed");
+  }
+  return ret;
+}
+
+/*
+ * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
+ * Method:    _queryMaxInitiatorDepth
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL
+Java_com_ibm_disni_verbs_impl_NativeDispatcher__1queryMaxInitiatorDepth(JNIEnv *env,
+                                                                 jobject obj,
+                                                                 jlong id) {
+  jint ret = -1;
+  struct ibv_context *context = (struct ibv_context *)id;
+
+  struct ibv_device_attr dev_attr;
+  ret = ibv_query_device(context, &dev_attr);
+
+  if(ret == 0) {
+    ret = dev_attr.max_qp_init_rd_atom;
+  } else {
+    log("j2c::queryMaxInitiatorDepth:  ibv_query_device failed, error %s\n",
+        strerror(ret));
+    ret = -1;
+    JNU_ThrowIOExceptionWithLastError(env, "j2c::queryMaxInitiatorDepth:  ibv_query_device failed");
+  }
+  return ret;
+}
+
+/*
+ * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
  * Method:    _expPrefetchMr
  * Signature: (JJI)I
  */

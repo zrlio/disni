@@ -219,8 +219,8 @@ public class RdmaCmNat extends RdmaCm {
 		}
 
 		MemBuf memBuf = memAlloc.allocate(connParam.CSIZE);
-        connParam.writeBack(memBuf.getBuffer());
- 
+		connParam.writeBack(memBuf.getBuffer());
+
 		nativeDispatcher._connectV2(idPriv.getObjId(), memBuf.address());
 		logger.info("connect, id " + id.getPs());
 
@@ -237,7 +237,7 @@ public class RdmaCmNat extends RdmaCm {
 		}
 		
 		MemBuf memBuf = memAlloc.allocate(connParam.CSIZE);
-        connParam.writeBack(memBuf.getBuffer());
+		connParam.writeBack(memBuf.getBuffer());
 
 		nativeDispatcher._acceptV2(idPriv.getObjId(), memBuf.address());
 		logger.info("accept, id " + id.getPs());

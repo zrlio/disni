@@ -235,6 +235,27 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1queryOdpSupport(JNIEnv *env,
                                                                  jobject,
                                                                  jlong);
 
+
+/*
+ * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
+ * Method:    _queryMaxResponderResources
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL
+Java_com_ibm_disni_verbs_impl_NativeDispatcher__1queryMaxResponderResources(JNIEnv *env,
+                                                                 jobject,
+                                                                 jlong);
+
+/*
+ * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
+ * Method:    _queryMaxInitiatorDepth
+ * Signature: (J)I
+ */
+JNIEXPORT jint JNICALL
+Java_com_ibm_disni_verbs_impl_NativeDispatcher__1queryMaxInitiatorDepth(JNIEnv *env,
+                                                                 jobject,
+                                                                 jlong);
+
 /*
  * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
  * Method:    _expPrefetchMr

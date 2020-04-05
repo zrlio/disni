@@ -101,4 +101,8 @@ public class IbvContext  {
 	}
 
 	public int queryOdpSupport() throws IOException { return verbs.queryOdpSupport(this); }
+
+	public int queryMaxResponderResources() throws IOException { return verbs.queryMaxResponderResources(this); }
+
+	public int queryMaxInitiatorDepth() throws IOException { return verbs.queryMaxInitiatorDepth(this); }
 }

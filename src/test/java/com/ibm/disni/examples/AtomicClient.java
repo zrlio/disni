@@ -1,9 +1,7 @@
 /*
  * DiSNI: Direct Storage and Networking Interface
  *
- * Author: Patrick Stuedi <stu@zurich.ibm.com>
- *
- * Copyright (C) 2016-2018, IBM Corporation
+ * Author: Konstantin Taranov <ktaranov@inf.ethz.ch>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -163,11 +161,14 @@ public class AtomicClient {
 		VerbsTools commRdma = new VerbsTools(context, compChannel, qp, cq);
 		commRdma.initSGRecv(wrList_recv);
 
+		int maxResponderResources = context.queryMaxResponderResources();
+		int maxInitiatorDepth = context.queryMaxInitiatorDepth();
+		
 		//now let's connect to the server
 		RdmaConnParam connParam = new RdmaConnParam();
 		connParam.setRetry_count((byte) 2);
-		connParam.setResponder_resources((byte) 1);
-		connParam.setInitiator_depth((byte) 1);
+		connParam.setResponder_resources((byte) maxResponderResources);
+		connParam.setInitiator_depth((byte) maxInitiatorDepth);
 		idPriv.connect(connParam);		
 
  
@@ -198,7 +199,7 @@ public class AtomicClient {
 		dataBuf.order(ByteOrder.LITTLE_ENDIAN);
 		System.out.println("AtomicClient::initial value in the buffer: " + dataBuf.getLong());
 
-		//let's prepare a one-sided RDMA read operation to fetch the content of that remote buffer
+		//let's prepare a one-sided RDMA atomic operation to fetch the content of that remote buffer
 		LinkedList<IbvSendWR> wrList_send = new LinkedList<IbvSendWR>();
 		IbvSge sgeSend = new IbvSge();
 		sgeSend.setAddr(dataMr.getAddr());
@@ -216,14 +217,15 @@ public class AtomicClient {
 		sendWR.getAtomic().setCompare_add(10);
 		wrList_send.add(sendWR);
 
-		//now we post the operation, the RDMA/read operation will take off
+		//now we post the operation, the RDMA/atomic operation will take off
 		//the wrapper class will also wait of the CQ event
-		//once the CQ event is received we know the RDMA/read operation has completed
+		//once the CQ event is received we know the RDMA/atomic operation has completed
 		//we should have the content of the remote buffer stored in our own local buffer
 		//let's print it
 		commRdma.send(buffers, wrList_send, true, false);
 		dataBuf.clear();
-		System.out.println("AtomicClient::read value from server: " + dataBuf.getLong());
+		System.out.println("AtomicClient::the remote server values has been incremented by 10");
+		System.out.println("AtomicClient::the fetched value from the remote server: " + dataBuf.getLong());
 		
 		//now we send a final message to signal everything went fine
 		sgeSend = new IbvSge();

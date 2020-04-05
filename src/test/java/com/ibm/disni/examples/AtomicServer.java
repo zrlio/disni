@@ -1,9 +1,7 @@
 /*
  * DiSNI: Direct Storage and Networking Interface
  *
- * Author: Patrick Stuedi <stu@zurich.ibm.com>
- *
- * Copyright (C) 2016-2018, IBM Corporation
+ * Author: Konstantin Taranov <ktaranov@inf.ethz.ch>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -132,10 +130,13 @@ public class AtomicServer {
 		IbvMr mrlist[] = new IbvMr[buffercount];
 		int access = IbvMr.IBV_ACCESS_LOCAL_WRITE | IbvMr.IBV_ACCESS_REMOTE_WRITE | IbvMr.IBV_ACCESS_REMOTE_READ | IbvMr.IBV_ACCESS_REMOTE_ATOMIC;
 
+		int maxResponderResources = context.queryMaxResponderResources();
+		int maxInitiatorDepth = context.queryMaxInitiatorDepth();
+		
 		RdmaConnParam connParam = new RdmaConnParam();
 		connParam.setRetry_count((byte) 2);
-		connParam.setResponder_resources((byte) 1);
-		connParam.setInitiator_depth((byte) 1);
+		connParam.setResponder_resources((byte) maxResponderResources);
+		connParam.setInitiator_depth((byte) maxInitiatorDepth);
 		//once the client id is set up, accept the connection
 		connId.accept(connParam);
 		//wait until the connection is officially switched into established mode
