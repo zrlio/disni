@@ -161,9 +161,11 @@ public class AtomicClient {
 		VerbsTools commRdma = new VerbsTools(context, compChannel, qp, cq);
 		commRdma.initSGRecv(wrList_recv);
 
-		int maxResponderResources = context.queryMaxResponderResources();
-		int maxInitiatorDepth = context.queryMaxInitiatorDepth();
-		
+		IbvDeviceAttr deviceAttr = context.queryDevice();
+
+		int maxResponderResources = deviceAttr.getMax_qp_rd_atom();
+		int maxInitiatorDepth = deviceAttr.getMax_qp_init_rd_atom();
+
 		//now let's connect to the server
 		RdmaConnParam connParam = new RdmaConnParam();
 		connParam.setRetry_count((byte) 2);

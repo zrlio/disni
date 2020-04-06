@@ -27,6 +27,7 @@ import java.util.List;
 
 import org.slf4j.Logger;
 
+import com.ibm.disni.verbs.IbvDeviceAttr;
 import com.ibm.disni.verbs.IbvCQ;
 import com.ibm.disni.verbs.IbvCompChannel;
 import com.ibm.disni.verbs.IbvContext;
@@ -46,7 +47,7 @@ import com.ibm.disni.verbs.SVCRegMr;
 import com.ibm.disni.verbs.SVCReqNotify;
 import com.ibm.disni.util.DiSNILogger;
 import com.ibm.disni.util.MemoryAllocation;
-
+import com.ibm.disni.util.MemBuf;
 
 public class RdmaVerbsNat extends RdmaVerbs {
 	private static final Logger logger = DiSNILogger.getLogger();
@@ -141,14 +142,16 @@ public class RdmaVerbsNat extends RdmaVerbs {
 		return nativeDispatcher._queryOdpSupport(natContext.getObjId());
 	}
 
-	public int queryMaxResponderResources(IbvContext context) throws IOException{
+	public IbvDeviceAttr queryDevice(IbvContext context) throws IOException{
 		NatIbvContext natContext = (NatIbvContext) context;
-		return nativeDispatcher._queryMaxResponderResources(natContext.getObjId());
-	}
-
-	public int queryMaxInitiatorDepth(IbvContext context) throws IOException{
-		NatIbvContext natContext = (NatIbvContext) context;
-		return nativeDispatcher._queryMaxInitiatorDepth(natContext.getObjId());
+		MemBuf dstBuf = memAlloc.allocate(IbvDeviceAttr.CSIZE);
+		int ret = nativeDispatcher._queryDevice(natContext.getObjId(),dstBuf.address());
+		IbvDeviceAttr deviceAttr = new IbvDeviceAttr();
+		deviceAttr.update(dstBuf.getBuffer());
+		dstBuf.free();
+		if(ret == 0)
+			return deviceAttr;
+		return null;
 	}
 
 	public int expPrefetchMr(IbvMr ibvMr, long address, int length) throws IOException {

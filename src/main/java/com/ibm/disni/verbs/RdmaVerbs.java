@@ -129,19 +129,10 @@ public abstract class RdmaVerbs {
 	 * Query the maximum number of incoming RDMA read and atomic operations that the local side can accept.
 	 *
 	 * @param context the device context.
-	 * @return dev_attr.max_qp_rd_atom
+	 * @return all device attributes
 	 * @throws Exception on failure.
 	 */
-	public abstract int queryMaxResponderResources(IbvContext context) throws IOException;
-
-	/**
-	 * Query The maximum number of outstanding RDMA read and atomic operations that the local side can have
-	 *
-	 * @param context the device context.
-	 * @return dev_attr.max_qp_init_rd_atom
-	 * @throws Exception on failure.
-	 */
-	public abstract int queryMaxInitiatorDepth(IbvContext context) throws IOException;
+	public abstract IbvDeviceAttr queryDevice(IbvContext context) throws IOException;
 
 	/**
 	 * Prefetch part of a memory region.

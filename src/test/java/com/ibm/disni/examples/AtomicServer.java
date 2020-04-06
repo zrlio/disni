@@ -130,9 +130,11 @@ public class AtomicServer {
 		IbvMr mrlist[] = new IbvMr[buffercount];
 		int access = IbvMr.IBV_ACCESS_LOCAL_WRITE | IbvMr.IBV_ACCESS_REMOTE_WRITE | IbvMr.IBV_ACCESS_REMOTE_READ | IbvMr.IBV_ACCESS_REMOTE_ATOMIC;
 
-		int maxResponderResources = context.queryMaxResponderResources();
-		int maxInitiatorDepth = context.queryMaxInitiatorDepth();
-		
+		IbvDeviceAttr deviceAttr = context.queryDevice();
+
+		int maxResponderResources = deviceAttr.getMax_qp_rd_atom();
+		int maxInitiatorDepth = deviceAttr.getMax_qp_init_rd_atom();
+
 		RdmaConnParam connParam = new RdmaConnParam();
 		connParam.setRetry_count((byte) 2);
 		connParam.setResponder_resources((byte) maxResponderResources);
