@@ -149,8 +149,9 @@ public class RdmaVerbsNat extends RdmaVerbs {
 		IbvDeviceAttr deviceAttr = new IbvDeviceAttr();
 		deviceAttr.update(dstBuf.getBuffer());
 		dstBuf.free();
-		if(ret == 0)
+		if(ret == 0) {
 			return deviceAttr;
+		}
 		return null;
 	}
 

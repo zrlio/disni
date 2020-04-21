@@ -77,14 +77,19 @@ public class RDMAvsTcpBenchmarkClient implements RdmaEndpointFactory<CustomClien
     endpointGroup = new RdmaActiveEndpointGroup<CustomClientEndpoint>(1000, false, 128, 4, 128);
     endpointGroup.init(this);
 
-    RdmaConnParam connParam = new RdmaConnParam();
-    connParam.setResponder_resources((byte) 16);
-    connParam.setInitiator_depth((byte) 16);
-    endpointGroup.setConnParam(connParam);
-
     //we have passed our own endpoint factory to the group, therefore new endpoints will be of type CustomClientEndpoint
     //let's create a new client endpoint
     CustomClientEndpoint endpoint = endpointGroup.createEndpoint();
+
+    IbvDeviceAttr deviceAttr = endpoint.getIdPriv().getVerbs().queryDevice();
+
+    int maxResponderResources = deviceAttr.getMax_qp_rd_atom();
+    int maxInitiatorDepth = deviceAttr.getMax_qp_init_rd_atom();
+
+    RdmaConnParam connParam = new RdmaConnParam();
+    connParam.setResponder_resources((byte) maxResponderResources);
+    connParam.setInitiator_depth((byte) maxInitiatorDepth);
+    endpointGroup.setConnParam(connParam);
 
     //connect to the server
     endpoint.connect(rdmaAddress, 1000);
