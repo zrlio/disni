@@ -409,7 +409,7 @@ JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1connect(
 
   if (cm_listen_id != NULL) {
     memset(&conn_param, 0, sizeof(conn_param));
-    conn_param.initiator_depth = dev_attr.max_qp_init_rd_atom;
+    conn_param.initiator_depth = dev_attr.max_qp_rd_atom;
     conn_param.responder_resources = dev_attr.max_qp_rd_atom;
     conn_param.retry_count = (unsigned char)retry;
     conn_param.rnr_retry_count = (unsigned char)rnr_retry;
@@ -481,7 +481,7 @@ JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1accept(
 
   if (cm_listen_id != NULL) {
     memset(&conn_param, 0, sizeof(conn_param));
-    conn_param.initiator_depth = dev_attr.max_qp_init_rd_atom;
+    conn_param.initiator_depth = dev_attr.max_qp_rd_atom;
     conn_param.responder_resources = dev_attr.max_qp_rd_atom;
     conn_param.retry_count = (unsigned char)retry;
     conn_param.rnr_retry_count = (unsigned char)rnr_retry;
