@@ -130,8 +130,12 @@ public class RdmaServerEndpoint<C extends RdmaEndpoint> {
 				}
 			}
 			C endpoint = requested.poll();
-			logger.info("connect request received");
-			endpoint.accept();
+
+			// a null endpoint gets returned if listening endpoint closes
+			if (endpoint != null) {
+				logger.info("connect request received");
+				endpoint.accept();
+			}
 			return endpoint;
 		} catch (Exception e) {
 			throw new IOException(e);
