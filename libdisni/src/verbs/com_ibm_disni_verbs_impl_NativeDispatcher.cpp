@@ -432,6 +432,41 @@ JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1connect(
 
 /*
  * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
+ * Method:    _connectV2
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1connectV2(
+    JNIEnv *env, jobject obj, jlong id, jlong param) {
+  struct rdma_cm_id *cm_listen_id = NULL;
+  struct rdma_conn_param *conn_param = NULL;
+
+  cm_listen_id = (struct rdma_cm_id *)id;
+  conn_param = (struct rdma_conn_param *)param;
+
+  if (cm_listen_id != NULL && conn_param!=NULL) {
+    int ret = rdma_connect(cm_listen_id, conn_param);
+    if (ret == 0) {
+      log("j2c::connect: ret %i, guid %" PRIu64 "\n", ret,
+          ibv_get_device_guid(cm_listen_id->verbs->device));
+    } else {
+      log("j2c::connect: rdma_connect failed\n");
+      JNU_ThrowIOExceptionWithLastError(env,
+                                        "j2c::connect: rdma_connect failed");
+    }
+  } else {
+    if(cm_listen_id == NULL){
+      log("j2c:connect: cm_listen_id null\n");
+      JNU_ThrowIOException(env, "j2c:connect: cm_listen_id null\n");  
+    } else {
+      log("j2c:connect: conn_param null\n");
+      JNU_ThrowIOException(env, "j2c:connect: conn_param null\n"); 
+    }
+  }
+}
+
+
+/*
+ * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
  * Method:    _accept
  * Signature: (IJ)V
  */
@@ -463,6 +498,40 @@ JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1accept(
   }
 }
 
+/*
+ * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
+ * Method:    _acceptV2
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1acceptV2(
+    JNIEnv *env, jobject obj, jlong id, jlong param) {
+  struct rdma_cm_id *cm_listen_id = NULL;
+  struct rdma_conn_param *conn_param = NULL;
+
+  cm_listen_id = (struct rdma_cm_id *)id;
+  conn_param = (struct rdma_conn_param *)param;
+
+  if (cm_listen_id != NULL && conn_param!=NULL) {
+    int ret = rdma_accept(cm_listen_id, conn_param);
+    if (ret == 0) {
+      log("j2c::connect: ret %i, guid %" PRIu64 "\n", ret,
+          ibv_get_device_guid(cm_listen_id->verbs->device));
+    } else {
+      log("j2c::connect: rdma_connect failed\n");
+      JNU_ThrowIOExceptionWithLastError(env,
+                                        "j2c::connect: rdma_connect failed");
+    }
+  } else {
+    if(cm_listen_id == NULL){
+      log("j2c:connect: cm_listen_id null\n");
+      JNU_ThrowIOException(env, "j2c:connect: cm_listen_id null\n");  
+    } else {
+      log("j2c:connect: conn_param null\n");
+      JNU_ThrowIOException(env, "j2c:connect: conn_param null\n"); 
+    }
+  }
+}
+ 
 /*
  * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
  * Method:    _ackCmEvent
@@ -822,6 +891,32 @@ Java_com_ibm_disni_verbs_impl_NativeDispatcher__1queryOdpSupport(JNIEnv *env,
 #endif
   return ret;
 }
+
+/*
+ * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
+ * Method:    _queryDevice
+ * Signature: (JJ)I
+ */
+JNIEXPORT jint JNICALL
+Java_com_ibm_disni_verbs_impl_NativeDispatcher__1queryDevice(JNIEnv *env,
+                                                                 jobject obj,
+                                                                 jlong id,
+                                                                 jlong addr) {
+  jint ret = -1;
+  struct ibv_context *context = (struct ibv_context *)id;
+
+  struct ibv_device_attr *dev_attr = (struct ibv_device_attr *)addr;
+  ret = ibv_query_device(context, dev_attr);
+
+  if(ret != 0) {
+    log("j2c::queryDevice:  ibv_query_device failed, error %s\n",
+        strerror(ret));
+    ret = -1;
+    JNU_ThrowIOExceptionWithLastError(env, "j2c::queryDevice:  ibv_query_device failed");
+  }
+  return ret;
+}
+
 
 /*
  * Class:     com_ibm_disni_verbs_impl_NativeDispatcher

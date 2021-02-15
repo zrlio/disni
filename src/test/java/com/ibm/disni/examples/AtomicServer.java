@@ -1,9 +1,7 @@
 /*
  * DiSNI: Direct Storage and Networking Interface
  *
- * Author: Patrick Stuedi <stu@zurich.ibm.com>
- *
- * Copyright (C) 2016-2018, IBM Corporation
+ * Author: Konstantin Taranov <ktaranov@inf.ethz.ch>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,19 +26,20 @@ import org.apache.commons.cli.ParseException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.LinkedList;
 
-public class VerbsServer {
+public class AtomicServer {
 	private String ipAddress;
 	private int port;
 
 	public void run() throws Exception {
-		System.out.println("VerbsServer::starting...");
+		System.out.println("AtomicServer::starting...");
 
 		//create a communication channel for receiving CM events
 		RdmaEventChannel cmChannel = RdmaEventChannel.createEventChannel();
 		if (cmChannel == null){
-			System.out.println("VerbsServer::CM channel null");
+			System.out.println("AtomicServer::CM channel null");
 			return;
 		}
 
@@ -66,7 +65,7 @@ public class VerbsServer {
 		}
 		else if (cmEvent.getEvent() != RdmaCmEvent.EventType.RDMA_CM_EVENT_CONNECT_REQUEST
 				.ordinal()) {
-			System.out.println("VerbsServer::wrong event received: " + cmEvent.getEvent());
+			System.out.println("AtomicServer::wrong event received: " + cmEvent.getEvent());
 			return;
 		}
 		//always acknowledge CM events
@@ -75,35 +74,35 @@ public class VerbsServer {
 		//get the id of the newly connection
 		RdmaCmId connId = cmEvent.getConnIdPriv();
 		if (connId == null){
-			System.out.println("VerbsServer::connId null");
+			System.out.println("AtomicServer::connId null");
 			return;
 		}
 
 		//get the device context of the new connection, typically the same as with the server id
 		IbvContext context = connId.getVerbs();
 		if (context == null){
-			System.out.println("VerbsServer::context null");
+			System.out.println("AtomicServer::context null");
 			return;
 		}
 
 		//create a new protection domain, we will use the pd later when registering memory
 		IbvPd pd = context.allocPd();
 		if (pd == null){
-			System.out.println("VerbsServer::pd null");
+			System.out.println("AtomicServer::pd null");
 			return;
 		}
 
 		//the comp channel is used to get CQ notifications
 		IbvCompChannel compChannel = context.createCompChannel();
 		if (compChannel == null){
-			System.out.println("VerbsServer::compChannel null");
+			System.out.println("AtomicServer::compChannel null");
 			return;
 		}
 
 		//create a completion queue
 		IbvCQ cq = context.createCQ(compChannel, 50, 0);
 		if (cq == null){
-			System.out.println("VerbsServer::cq null");
+			System.out.println("AtomicServer::cq null");
 			return;
 		}
 		//request to be notified on that CQ
@@ -121,7 +120,7 @@ public class VerbsServer {
 		//create the queue pair for the client connection
 		IbvQP qp = connId.createQP(pd, attr);
 		if (qp == null){
-			System.out.println("VerbsServer::qp null");
+			System.out.println("AtomicServer::qp null");
 			return;
 		}
 
@@ -129,20 +128,24 @@ public class VerbsServer {
 		int buffersize = 100;
 		ByteBuffer buffers[] = new ByteBuffer[buffercount];
 		IbvMr mrlist[] = new IbvMr[buffercount];
-		int access = IbvMr.IBV_ACCESS_LOCAL_WRITE | IbvMr.IBV_ACCESS_REMOTE_WRITE | IbvMr.IBV_ACCESS_REMOTE_READ;
+		int access = IbvMr.IBV_ACCESS_LOCAL_WRITE | IbvMr.IBV_ACCESS_REMOTE_WRITE | IbvMr.IBV_ACCESS_REMOTE_READ | IbvMr.IBV_ACCESS_REMOTE_ATOMIC;
 
+		IbvDeviceAttr deviceAttr = context.queryDevice();
+
+		int maxResponderResources = deviceAttr.getMax_qp_rd_atom();
+		int maxInitiatorDepth = deviceAttr.getMax_qp_init_rd_atom();
 
 		RdmaConnParam connParam = new RdmaConnParam();
 		connParam.setRetry_count((byte) 2);
-		connParam.setResponder_resources((byte) 1);
-		connParam.setInitiator_depth((byte) 1);
+		connParam.setResponder_resources((byte) maxResponderResources);
+		connParam.setInitiator_depth((byte) maxInitiatorDepth);
 		//once the client id is set up, accept the connection
 		connId.accept(connParam);
 		//wait until the connection is officially switched into established mode
 		cmEvent = cmChannel.getCmEvent(-1);
 		if (cmEvent.getEvent() != RdmaCmEvent.EventType.RDMA_CM_EVENT_ESTABLISHED
 				.ordinal()) {
-			System.out.println("VerbsServer::wrong event received: " + cmEvent.getEvent());
+			System.out.println("AtomicServer::wrong event received: " + cmEvent.getEvent());
 			return;
 		}
 		//always ack CM events
@@ -160,7 +163,11 @@ public class VerbsServer {
 		IbvMr sendMr = mrlist[1];
 		IbvMr recvMr = mrlist[2];
 
-		dataBuf.asCharBuffer().put("This is a RDMA/read on stag " + dataMr.getLkey() + " !");
+		dataBuf.order(ByteOrder.LITTLE_ENDIAN);
+		dataBuf.putLong(dataMr.getAddr());
+		dataBuf.clear();
+
+		System.out.println("AtomicServer::content of buffer before: " + dataBuf.getLong());
 		dataBuf.clear();
 
 		sendBuf.putLong(dataMr.getAddr());
@@ -173,7 +180,7 @@ public class VerbsServer {
 		VerbsTools commRdma = new VerbsTools(context, compChannel, qp, cq);
 		LinkedList<IbvSendWR> wrList_send = new LinkedList<IbvSendWR>();
 
-		//let's preopare some work requests for sending
+		//let's prepare some work requests for sending
 		IbvSge sgeSend = new IbvSge();
 		sgeSend.setAddr(sendMr.getAddr());
 		sgeSend.setLength(sendMr.getLength());
@@ -189,7 +196,7 @@ public class VerbsServer {
 
 		LinkedList<IbvRecvWR> wrList_recv = new LinkedList<IbvRecvWR>();
 
-		//let's preopare some work requests for receiving
+		//let's prepare some work requests for receiving
 		IbvSge sgeRecv = new IbvSge();
 		sgeRecv.setAddr(recvMr.getAddr());
 		sgeRecv.setLength(recvMr.getLength());
@@ -204,19 +211,22 @@ public class VerbsServer {
 
 		//post a receive call
 		commRdma.initSGRecv(wrList_recv);
-		System.out.println("VerbsServer::initiated recv, about to send stag info");
+		System.out.println("AtomicServer::initiated recv, about to send stag info");
 		//post a send call, here we send a message which include the RDMA information of a data buffer
 		commRdma.send(buffers, wrList_send, true, false);
-		System.out.println("VerbsServer::stag info sent");
+		System.out.println("AtomicServer::stag info sent");
 
 		//wait for the final message from the server
 		commRdma.completeSGRecv(wrList_recv, false);
 
-		System.out.println("VerbsServer::done");
+		System.out.println("AtomicServer::content of buffer after: " + dataBuf.getLong());
+		dataBuf.clear();
+
+		System.out.println("AtomicServer::done");
 	}
 
 	public void launch(String[] args) throws Exception {
-		CmdLineCommon cmdLine = new CmdLineCommon("VerbsServer");
+		CmdLineCommon cmdLine = new CmdLineCommon("AtomicServer");
 
 		try {
 			cmdLine.parse(args);
@@ -231,8 +241,8 @@ public class VerbsServer {
 	}
 
 	public static void main(String[] args) throws Exception {
-		VerbsServer verbsServer = new VerbsServer();
-		verbsServer.launch(args);
+		AtomicServer AtomicServer = new AtomicServer();
+		AtomicServer.launch(args);
 	}
 }
 

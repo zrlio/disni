@@ -234,7 +234,7 @@ public class IbvSendWR {
 	}
 
 	/**
-	 * Unsupported. 
+	 * 
 	 *
 	 * @return the atomic
 	 */
@@ -322,7 +322,7 @@ public class IbvSendWR {
 	}
 
 	/**
-	 * Unsupported.
+	 * 
 	 */
 	public static class Atomic  {
 		protected long remote_addr;

@@ -68,6 +68,7 @@ public class NatIbvSendWR extends IbvSendWR implements SendWRMod {
 	public static int SENDFLAGS_OFFSET = 32;
 //	public static int IMMDATA_OFFSET = 36;
 	public static int REMOTEADDR_OFFSET = 40;
+	public static int ATOMIC_OFFSET = 40;
 	public static int RKEY_OFFSET = 48;
 	
 	private NatPostSendCall postSendCall;
@@ -75,10 +76,13 @@ public class NatIbvSendWR extends IbvSendWR implements SendWRMod {
 	private long next;
 	private long ptr_sge_list;
 	private NatRdma natRdma;
+	private NatAtomic natAtomic;
 
-	public NatIbvSendWR(NatPostSendCall postSendCall, NatRdma natRdma, IbvSendWR sendWR, LinkedList<IbvSge> sg_list) {
-		super(natRdma, null, null, sg_list);
+	public NatIbvSendWR(NatPostSendCall postSendCall, NatRdma natRdma, NatAtomic natAtomic, 
+						IbvSendWR sendWR, LinkedList<IbvSge> sg_list) {
+		super(natRdma, natAtomic, null, sg_list);
 		this.natRdma = natRdma;
+		this.natAtomic = natAtomic;
 		this.next = 0;
 		this.ptr_sge_list = 0;
 		
@@ -102,9 +106,16 @@ public class NatIbvSendWR extends IbvSendWR implements SendWRMod {
 		buffer.putInt(opcode);
 		buffer.putInt(send_flags);
 		buffer.putInt(imm_data);
+
+		if(opcode >= IBV_WR_ATOMIC_CMP_AND_SWP){
+			buffer.position(initialPos + NatIbvSendWR.ATOMIC_OFFSET);
+			natAtomic.writeBack(buffer);
+		} else {
+			buffer.position(initialPos + NatIbvSendWR.REMOTEADDR_OFFSET);
+			natRdma.writeBack(buffer);		
+		}
 		
-		buffer.position(initialPos + NatIbvSendWR.REMOTEADDR_OFFSET);
-		natRdma.writeBack(buffer);
+
 		int newPos = initialPos + CSIZE;
 		buffer.position(newPos);
 	}
@@ -197,6 +208,65 @@ public class NatIbvSendWR extends IbvSendWR implements SendWRMod {
 		public void writeBack(ByteBuffer buffer) {
 			this.bufPosition = buffer.position();
 			buffer.putLong(getRemote_addr());
+			buffer.putInt(getRkey());
+			buffer.putInt(getReserved());			
+		}
+		
+		public int getBufPosition() {
+			return bufPosition;
+		}
+	}
+
+	public static class NatAtomic extends IbvSendWR.Atomic {
+		private NatPostSendCall postSendCall;
+		private int bufPosition;
+		
+		public NatAtomic(Atomic atomic, NatPostSendCall postSendCall){
+			this.remote_addr = atomic.getRemote_addr();
+			this.compare_add = atomic.getCompare_add();
+			this.swap = atomic.getSwap();
+			this.rkey = atomic.getRkey();
+			this.reserved = atomic.getReserved();
+
+			this.postSendCall = postSendCall;
+		}
+		
+		@Override
+		public void setRemote_addr(long remote_addr) {
+			super.setRemote_addr(remote_addr);
+			postSendCall.setRemote_addr(this, 0);
+		}
+
+		@Override
+		public void setCompare_add(long compare_add) {
+			super.setCompare_add(compare_add);
+			postSendCall.setCompare_add(this, 8);
+		}
+
+		@Override
+		public void setSwap(long swap) {
+			super.setSwap(swap);
+			postSendCall.setSwap(this, 16);
+		}
+
+
+		@Override
+		public void setRkey(int rkey) {
+			super.setRkey(rkey);
+			postSendCall.setRkey(this, 24);
+		}
+		
+		@Override
+		public void setReserved(int reserved) {
+			super.setReserved(reserved);
+			postSendCall.setReserved(this, 28);
+		}
+		
+		public void writeBack(ByteBuffer buffer) {
+			this.bufPosition = buffer.position();
+			buffer.putLong(getRemote_addr());
+			buffer.putLong(getCompare_add());
+			buffer.putLong(getSwap());
 			buffer.putInt(getRkey());
 			buffer.putInt(getReserved());			
 		}

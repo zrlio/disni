@@ -1,9 +1,7 @@
 /*
  * DiSNI: Direct Storage and Networking Interface
  *
- * Author: Patrick Stuedi <stu@zurich.ibm.com>
- *
- * Copyright (C) 2016-2018, IBM Corporation
+ * Author: Konstantin Taranov <ktaranov@inf.ethz.ch>
  *
  * Licensed under the Apache License, Version 2.0 (the "License");
  * you may not use this file except in compliance with the License.
@@ -28,27 +26,28 @@ import org.apache.commons.cli.ParseException;
 import java.net.InetAddress;
 import java.net.InetSocketAddress;
 import java.nio.ByteBuffer;
+import java.nio.ByteOrder;
 import java.util.LinkedList;
 
-public class VerbsClient {
+public class AtomicClient {
 	private String ipAddress;
 	private int port;
 
 	public void run() throws Exception {
-		System.out.println("VerbsClient::starting...");
+		System.out.println("AtomicClient::starting...");
 		//open the CM and the verbs interfaces
 
 		//create a communication channel for receiving CM events
 		RdmaEventChannel cmChannel = RdmaEventChannel.createEventChannel();
 		if (cmChannel == null){
-			System.out.println("VerbsClient::cmChannel null");
+			System.out.println("AtomicClient::cmChannel null");
 			return;
 		}
 
 		//create a RdmaCmId for this client
 		RdmaCmId idPriv = cmChannel.createId(RdmaCm.RDMA_PS_TCP);
 		if (idPriv == null){
-			System.out.println("VerbsClient::id null");
+			System.out.println("AtomicClient::id null");
 			return;
 		}
 
@@ -60,11 +59,11 @@ public class VerbsClient {
 		//resolve addr returns an event, we have to catch that event
 		RdmaCmEvent cmEvent = cmChannel.getCmEvent(-1);
 		if (cmEvent == null){
-			System.out.println("VerbsClient::cmEvent null");
+			System.out.println("AtomicClient::cmEvent null");
 			return;
 		} else if (cmEvent.getEvent() != RdmaCmEvent.EventType.RDMA_CM_EVENT_ADDR_RESOLVED
 				.ordinal()) {
-			System.out.println("VerbsClient::wrong event received: " + cmEvent.getEvent());
+			System.out.println("AtomicClient::wrong event received: " + cmEvent.getEvent());
 			return;
 		}
 		cmEvent.ackEvent();
@@ -74,11 +73,11 @@ public class VerbsClient {
 		//and catch that event too
 		cmEvent = cmChannel.getCmEvent(-1);
 		if (cmEvent == null){
-			System.out.println("VerbsClient::cmEvent null");
+			System.out.println("AtomicClient::cmEvent null");
 			return;
 		} else if (cmEvent.getEvent() != RdmaCmEvent.EventType.RDMA_CM_EVENT_ROUTE_RESOLVED
 				.ordinal()) {
-			System.out.println("VerbsClient::wrong event received: " + cmEvent.getEvent());
+			System.out.println("AtomicClient::wrong event received: " + cmEvent.getEvent());
 			return;
 		}
 		cmEvent.ackEvent();
@@ -89,21 +88,21 @@ public class VerbsClient {
 		//and a protection domain, we use that one later for registering memory
 		IbvPd pd = context.allocPd();
 		if (pd == null){
-			System.out.println("VerbsClient::pd null");
+			System.out.println("AtomicClient::pd null");
 			return;
 		}
 
 		//the comp channel is used for getting CQ events
 		IbvCompChannel compChannel = context.createCompChannel();
 		if (compChannel == null){
-			System.out.println("VerbsClient::compChannel null");
+			System.out.println("AtomicClient::compChannel null");
 			return;
 		}
 
 		//let's create a completion queue
 		IbvCQ cq = context.createCQ(compChannel, 50, 0);
 		if (cq == null){
-			System.out.println("VerbsClient::cq null");
+			System.out.println("AtomicClient::cq null");
 			return;
 		}
 		//and request to be notified for this queue
@@ -121,7 +120,7 @@ public class VerbsClient {
 		//let's create a queue pair
 		IbvQP qp = idPriv.createQP(pd, attr);
 		if (qp == null){
-			System.out.println("VerbsClient::qp null");
+			System.out.println("AtomicClient::qp null");
 			return;
 		}
 
@@ -162,22 +161,27 @@ public class VerbsClient {
 		VerbsTools commRdma = new VerbsTools(context, compChannel, qp, cq);
 		commRdma.initSGRecv(wrList_recv);
 
+		IbvDeviceAttr deviceAttr = context.queryDevice();
+
+		int maxResponderResources = deviceAttr.getMax_qp_rd_atom();
+		int maxInitiatorDepth = deviceAttr.getMax_qp_init_rd_atom();
+
 		//now let's connect to the server
 		RdmaConnParam connParam = new RdmaConnParam();
 		connParam.setRetry_count((byte) 2);
-		connParam.setResponder_resources((byte) 1);
-		connParam.setInitiator_depth((byte) 1);
+		connParam.setResponder_resources((byte) maxResponderResources);
+		connParam.setInitiator_depth((byte) maxInitiatorDepth);
 		idPriv.connect(connParam);		
 
  
 		//wait until we are really connected
 		cmEvent = cmChannel.getCmEvent(-1);
 		if (cmEvent == null){
-			System.out.println("VerbsClient::cmEvent null");
+			System.out.println("AtomicClient::cmEvent null");
 			return;
 		} else if (cmEvent.getEvent() != RdmaCmEvent.EventType.RDMA_CM_EVENT_ESTABLISHED
 				.ordinal()) {
-			System.out.println("VerbsClient::wrong event received: " + cmEvent.getEvent());
+			System.out.println("AtomicClient::wrong event received: " + cmEvent.getEvent());
 			return;
 		}
 		cmEvent.ackEvent();
@@ -191,35 +195,40 @@ public class VerbsClient {
 		int length = recvBuf.getInt();
 		int lkey = recvBuf.getInt();
 		recvBuf.clear();
-		System.out.println("VerbsClient::receiving rdma information, addr " + addr + ", length " + length + ", key " + lkey);
-		System.out.println("VerbsClient::preparing read operation...");
+		System.out.println("AtomicClient::receiving rdma information, addr " + addr + ", length " + length + ", key " + lkey);
+		System.out.println("AtomicClient::preparing atomic operation...");
+		
+		dataBuf.order(ByteOrder.LITTLE_ENDIAN);
+		System.out.println("AtomicClient::initial value in the buffer: " + dataBuf.getLong());
 
-		//let's prepare a one-sided RDMA read operation to fetch the content of that remote buffer
+		//let's prepare a one-sided RDMA atomic operation to fetch the content of that remote buffer
 		LinkedList<IbvSendWR> wrList_send = new LinkedList<IbvSendWR>();
 		IbvSge sgeSend = new IbvSge();
 		sgeSend.setAddr(dataMr.getAddr());
-		sgeSend.setLength(dataMr.getLength());
+		sgeSend.setLength(8);
 		sgeSend.setLkey(dataMr.getLkey());
 		LinkedList<IbvSge> sgeList = new LinkedList<IbvSge>();
 		sgeList.add(sgeSend);
 		IbvSendWR sendWR = new IbvSendWR();
 		sendWR.setWr_id(1001);
 		sendWR.setSg_list(sgeList);
-		sendWR.setOpcode(IbvSendWR.IBV_WR_RDMA_READ);
+		sendWR.setOpcode(IbvSendWR.IBV_WR_ATOMIC_FETCH_AND_ADD);
 		sendWR.setSend_flags(IbvSendWR.IBV_SEND_SIGNALED);
-		sendWR.getRdma().setRemote_addr(addr);
-		sendWR.getRdma().setRkey(lkey);
+		sendWR.getAtomic().setRemote_addr(addr);
+		sendWR.getAtomic().setRkey(lkey);
+		sendWR.getAtomic().setCompare_add(10);
 		wrList_send.add(sendWR);
 
-		//now we post the operation, the RDMA/read operation will take off
+		//now we post the operation, the RDMA/atomic operation will take off
 		//the wrapper class will also wait of the CQ event
-		//once the CQ event is received we know the RDMA/read operation has completed
+		//once the CQ event is received we know the RDMA/atomic operation has completed
 		//we should have the content of the remote buffer stored in our own local buffer
 		//let's print it
 		commRdma.send(buffers, wrList_send, true, false);
 		dataBuf.clear();
-		System.out.println("VerbsClient::read memory from server: " + dataBuf.asCharBuffer().toString());
-
+		System.out.println("AtomicClient::the remote server values has been incremented by 10");
+		System.out.println("AtomicClient::the fetched value from the remote server: " + dataBuf.getLong());
+		
 		//now we send a final message to signal everything went fine
 		sgeSend = new IbvSge();
 		sgeSend.setAddr(sendMr.getAddr());
@@ -241,7 +250,7 @@ public class VerbsClient {
 
 
 	public void launch(String[] args) throws Exception {
-		CmdLineCommon cmdLine = new CmdLineCommon("VerbsClient");
+		CmdLineCommon cmdLine = new CmdLineCommon("AtomicClient");
 
 		try {
 			cmdLine.parse(args);
@@ -256,8 +265,8 @@ public class VerbsClient {
 	}
 
 	public static void main(String[] args) throws Exception {
-		VerbsClient verbsClient = new VerbsClient();
-		verbsClient.launch(args);
+		AtomicClient AtomicClient = new AtomicClient();
+		AtomicClient.launch(args);
 	}
 }
 

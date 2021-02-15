@@ -31,6 +31,7 @@ import com.ibm.disni.verbs.IbvSendWR;
 import com.ibm.disni.verbs.IbvSge;
 import com.ibm.disni.verbs.SVCPostSend;
 import com.ibm.disni.verbs.impl.NatIbvSendWR.NatRdma;
+import com.ibm.disni.verbs.impl.NatIbvSendWR.NatAtomic;
 import com.ibm.disni.util.MemBuf;
 import com.ibm.disni.util.MemoryAllocation;
 
@@ -82,7 +83,8 @@ public class NatPostSendCall extends SVCPostSend {
 			}
 			
 			NatRdma natRdma = new NatRdma(sendWR.getRdma(), this);
-			NatIbvSendWR natSendWR = new NatIbvSendWR(this, natRdma, sendWR, sg_list);
+			NatAtomic natAtomic = new NatAtomic(sendWR.getAtomic(), this);
+			NatIbvSendWR natSendWR = new NatIbvSendWR(this, natRdma, natAtomic, sendWR, sg_list);
 			natSendWR.setPtr_sge_list(sgeOffset);
 			natSendWR.setNext(wrOffset);
 			wrNatList.add(natSendWR);
@@ -154,6 +156,31 @@ public class NatPostSendCall extends SVCPostSend {
 	public void setReserved(NatRdma rdma, int offset) {
 		int position = rdma.getBufPosition() + offset;
 		cmd.getBuffer().putInt(position, rdma.getReserved());
+	}
+
+	public void setCompare_add(NatAtomic atomic, int offset) {
+		int position = atomic.getBufPosition() + offset;
+		cmd.getBuffer().putLong(position, atomic.getCompare_add());
+	}
+
+	public void setSwap(NatAtomic atomic, int offset) {
+		int position = atomic.getBufPosition() + offset;
+		cmd.getBuffer().putLong(position, atomic.getSwap());
+	}
+
+	public void setRemote_addr(NatAtomic atomic, int offset) {
+		int position = atomic.getBufPosition() + offset;
+		cmd.getBuffer().putLong(position, atomic.getRemote_addr());
+	}
+
+	public void setRkey(NatAtomic atomic, int offset) {
+		int position = atomic.getBufPosition() + offset;
+		cmd.getBuffer().putInt(position, atomic.getRkey());		
+	}
+
+	public void setReserved(NatAtomic atomic, int offset) {
+		int position = atomic.getBufPosition() + offset;
+		cmd.getBuffer().putInt(position, atomic.getReserved());
 	}
 
 	public void setAddr(NatIbvSge sge, int offset) {

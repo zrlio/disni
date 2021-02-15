@@ -99,7 +99,9 @@ public class NativeDispatcher {
 	public native int _getCmEvent(long channel, long listenid, long clientid, int timeout);
 	public native void _connect(long id, int retrycount, int rnrretrycount, long privdataaddr, byte privdatalen)
 		throws IOException;
+	public native void _connectV2(long id, long conn_param) throws IOException;
 	public native void _accept(long id, int retrycount, int rnrretrycount) throws IOException;
+	public native void _acceptV2(long id, long conn_param) throws IOException;
 	public native int _ackCmEvent(int cmEvent);
 	public native int _disconnect(long id);
 	public native int _destroyEventChannel(long fd);
@@ -116,6 +118,7 @@ public class NativeDispatcher {
 	public native int _modifyQP(long qp, long attr) throws IOException;
 	public native long _regMr(long pd, long addr, int len, int access, long lkey, long rkey, long handle) throws IOException;
 	public native int _queryOdpSupport(long context);
+	public native int _queryDevice(long context, long addr);
 	public native int _expPrefetchMr(long handle, long addr, int len) throws IOException;
 	public native void _deregMr(long handle) throws IOException;
 	public native void _postSend(long qp, long wrList) throws IOException;

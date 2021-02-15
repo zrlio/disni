@@ -126,6 +126,15 @@ public abstract class RdmaVerbs {
 	public abstract int queryOdpSupport(IbvContext context) throws IOException;
 
 	/**
+	 * Query the maximum number of incoming RDMA read and atomic operations that the local side can accept.
+	 *
+	 * @param context the device context.
+	 * @return all device attributes
+	 * @throws Exception on failure.
+	 */
+	public abstract IbvDeviceAttr queryDevice(IbvContext context) throws IOException;
+
+	/**
 	 * Prefetch part of a memory region.
 	 * Can be used only with MRs registered with IBV_EXP_ACCESS_ON_DEMAND
 	 *

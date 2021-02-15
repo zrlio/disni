@@ -49,6 +49,7 @@ public class ReadServer implements RdmaEndpointFactory<ReadServer.CustomServerEn
 		//create a EndpointGroup. The RdmaActiveEndpointGroup contains CQ processing and delivers CQ event to the endpoint.dispatchCqEvent() method.
 		endpointGroup = new RdmaActiveEndpointGroup<CustomServerEndpoint>(1000, false, 128, 4, 128);
 		endpointGroup.init(this);
+
 		//create a server endpoint
 		RdmaServerEndpoint<ReadServer.CustomServerEndpoint> serverEndpoint = endpointGroup.createServerEndpoint();
 
@@ -57,6 +58,16 @@ public class ReadServer implements RdmaEndpointFactory<ReadServer.CustomServerEn
 		InetSocketAddress address = new InetSocketAddress(ipAddress, port);		
 		serverEndpoint.bind(address, 10);
 		System.out.println("ReadServer::server bound to address" + address.toString());
+
+		IbvDeviceAttr deviceAttr = serverEndpoint.getIdPriv().getVerbs().queryDevice();
+
+		int maxResponderResources = deviceAttr.getMax_qp_rd_atom();
+		int maxInitiatorDepth = deviceAttr.getMax_qp_init_rd_atom();
+
+		RdmaConnParam connParam = new RdmaConnParam();
+		connParam.setResponder_resources((byte) maxResponderResources);
+		connParam.setInitiator_depth((byte) maxInitiatorDepth);
+		endpointGroup.setConnParam(connParam);
 
 		//we can accept new connections
 		ReadServer.CustomServerEndpoint endpoint = serverEndpoint.accept();

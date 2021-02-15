@@ -57,10 +57,21 @@ public class ReadClient implements RdmaEndpointFactory<ReadClient.ReadClientEndp
 
 	private void run() throws Exception {
 		System.out.println("ReadClient, size " + size + ", loop " + loop);
-
+		
 		ReadClient.ReadClientEndpoint endpoint = group.createEndpoint();
  		InetAddress ipAddress = InetAddress.getByName(host);
- 		InetSocketAddress address = new InetSocketAddress(ipAddress, port);		
+ 		InetSocketAddress address = new InetSocketAddress(ipAddress, port);	
+
+		IbvDeviceAttr deviceAttr = endpoint.getIdPriv().getVerbs().queryDevice();
+
+		int maxResponderResources = deviceAttr.getMax_qp_rd_atom();
+		int maxInitiatorDepth = deviceAttr.getMax_qp_init_rd_atom();
+
+		RdmaConnParam connParam = new RdmaConnParam();
+		connParam.setResponder_resources((byte) maxResponderResources);
+		connParam.setInitiator_depth((byte) maxInitiatorDepth);
+		group.setConnParam(connParam);
+
 		endpoint.connect(address, 1000);
 		System.out.println("ReadClient, client connected, address " + host + ", port " + port);
 

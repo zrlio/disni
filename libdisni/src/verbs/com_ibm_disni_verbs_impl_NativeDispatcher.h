@@ -92,11 +92,27 @@ JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1connect(
 
 /*
  * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
+ * Method:    _connectV2
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1connectV2(
+    JNIEnv *, jobject, jlong, jlong);
+
+/*
+ * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
  * Method:    _accept
  * Signature: (JII)I
  */
 JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1accept(
     JNIEnv *, jobject, jlong, jint, jint);
+
+/*
+ * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
+ * Method:    _acceptV2
+ * Signature: (JJ)V
+ */
+JNIEXPORT void JNICALL Java_com_ibm_disni_verbs_impl_NativeDispatcher__1acceptV2(
+    JNIEnv *, jobject, jlong, jlong);
 
 /*
  * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
@@ -218,6 +234,19 @@ JNIEXPORT jint JNICALL
 Java_com_ibm_disni_verbs_impl_NativeDispatcher__1queryOdpSupport(JNIEnv *env,
                                                                  jobject,
                                                                  jlong);
+
+
+/*
+ * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
+ * Method:    _queryDevice
+ * Signature: (JJ)I
+ */
+JNIEXPORT jint JNICALL
+Java_com_ibm_disni_verbs_impl_NativeDispatcher__1queryDevice(JNIEnv *env,
+                                                                 jobject,
+                                                                 jlong,
+                                                                 jlong);
+
 
 /*
  * Class:     com_ibm_disni_verbs_impl_NativeDispatcher
