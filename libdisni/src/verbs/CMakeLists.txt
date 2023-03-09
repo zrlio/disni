@@ -7,9 +7,9 @@ include_directories(/opt/hostedtoolcache/Java_Oracle_jdk/17/x64/jre/lib/server)
 include_directories(/opt/hostedtoolcache/Java_Oracle_jdk/17/x64/jre/lib)
 
 message("Add rdma includes directory ")
-include_directories(/tmp/rdma-core-44.0/build/include/rdma/)
+include_directories(/tmp/rdma-core-44.0/build/include)
 message("Add rdma libraries directory")
-include_directories(/tmp/rdma-core-44.0/build/lib/)
+include_directories(/tmp/rdma-core-44.0/build/lib)
 
 target_sources(verbs
     PRIVATE
