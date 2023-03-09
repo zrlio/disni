@@ -16,11 +16,12 @@ jobs:
       uses: actions/checkout@v2
       with:
         submodules: recursive
-    - name: Install dependency libs 
+    - name: Install linux rdma pre-required libs 
       run: |
-          echo "install dependnecy libraries"
+          echo "install pre-required libraries"
+          sudo apt-get install jni && 
           sudo apt-get install libnl-route-3-dev libnl-3-dev
-    - name: Install rdma  
+    - name: Download linux-rdma and compile and install 
       run: |
           echo $(pwd) &&
           wget -nv -O /tmp/rdma-core.tar.gz https://github.com/linux-rdma/rdma-core/archive/refs/tags/v44.0.tar.gz   
