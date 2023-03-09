@@ -36,7 +36,12 @@ jobs:
           cd rdma-core-44.0/ && 
           ls && 
           sudo ./build.sh && 
-          sudo find /usr/ | grep 'rdma' --color && 
+          echo "find rdma_cma" && 
+          sudo find /tmp/rdma-core-44.0/ | grep 'rdma_cma' && 
+          echo "find rdma include" && 
+          sudo find /tmp/rdma-core-44.0/ | grep 'include' && 
+          echo "find rdma lib"  && 
+          sudo find /tmp/rdma-core-44.0/ | grep 'lib' && 
           echo "rdma installed ok" 
     - name: cmake and build 
       run: |
