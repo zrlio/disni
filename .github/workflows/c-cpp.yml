@@ -19,7 +19,7 @@ jobs:
     - name: Install JDK
       uses: actions/setup-java@v3
       with:
-        distribution: 'Oracle' 
+        distribution: 'oracle' 
         java-version: '8'  
     - name: Install linux rdma pre-required libs 
       run: |
