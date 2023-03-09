@@ -1,9 +1,0 @@
-/Users/nanachi/VVUUAA/repository/disni_mae/disni/libdisni/src/build/CMakeFiles/rdma_tester.dir
-/Users/nanachi/VVUUAA/repository/disni_mae/disni/libdisni/src/build/CMakeFiles/edit_cache.dir
-/Users/nanachi/VVUUAA/repository/disni_mae/disni/libdisni/src/build/CMakeFiles/rebuild_cache.dir
-/Users/nanachi/VVUUAA/repository/disni_mae/disni/libdisni/src/build/affinity/CMakeFiles/affinity.dir
-/Users/nanachi/VVUUAA/repository/disni_mae/disni/libdisni/src/build/affinity/CMakeFiles/edit_cache.dir
-/Users/nanachi/VVUUAA/repository/disni_mae/disni/libdisni/src/build/affinity/CMakeFiles/rebuild_cache.dir
-/Users/nanachi/VVUUAA/repository/disni_mae/disni/libdisni/src/build/verbs/CMakeFiles/verbs.dir
-/Users/nanachi/VVUUAA/repository/disni_mae/disni/libdisni/src/build/verbs/CMakeFiles/edit_cache.dir
-/Users/nanachi/VVUUAA/repository/disni_mae/disni/libdisni/src/build/verbs/CMakeFiles/rebuild_cache.dir
