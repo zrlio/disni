@@ -6,13 +6,6 @@ include_directories(/opt/hostedtoolcache/Java_Oracle_jdk/17/x64/include/darwin)
 include_directories(/opt/hostedtoolcache/Java_Oracle_jdk/17/x64/jre/lib)
 include_directories(/opt/hostedtoolcache/Java_Oracle_jdk/17/x64/jre/lib/server)
 
-target_sources(affinity
-    PRIVATE
-      com_ibm_disni_util_NativeAffinity.c
-    PUBLIC
-      com_ibm_disni_util_NativeAffinity.h
-)
-
 target_sources(verbs
     PRIVATE
       com_ibm_disni_verbs_impl_NativeDispatcher.cpp
