@@ -1,6 +1,6 @@
 name: CMake
 
-on: [push, pull_request]
+on: [pull_request]
 
 jobs:
   build:
@@ -20,7 +20,7 @@ jobs:
       uses: actions/setup-java@v3
       with:
         distribution: 'oracle' 
-        java-version: '8'  
+        java-version: '17'  
     - name: Install linux rdma pre-required libs 
       run: |
           java --version && 
