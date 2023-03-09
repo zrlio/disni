@@ -16,9 +16,15 @@ jobs:
       uses: actions/checkout@v2
       with:
         submodules: recursive
+    - name: Install JDK
+      uses: actions/setup-java@v3
+      with:
+        distribution: 'Oracle' 
+        java-version: '8'  
     - name: Install linux rdma pre-required libs 
       run: |
-          echo "install pre-required libraries"
+          java --version && 
+          echo "install pre-required libraries" && 
           sudo apt-get install jni && 
           sudo apt-get install libnl-route-3-dev libnl-3-dev
     - name: Download linux-rdma and compile and install 
