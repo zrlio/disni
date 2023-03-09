@@ -1,0 +1,25 @@
+name: C/C++ CI
+
+on:
+  push:
+    branches: [ "master" ]
+  pull_request:
+    branches: [ "master" ]
+
+jobs:
+  build:
+
+    runs-on: ubuntu-latest
+
+    steps:
+    - uses: actions/checkout@v3
+    - name: Install rdma
+      run: |
+          echo $(pwd) &&
+          wget -nv -O /tmp/rdma-core.tar.gz https://github.com/linux-rdma/rdma-core/archive/refs/tags/v44.0.tar.gz
+          cd /tmp && tar xzf rdma-core.tar.gz &&
+          cd rdma-core-44.0/ &&
+          mkdir -p ./build && cd build && cmake ../ && sudo make && sudo  make install && echo $(pwd) && ls * &&
+          ls /usr/local/lib/libg* && ls /usr/local/include/gtest &&
+          echo "rdma installed ok"
+    
