@@ -25,7 +25,6 @@ jobs:
       run: |
           java --version && 
           echo "install pre-required libraries" && 
-          sudo apt-get install jni && 
           sudo apt-get install libnl-route-3-dev libnl-3-dev
     - name: Download linux-rdma and compile and install 
       run: |
