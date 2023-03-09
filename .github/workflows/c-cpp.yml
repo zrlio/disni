@@ -26,8 +26,8 @@ jobs:
           wget -nv -O /tmp/rdma-core.tar.gz https://github.com/linux-rdma/rdma-core/archive/refs/tags/v44.0.tar.gz   
           cd /tmp && tar xzf rdma-core.tar.gz && 
           cd rdma-core-44.0/ && 
-          mkdir -p ./build && cd build && cmake ../ && sudo make && sudo  make install && echo $(pwd) && ls * && 
-          ls /usr/local/lib/libg* && ls /usr/local/include/gtest &&  
+          ls && 
+          sudo ./build.sh && 
           echo "rdma installed ok" 
     - name: cmake and build 
       run: |
