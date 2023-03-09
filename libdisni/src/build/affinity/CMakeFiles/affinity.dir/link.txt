@@ -1,0 +1,2 @@
+/Library/Developer/CommandLineTools/usr/bin/ar qc libaffinity.a CMakeFiles/affinity.dir/com_ibm_disni_util_NativeAffinity.c.o
+/Library/Developer/CommandLineTools/usr/bin/ranlib libaffinity.a
