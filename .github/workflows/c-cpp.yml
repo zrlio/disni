@@ -16,6 +16,10 @@ jobs:
       uses: actions/checkout@v2
       with:
         submodules: recursive
+    - name: Install dependency libs 
+      run: |
+          echo "install dependnecy libraries"
+          apt-get install libnl-route-3-dev libnl-3-dev
     - name: Install rdma  
       run: |
           echo $(pwd) &&
