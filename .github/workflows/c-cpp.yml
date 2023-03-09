@@ -31,5 +31,5 @@ jobs:
           echo "rdma installed ok" 
     - name: cmake and build 
       run: |
-         echo $(pwd) &&  cd ./disni/libdisn && sh ./build.sh      
+         echo $(pwd) &&  cd ./libdisni && sudo sh ./build.sh      
 
